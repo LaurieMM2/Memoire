@@ -1,99 +1,117 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eye Tracking - Détection de Phishing</title>
-    <!-- Ajouter le script de WebGazer -->
-    <script src="https://webgazer.csail.mit.edu/dist/webgazer.min.js"></script>
+    <title>Phishing Detection Experiment</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
+            line-height: 1.6;
+            margin: 20px;
         }
-        .container {
-            margin-top: 50px;
+        .email-container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .email {
-            font-size: 18px;
-            margin-bottom: 20px;
+        .buttons {
+            margin-top: 20px;
         }
-        iframe {
-            width: 100%;
-            height: 400px;
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        button.safe {
+            background-color: #4CAF50;
+            color: white;
+        }
+        button.dangerous {
+            background-color: #f44336;
+            color: white;
         }
     </style>
 </head>
 <body>
+    <h1>Phishing Detection Experiment</h1>
+    <p>Classify each email as "Safe" or "Dangerous". Your eye movements and reaction times will be recorded.</p>
 
-    <h1>Détection de Phishing - Eye Tracking</h1>
-    <p>Catégorisez les e-mails comme "Sûr" ou "Dangereux" en fonction de votre analyse.</p>
-
-    <!-- E-mail à analyser -->
-    <div class="container">
-        <div class="email">
-            <p><strong>Email : </strong></p>
-            <p>Indicateurs à analyser : domaine sécurisé, contenu cohérent, liens suspects, demandes urgentes</p>
-            <!-- Exemple d'email -->
-            <p><a href="https://exemple.com" target="_blank">https://exemple.com</a></p>
-            <p>Exemple de contenu de l'email suspect : "Urgent ! Cliquez ici pour obtenir votre récompense"</p>
-        </div>
-
-        <!-- Boutons de réponse -->
-        <button onclick="logEyeTrackingData('Sûr')">Sûr</button>
-        <button onclick="logEyeTrackingData('Dangereux')">Dangereux</button>
-
-        <!-- Lien vers Google Form (en incluant des paramètres pour remplir les champs automatiquement) -->
-        <br><br>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScYD7FS40DELYZ_csxs8cCO1ZbkphNj4NZg09F2y5krQqA6Qw/viewform?usp=pp_url&entry.1207889448=150&entry.1777069240=hipi&entry.1170581395=ihpoj&entry.905530672=S%C3%BBr" frameborder="0" marginheight="0" marginwidth="0" style="width:100%; height:600px;">Loading…</iframe>
+    <div id="emailDisplay" class="email-container">
+        <!-- Email content will be dynamically loaded here -->
+    </div>
+    <div class="buttons">
+        <button id="safeBtn" class="safe">Safe</button>
+        <button id="dangerousBtn" class="dangerous">Dangerous</button>
     </div>
 
     <script>
-        // Initialiser WebGazer
-        window.onload = function() {
-            webgazer.setRegression('ridge') // Définir la méthode de régression
-                .setTracker('clmtrackr')  // Utilisation du tracker CLM
-                .setGazeListener(function(data, elapsedTime) {
-                    if (data == null) {
-                        return;
-                    }
-                    console.log(data);  // Affiche les données de suivi
-                })
-                .begin();
-        };
+        // Sample emails (legitimate and phishing)
+        const emails = [
+            { content: "Your account has been compromised. Please click <a href='http://phishing.com'>here</a> to reset your password.", isPhishing: true },
+            { content: "Your package has been delivered successfully. Thanks for shopping with us.", isPhishing: false },
+            { content: "Update your payment information urgently to avoid service interruption. Visit <a href='http://fakebank.com'>this link</a>.", isPhishing: true },
+            // Add more emails as needed
+        ];
 
-        // Fonction pour enregistrer les données de eye tracking et temps de réaction
-        function logEyeTrackingData(response) {
-            // Enregistrer les données : ici tu peux envoyer les données vers un service ou les logguer
-            console.log("Réponse: " + response);  // Catégorie (Sûr/Dangereux)
-            console.log("Données de Eye Tracking : "); // Données de Eye Tracking
-            webgazer.getCurrentPrediction().then(function(prediction) {
-                console.log(prediction);  // Affiche la dernière prédiction de la caméra
-            });
-            
-            // Envoi des données vers Google Form (ici, en changeant les valeurs des champs en fonction de la réponse)
-            var formUrl = "https://docs.google.com/forms/d/e/1FAIpQLScYD7FS40DELYZ_csxs8cCO1ZbkphNj4NZg09F2y5krQqA6Qw/formResponse?";
-            var params = new URLSearchParams();
-            params.append("entry.1207889448", "150");  // Par exemple un ID ou un autre champ
-            params.append("entry.1777069240", "hipi"); // Autre champ
-            params.append("entry.1170581395", "ihpoj"); // Autre champ
-            params.append("entry.905530672", response); // Réponse "Sûr" ou "Dangereux"
+        let currentEmailIndex = 0;
+        let startTime;
+        const emailDisplay = document.getElementById("emailDisplay");
+        const safeBtn = document.getElementById("safeBtn");
+        const dangerousBtn = document.getElementById("dangerousBtn");
 
-            // Faire une requête GET vers Google Forms pour envoyer les données
-            fetch(formUrl + params.toString())
-                .then(response => response.text())
-                .then(() => {
-                    console.log("Données envoyées avec succès");
-                })
-                .catch(error => {
-                    console.log("Erreur lors de l'envoi des données", error);
-                });
+        // Start WebGazer
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                console.log(`X: ${data.x}, Y: ${data.y}, Timestamp: ${timestamp}`);
+            }
+        }).begin();
+
+        // Display an email
+        function displayEmail() {
+            if (currentEmailIndex < emails.length) {
+                emailDisplay.innerHTML = emails[currentEmailIndex].content;
+                startTime = performance.now(); // Start reaction time
+            } else {
+                alert("Experiment completed! Thank you for participating.");
+                webgazer.end(); // Stop WebGazer
+            }
         }
-    </script>
 
+        // Record response
+        function recordResponse(isSafe) {
+            const endTime = performance.now();
+            const reactionTime = endTime - startTime;
+            const email = emails[currentEmailIndex];
+            const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
+
+            console.log({
+                emailContent: email.content,
+                isPhishing: email.isPhishing,
+                isCorrect: isCorrect,
+                reactionTime: reactionTime,
+            });
+
+            currentEmailIndex++;
+            displayEmail();
+        }
+
+        // Button event listeners
+        safeBtn.addEventListener("click", () => recordResponse(true));
+        dangerousBtn.addEventListener("click", () => recordResponse(false));
+
+        // Start the experiment
+        displayEmail();
+    </script>
 </body>
 </html>
+
 
 

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Detection Experiment</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+        }
+        .email-container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 50px; /* Adds spacing between email content and buttons */
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        button.safe {
+            background-color: #4CAF50;
+            color: white;
+        }
+        button.dangerous {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Phishing Detection Experiment</h1>
+        <p>Classify each email as "Safe" or "Dangerous". Your eye movements and reaction times will be recorded.</p>
+
+        <div id="emailDisplay" class="email-container">
+            <!-- Email content will be dynamically loaded here -->
+        </div>
+        <div class="buttons">
+            <button id="safeBtn" class="safe">Safe</button>
+            <button id="dangerousBtn" class="dangerous">Dangerous</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample emails (legitimate and phishing)
+        const emails = [
+            { content: "Your account has been compromised. Please click <a href='http://phishing.com'>here</a> to reset your password.", isPhishing: true },
+            { content: "Your package has been delivered successfully. Thanks for shopping with us.", isPhishing: false },
+            { content: "Update your payment information urgently to avoid service interruption. Visit <a href='http://fakebank.com'>this link</a>.", isPhishing: true },
+            { content: "Hello, your subscription has been renewed. Click here to view the details.", isPhishing: false },
+            { content: "Important update! Your account will be locked unless you verify it. Click here.", isPhishing: true },
+            { content: "Reminder: Your invoice for recent purchase is attached. Please review.", isPhishing: false },
+            { content: "Urgent: Confirm your bank account information here to avoid a freeze on your account.", isPhishing: true },
+            { content: "New job posting available! Apply now for exciting opportunities!", isPhishing: false },
+            { content: "Security alert! Your account was accessed from an unfamiliar location. Secure your account immediately.", isPhishing: true },
+            { content: "Your flight booking is confirmed! View details of your trip here.", isPhishing: false },
+            { content: "Congratulations! You've won a free gift card! Claim your prize here.", isPhishing: true },
+            { content: "Upcoming event: Register now for our special seminar on cybersecurity.", isPhishing: false },
+            { content: "Urgent! Your PayPal account has been suspended. Click to restore access.", isPhishing: true },
+            { content: "Your monthly utility bill has been generated. Click here to review.", isPhishing: false },
+            { content: "Get your exclusive offer for a discounted laptop! Only for today.", isPhishing: true },
+            { content: "Reminder: Update your profile to continue receiving personalized content.", isPhishing: false },
+            { content: "Action required: Validate your personal information to avoid account suspension.", isPhishing: true },
+            { content: "Congratulations! You've earned a bonus for your recent activities. Click here to claim.", isPhishing: false },
+            { content: "Security notice: Your password has been reset. If this wasn't you, click here.", isPhishing: true },
+            { content: "New policy update: Please review the latest changes to your terms of service.", isPhishing: false },
+        ];
+
+        let currentEmailIndex = 0;
+        let startTime;
+        const emailDisplay = document.getElementById("emailDisplay");
+        const safeBtn = document.getElementById("safeBtn");
+        const dangerousBtn = document.getElementById("dangerousBtn");
+
+        // Start WebGazer
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                console.log(`X: ${data.x}, Y: ${data.y}, Timestamp: ${timestamp}`);
+            }
+        }).begin();
+
+        // Display an email
+        function displayEmail() {
+            if (currentEmailIndex < emails.length) {
+                emailDisplay.innerHTML = emails[currentEmailIndex].content;
+                startTime = performance.now(); // Start reaction time
+            } else {
+                alert("Experiment completed! Thank you for participating.");
+                webgazer.end(); // Stop WebGazer
+            }
+        }
+
+        // Record response
+        function recordResponse(isSafe) {
+            const endTime = performance.now();
+            const reactionTime = endTime - startTime;
+            const email = emails[currentEmailIndex];
+            const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
+
+            console.log({
+                emailContent: email.content,
+                isPhishing: email.isPhishing,
+                isCorrect: isCorrect,
+                reactionTime: reactionTime,
+            });
+
+            currentEmailIndex++;
+            displayEmail();
+        }
+
+        // Button event listeners
+        safeBtn.addEventListener("click", () => recordResponse(true));
+        dangerousBtn.addEventListener("click", () => recordResponse(false));
+
+        // Start the experiment
+        displayEmail();
+    </script>
+</body>
+</html>

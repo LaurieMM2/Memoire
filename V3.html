@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Detection Experiment</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+        }
+        .email-container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        button.safe {
+            background-color: #4CAF50;
+            color: white;
+        }
+        button.dangerous {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Phishing Detection Experiment</h1>
+        <p>Classify each email as "Safe" or "Dangerous". Your eye movements and reaction times will be recorded.</p>
+
+        <div id="emailDisplay" class="email-container"></div>
+        <div class="buttons">
+            <button id="safeBtn" class="safe">Safe</button>
+            <button id="dangerousBtn" class="dangerous">Dangerous</button>
+        </div>
+    </div>
+
+    <script>
+        const emails = [
+            { content: "From: support@apple.com<br>Subject: Important Security Update<br><br>Dear Customer, we’ve detected unusual activity on your account. Please review the details <a href='http://apple-security.com'>here</a>.", isPhishing: false },
+            { content: "From: service@paypal.com<br>Subject: Your Account Has Been Suspended<br><br>We noticed suspicious activities. Click <a href='http://paypal-secure.net'>here</a> to restore access.", isPhishing: true },
+            { content: "From: hr@company.com<br>Subject: Meeting Rescheduled<br><br>The team meeting has been moved to Friday at 3 PM. Check your calendar for details.", isPhishing: false },
+            { content: "From: alert@bank-secure.com<br>Subject: Urgent: Verify Your Identity<br><br>We’ve noticed unusual login attempts. Please verify your account <a href='http://securebank.net'>here</a>.", isPhishing: true },
+            { content: "From: no-reply@amazon.com<br>Subject: Your Order Confirmation<br><br>Your order #12345 has been shipped. Track your package <a href='http://amazon.com/track'>here</a>.", isPhishing: false },
+            { content: "From: support@outlook.com<br>Subject: Verify Your Account Now<br><br>Failure to verify will result in deactivation. Confirm <a href='http://outlook-verify.com'>here</a>.", isPhishing: true },
+            { content: "From: notifications@linkedin.com<br>Subject: New Connection Request<br><br>John Doe wants to connect with you. View his profile <a href='https://www.linkedin.com/in/johndoe'>here</a>.", isPhishing: false },
+            { content: "From: it-support@university.edu<br>Subject: Password Expiry Notice<br><br>Your password will expire soon. Update it immediately <a href='http://university-support.com'>here</a>.", isPhishing: true },
+            { content: "From: events@conference.com<br>Subject: Registration Confirmation<br><br>Thank you for registering. Find the event details <a href='http://conference.com/details'>here</a>.", isPhishing: false },
+            { content: "From: security@bank.com<br>Subject: Security Alert<br><br>We’ve detected unauthorized access. Secure your account <a href='http://secure-bank-alert.com'>here</a>.", isPhishing: true },
+            { content: "From: noreply@coursera.org<br>Subject: Course Enrollment Successful<br><br>You’ve successfully enrolled. Start learning <a href='https://www.coursera.org/learn'>here</a>.", isPhishing: false },
+            { content: "From: support@icloud.com<br>Subject: Urgent: Account Locked<br><br>Your iCloud account is locked. Click <a href='http://icloud-support.com'>here</a> to unlock.", isPhishing: true },
+            { content: "From: billing@spotify.com<br>Subject: Payment Received<br><br>Your payment was processed successfully. View invoice <a href='https://www.spotify.com/account'>here</a>.", isPhishing: false },
+            { content: "From: admin@dropbox.com<br>Subject: Action Required<br><br>Your storage is almost full. Increase your space <a href='http://dropbox-upgrade.net'>here</a>.", isPhishing: true },
+            { content: "From: newsletter@technews.com<br>Subject: Weekly Tech Update<br><br>Check out the latest tech trends <a href='http://technews.com/latest'>here</a>.", isPhishing: false },
+            { content: "From: security@facebook.com<br>Subject: Password Change Request<br><br>We received a request to change your password. If this wasn’t you, secure your account <a href='http://facebook-security.net'>here</a>.", isPhishing: true },
+            { content: "From: team@trello.com<br>Subject: Board Update<br><br>Your Trello board was updated. View changes <a href='https://trello.com/board/updates'>here</a>.", isPhishing: false },
+            { content: "From: info@netflix.com<br>Subject: Account Suspension Notice<br><br>Your subscription will be suspended unless payment is made. Click <a href='http://netflix-billing.com'>here</a>.", isPhishing: true },
+            { content: "From: reservations@hotel.com<br>Subject: Booking Confirmation<br><br>Your hotel reservation has been confirmed. Details <a href='http://hotel.com/booking'>here</a>.", isPhishing: false },
+            { content: "From: support@google.com<br>Subject: Verify Your Google Account<br><br>Verify now to maintain account security <a href='http://google-account.net'>here</a>.", isPhishing: true },
+            { content: "From: updates@github.com<br>Subject: Repository Access Granted<br><br>You’ve been added to a repository. Check it out <a href='https://github.com/repo'>here</a>.", isPhishing: false },
+            { content: "From: admin@zoom.us<br>Subject: Meeting Scheduled<br><br>Your Zoom meeting is scheduled. Join <a href='https://zoom.us/join'>here</a>.", isPhishing: false },
+            { content: "From: security@paypal.com<br>Subject: Immediate Action Required<br><br>We’ve restricted your account. Restore access <a href='http://paypal-alert.com'>here</a>.", isPhishing: true },
+            { content: "From: noreply@slack.com<br>Subject: Workspace Invitation<br><br>You’ve been invited to join a new Slack workspace. Accept <a href='https://slack.com/join'>here</a>.", isPhishing: false },
+            { content: "From: billing@amazon.com<br>Subject: Suspicious Transaction<br><br>We’ve flagged a suspicious transaction. Confirm <a href='http://amazon-verify.com'>here</a>.", isPhishing: true },
+            { content: "From: updates@airbnb.com<br>Subject: Reservation Confirmation<br><br>Your Airbnb reservation is confirmed. View details <a href='http://airbnb.com/reservation'>here</a>.", isPhishing: false },
+            { content: "From: info@microsoft.com<br>Subject: Account Review Needed<br><br>Review your Microsoft account activity <a href='http://microsoft-check.net'>here</a>.", isPhishing: true },
+            { content: "From: services@uber.com<br>Subject: Trip Receipt<br><br>Thank you for riding with Uber. View your receipt <a href='https://www.uber.com/receipt'>here</a>.", isPhishing: false },
+            { content: "From: admin@instagram.com<br>Subject: Suspicious Login Attempt<br><br>We noticed an unusual login attempt. Secure your account <a href='http://instagram-alert.com'>here</a>.", isPhishing: true },
+            { content: "From: support@twitter.com<br>Subject: New Login to Your Account<br><br>Was this you? If not, secure your account <a href='http://twitter-security.net'>here</a>.", isPhishing: true }
+        ];
+
+        let currentEmailIndex = 0;
+        let startTime;
+        const emailDisplay = document.getElementById("emailDisplay");
+        const safeBtn = document.getElementById("safeBtn");
+        const dangerousBtn = document.getElementById("dangerousBtn");
+
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                console.log(`X: ${data.x}, Y: ${data.y}, Timestamp: ${timestamp}`);
+            }
+        }).begin();
+
+        function displayEmail() {
+            if (currentEmailIndex < emails.length) {
+                emailDisplay.innerHTML = emails[currentEmailIndex].content;
+                startTime = performance.now();
+            } else {
+                alert("Experiment completed! Thank you for participating.");
+                webgazer.end();
+            }
+        }
+
+        function recordResponse(isSafe) {
+            const endTime = performance.now();
+            const reactionTime = endTime - startTime;
+            const email = emails[currentEmailIndex];
+            const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
+
+            console.log({
+                emailContent: email.content,
+                isPhishing: email.isPhishing,
+                isCorrect: isCorrect,
+                reactionTime: reactionTime,
+            });
+
+            currentEmailIndex++;
+            displayEmail();
+        }
+
+        safeBtn.addEventListener("click", () => recordResponse(true));
+        dangerousBtn.addEventListener("click", () => recordResponse(false));
+
+        displayEmail();
+    </script>
+</body>
+</html>

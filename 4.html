@@ -196,7 +196,7 @@
             const reactionTime = endTime - startTime;
             const email = emails[currentEmailIndex];
             const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
-            results.push({ participant: results.length + 1, reactionTime: reactionTime.toFixed(2), eyeTracking: "Données simulées" });   //ICI
+            results.push({ mails: results.length + 1, reactionTime: reactionTime.toFixed(2), isCorrect: isCorrect, eyeTracking: "Données simulées" });   //ICI
 
             console.log({
                 emailContent: email.content,

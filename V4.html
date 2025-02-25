@@ -51,19 +51,6 @@
             background-color: #f44336;
             color: white;
         }
-        .admin-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 30px;
-            height: 30px;
-            background-color: black;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        .hidden {
-            display: none;
-        }
         .admin-container {
             width: 90%;
             background: white;
@@ -87,7 +74,6 @@
     </style>
 </head>
 <body>
-    <div class="admin-button" onclick="toggleAdmin()"></div>
     <div class="container" id="experimentContainer">
         <h1>Expérience de Détection de Phishing</h1>
         <p>Classifiez chaque e-mail comme "Sûr" ou "Dangereux". Vos mouvements oculaires, clics sur les liens et temps de réaction seront enregistrés.</p>
@@ -111,7 +97,7 @@
             </thead>
             <tbody id="adminTableBody"></tbody>
         </table>
-        <button onclick="downloadCSV()">Télécharger CSV</button>
+        <button onclick="downloadCSV()">Télécharger les résultats</button>
         <button onclick="toggleAdmin()">Retour</button>
     </div>
 
@@ -154,19 +140,15 @@
         }
 
         function endExperiment() {
-            document.body.innerHTML = "<h1 style='text-align: center;'>C'est fini, merci !</h1><div class='admin-button' onclick='toggleAdmin()'></div>";
+            document.body.innerHTML = "<h1 style='text-align: center;'>C'est fini, merci !</h1>";
             webgazer.end();
         }
 
         function toggleAdmin() {
-            if (adminPanel.classList.contains("hidden")) {
-                adminPanel.classList.remove("hidden");
-                experimentContainer.classList.add("hidden");
-                document.body.style.backgroundColor = "white";
+            adminPanel.classList.toggle("hidden");
+            experimentContainer.classList.toggle("hidden");
+            if (!adminPanel.classList.contains("hidden")) {
                 populateAdminTable();
-            } else {
-                adminPanel.classList.add("hidden");
-                experimentContainer.classList.remove("hidden");
             }
         }
 
@@ -180,14 +162,19 @@
         }
 
         function downloadCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Participant,Temps de Réaction (ms),Eye Tracking\n" + 
-                results.map(e => `${e.participant},${e.reactionTime},${e.eyeTracking}`).join("\n");
-            let encodedUri = encodeURI(csvContent);
-            let link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "resultats_experience.csv");
-            document.body.appendChild(link);
-            link.click();
+            try {
+                let csvContent = "data:text/csv;charset=utf-8,Participant,Temps de Réaction (ms),Eye Tracking\n" + 
+                    results.map(e => `${e.participant},${e.reactionTime},${e.eyeTracking}`).join("\n");
+                let encodedUri = encodeURI(csvContent);
+                let link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "resultats_experience.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                alert("Une erreur est survenue lors du téléchargement du fichier.");
+            }
         }
 
         safeBtn.addEventListener("click", () => recordResponse(true));

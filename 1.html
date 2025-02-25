@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expérience de Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+        }
+        .email-container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        button.safe {
+            background-color: #4CAF50;
+            color: white;
+        }
+        button.dangerous {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="experimentContainer">
+        <h1>Expérience de Détection de Phishing</h1>
+        <p>Classifiez chaque e-mail comme "Sûr" ou "Dangereux". Vos mouvements oculaires, clics sur les liens et temps de réaction seront enregistrés.</p>
+
+        <div id="emailDisplay" class="email-container">
+            <!-- Le contenu des e-mails sera chargé ici -->
+        </div>
+        <div class="buttons">
+            <button id="safeBtn" class="safe">Sûr</button>
+            <button id="dangerousBtn" class="dangerous">Dangereux</button>
+        </div>
+    </div>
+
+    <script>
+        const emails = [
+            // Difficile - Non Frauduleux 3
+            { content: "Expéditeur : support@google.fr<br>Objet : Vérification de sécurité<br>Une vérification de sécurité a été effectuée sur votre compte. Aucun problème détecté.", isPhishing: false },
+
+            // Facile - Frauduleux 1
+            { content: "Expéditeur : admin@banquefausse.com<br>Objet : Problème de sécurité sur votre compte<br>Votre compte a rencontré un problème de sécurité. Cliquez <a href='http://faussebanque.com'>ici</a> pour résoudre le problème.", isPhishing: true },
+
+            // Moyen - Non Frauduleux 4
+            { content: "Expéditeur : support@airfrance.fr<br>Objet : Détails de votre vol<br>Voici les détails de votre vol réservé. Bon voyage !", isPhishing: false },
+
+            // Difficile - Frauduleux 5
+            { content: "Expéditeur : impots@gouv-faux.fr<br>Objet : Fraude détectée sur votre dossier fiscal<br>Votre dossier fiscal est sous investigation. Prenez des mesures <a href='http://fraude-fiscale-faux.com'>ici</a>.", isPhishing: true },
+
+            // Facile - Non Frauduleux 2
+            { content: "Expéditeur : newsletter@magazine.com<br>Objet : Votre newsletter du mois<br>Découvrez les dernières actualités dans notre newsletter mensuelle.", isPhishing: false },
+
+            // Moyen - Frauduleux 3
+            { content: "Expéditeur : impots@gouv-faux.com<br>Objet : Remboursement d'impôts disponible<br>Vous avez droit à un remboursement. Cliquez <a href='http://remboursement-faux.com'>ici</a>.", isPhishing: true },
+
+            // Difficile - Non Frauduleux 1
+            { content: "Expéditeur : administration@universite.fr<br>Objet : Confirmation d'inscription<br>Votre inscription pour le semestre est confirmée. Bonne continuation.", isPhishing: false },
+
+            // Facile - Frauduleux 4
+            { content: "Expéditeur : urgent@fauxmail.com<br>Objet : URGENT : Vérifiez votre compte<br>Votre compte sera suspendu sous 24h. Cliquez <a href='http://urgencefaux.com'>ici</a>.", isPhishing: true },
+
+            // Moyen - Non Frauduleux 1
+            { content: "Expéditeur : RH@entreprise.com<br>Objet : Réunion d'équipe programmée<br>Bonjour, une réunion est prévue vendredi à 10h. Merci de confirmer votre présence.", isPhishing: false },
+
+            // Difficile - Frauduleux 2
+            { content: "Expéditeur : support@dropbox-faux.com<br>Objet : Partage de fichier en attente<br>Un fichier important vous a été partagé. Accédez-y <a href='http://dropbox-faux.com'>ici</a>.", isPhishing: true },
+
+            // Facile - Non Frauduleux 5
+            { content: "Expéditeur : info@bibliotheque.fr<br>Objet : Rappel de retour de livres<br>N'oubliez pas de retourner vos livres avant la date limite.", isPhishing: false },
+
+            // Moyen - Frauduleux 1
+            { content: "Expéditeur : serviceclient@fauxbanque.com<br>Objet : Action requise pour votre compte<br>Nous avons besoin de vérifier vos informations bancaires. Cliquez <a href='http://verifbanque-faux.com'>ici</a>.", isPhishing: true },
+
+            // Difficile - Non Frauduleux 4
+            { content: "Expéditeur : contact@societe.fr<br>Objet : Facture de votre dernier achat<br>Veuillez trouver ci-joint votre facture.", isPhishing: false },
+
+            // Facile - Frauduleux 2
+            { content: "Expéditeur : support@netflix-promo.com<br>Objet : Offre spéciale Netflix<br>Profitez d'un abonnement gratuit en cliquant <a href='http://netflix-faux.com'>ici</a>.", isPhishing: true },
+
+            // Moyen - Non Frauduleux 3
+            { content: "Expéditeur : info@cinema.fr<br>Objet : Confirmation de votre réservation<br>Votre place de cinéma est confirmée. Bon film !", isPhishing: false },
+
+            // Difficile - Frauduleux 3
+            { content: "Expéditeur : URGENCE@sécurité.fr<br>Objet : Compte compromis !<br>Votre compte a été compromis. Action immédiate requise <a href='http://urgence-faux.com'>ici</a>.", isPhishing: true },
+
+            // Facile - Non Frauduleux 1
+            { content: "Expéditeur : info@universite.com<br>Objet : Informations sur la rentrée<br>Bonjour, veuillez trouver ci-joint le planning de la rentrée universitaire.", isPhishing: false },
+
+            // Moyen - Frauduleux 5
+            { content: "Expéditeur : admin@universite-faux.com<br>Objet : Changement de mot de passe obligatoire<br>Veuillez réinitialiser votre mot de passe immédiatement <a href='http://reset-faux.com'>ici</a>.", isPhishing: true },
+
+            // Difficile - Non Frauduleux 5
+            { content: "Expéditeur : banque@client.fr<br>Objet : Relevé bancaire mensuel<br>Votre relevé bancaire est disponible dans votre espace personnel.", isPhishing: false },
+
+            // Facile - Frauduleux 3
+            { content: "Expéditeur : loterie@fakewin.com<br>Objet : Félicitations ! Vous avez gagné !<br>Vous avez gagné un prix ! Cliquez <a href='http://fauxgagnant.com'>ici</a> pour le réclamer.", isPhishing: true },
+
+            // Moyen - Non Frauduleux 2
+            { content: "Expéditeur : contact@banque.fr<br>Objet : Notification de virement reçu<br>Un virement a été crédité sur votre compte. Consultez votre espace client.", isPhishing: false },
+
+            // Difficile - Frauduleux 1
+            { content: "Expéditeur : sécurité@banque.fr<br>Objet : Alerte de connexion suspecte<br>Nous avons détecté une connexion suspecte à votre compte. Vérifiez immédiatement <a href='http://alerte-faux.com'>ici</a>.", isPhishing: true },
+
+            // Facile - Non Frauduleux 4
+            { content: "Expéditeur : contact@club-sportif.com<br>Objet : Mise à jour des horaires<br>Les horaires des entraînements ont été mis à jour. Consultez-les sur le site officiel.", isPhishing: false },
+
+            // Moyen - Frauduleux 2
+            { content: "Expéditeur : apple-support@fauxapple.com<br>Objet : Problème de facturation<br>Un problème de facturation a été détecté sur votre compte Apple. Résolvez-le <a href='http://apple-faux.com'>ici</a>.", isPhishing: true },
+
+            // Difficile - Non Frauduleux 2
+            { content: "Expéditeur : noreply@linkedin.com<br>Objet : Nouvelle connexion à votre compte<br>Une nouvelle connexion a été détectée. Si ce n'était pas vous, changez votre mot de passe.", isPhishing: false },
+
+            // Facile - Frauduleux 5
+            { content: "Expéditeur : it-support@fauxentreprise.com<br>Objet : Problème technique détecté<br>Un problème technique a été détecté. Corrigez-le en cliquant <a href='http://problème-tech-faux.com'>ici</a>.", isPhishing: true },
+
+            // Moyen - Non Frauduleux 5
+            { content: "Expéditeur : communication@ecole.fr<br>Objet : Inscriptions ouvertes<br>Les inscriptions pour le semestre prochain sont ouvertes. Inscrivez-vous rapidement.", isPhishing: false },
+
+            // Difficile - Frauduleux 4
+            { content: "Expéditeur : IT@entreprise-faux.com<br>Objet : Maintenance système obligatoire<br>Veuillez confirmer vos informations pour la mise à jour <a href='http://it-faux.com'>ici</a>.", isPhishing: true },
+
+            // Facile - Non Frauduleux 3
+            { content: "Expéditeur : support@amazon.fr<br>Objet : Confirmation de commande<br>Votre commande a été confirmée. Merci pour votre achat.", isPhishing: false },
+
+            // Moyen - Frauduleux 4
+            { content: "Expéditeur : sécurité@paypal-faux.com<br>Objet : Compte suspendu temporairement<br>Votre compte est suspendu. Réactivez-le <a href='http://paypal-faux.com'>ici</a>.", isPhishing: true }
+        ];
+
+        let currentEmailIndex = 0;
+        let startTime;
+        const emailDisplay = document.getElementById("emailDisplay");
+        const safeBtn = document.getElementById("safeBtn");
+        const dangerousBtn = document.getElementById("dangerousBtn");
+
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                console.log(`X: ${data.x}, Y: ${data.y}, Timestamp: ${timestamp}`);
+            }
+        }).begin();
+
+        function displayEmail() {
+            if (currentEmailIndex < emails.length) {
+                emailDisplay.innerHTML = emails[currentEmailIndex].content;
+                startTime = performance.now();
+            } else {
+                endExperiment();
+            }
+        }
+
+        function recordResponse(isSafe) {
+            const endTime = performance.now();
+            const reactionTime = endTime - startTime;
+            const email = emails[currentEmailIndex];
+            const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
+
+            console.log({
+                emailContent: email.content,
+                isPhishing: email.isPhishing,
+                isCorrect: isCorrect,
+                reactionTime: reactionTime
+            });
+
+            currentEmailIndex++;
+            displayEmail();
+        }
+
+        function endExperiment() {
+            document.body.innerHTML = "<h1 style='text-align: center;'>C'est fini, merci !</h1>";
+            webgazer.end();
+        }
+
+        safeBtn.addEventListener("click", () => recordResponse(true));
+        dangerousBtn.addEventListener("click", () => recordResponse(false));
+
+        displayEmail();
+    </script>
+</body>
+</html>

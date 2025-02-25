@@ -201,7 +201,7 @@
             const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
             
             results.push({
-                Mail: results.length + 1,
+                Participant: results.length + 1,
                 "Temps de Réaction (ms)": reactionTime,
                 isCorrect: isCorrect ? "Correct" : "Incorrect",
                 EyeTracking: JSON.stringify(eyeTrackingData)

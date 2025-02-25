@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expérience de Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+        }
+        .email-container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        button.safe {
+            background-color: #4CAF50;
+            color: white;
+        }
+        button.dangerous {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="experimentContainer">
+        <h1>Expérience de Détection de Phishing</h1>
+        <p>Classifiez chaque e-mail comme "Sûr" ou "Dangereux". Vos mouvements oculaires, clics sur les liens et temps de réaction seront enregistrés.</p>
+
+        <div id="emailDisplay" class="email-container"></div>
+        <div class="buttons">
+            <button id="safeBtn" class="safe">Sûr</button>
+            <button id="dangerousBtn" class="dangerous">Dangereux</button>
+        </div>
+    </div>
+
+    <script>
+        let currentEmailIndex = 0;
+        let startTime;
+        let participantData = [];
+
+        const emailDisplay = document.getElementById("emailDisplay");
+        const safeBtn = document.getElementById("safeBtn");
+        const dangerousBtn = document.getElementById("dangerousBtn");
+
+        function displayEmail() {
+            if (currentEmailIndex < emails.length) {
+                emailDisplay.innerHTML = emails[currentEmailIndex].content;
+                startTime = performance.now();
+            } else {
+                endExperiment();
+            }
+        }
+
+        function recordResponse(isSafe) {
+            const endTime = performance.now();
+            const reactionTime = endTime - startTime;
+            participantData.push({
+                emailIndex: currentEmailIndex + 1,
+                reactionTime: reactionTime
+            });
+            currentEmailIndex++;
+            displayEmail();
+        }
+
+        function endExperiment() {
+            document.body.innerHTML = "<h1 style='text-align: center;'>C'est fini, merci !</h1>";
+            const downloadBtn = document.createElement("button");
+            downloadBtn.textContent = "Télécharger les données";
+            downloadBtn.style.marginTop = "20px";
+            downloadBtn.onclick = downloadData;
+            document.body.appendChild(downloadBtn);
+        }
+
+        function downloadData() {
+            const ws = XLSX.utils.json_to_sheet(participantData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Données");
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
+        }
+
+        safeBtn.addEventListener("click", () => recordResponse(true));
+        dangerousBtn.addEventListener("click", () => recordResponse(false));
+
+        displayEmail();
+    </script>
+</body>
+</html>

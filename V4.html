@@ -111,6 +111,7 @@
             </thead>
             <tbody id="adminTableBody"></tbody>
         </table>
+        <button onclick="downloadCSV()">Télécharger CSV</button>
         <button onclick="toggleAdmin()">Retour</button>
     </div>
 
@@ -176,6 +177,17 @@
                 let row = `<tr><td>${result.participant}</td><td>${result.reactionTime}</td><td>${result.eyeTracking}</td></tr>`;
                 tableBody.innerHTML += row;
             });
+        }
+
+        function downloadCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Participant,Temps de Réaction (ms),Eye Tracking\n" + 
+                results.map(e => `${e.participant},${e.reactionTime},${e.eyeTracking}`).join("\n");
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "resultats_experience.csv");
+            document.body.appendChild(link);
+            link.click();
         }
 
         safeBtn.addEventListener("click", () => recordResponse(true));

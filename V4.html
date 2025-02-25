@@ -17,7 +17,6 @@
             height: 100vh;
             background-color: #f4f4f9;
             flex-direction: column;
-            position: relative;
         }
         .container {
             text-align: center;
@@ -53,121 +52,134 @@
             color: white;
         }
         .admin-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             width: 30px;
             height: 30px;
             background-color: black;
             border-radius: 50%;
-            position: absolute;
-            top: 20px;
-            left: 20px;
             cursor: pointer;
         }
-        .admin-panel {
+        .hidden {
             display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        }
+        .admin-container {
+            width: 90%;
             background: white;
             padding: 20px;
-            border: 1px solid black;
-            z-index: 1000;
-            overflow-y: auto;
-            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
-        .admin-panel table {
+        table {
             width: 100%;
             border-collapse: collapse;
         }
-        .admin-panel th, .admin-panel td {
-            border: 1px solid black;
+        th, td {
+            border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-        .close-admin {
-            cursor: pointer;
-            color: red;
-            font-weight: bold;
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <div class="admin-button" onclick="toggleAdminPanel()"></div>
+    <div class="admin-button" onclick="toggleAdmin()"></div>
     <div class="container" id="experimentContainer">
         <h1>Expérience de Détection de Phishing</h1>
         <p>Classifiez chaque e-mail comme "Sûr" ou "Dangereux". Vos mouvements oculaires, clics sur les liens et temps de réaction seront enregistrés.</p>
+
         <div id="emailDisplay" class="email-container"></div>
         <div class="buttons">
             <button id="safeBtn" class="safe">Sûr</button>
             <button id="dangerousBtn" class="dangerous">Dangereux</button>
         </div>
     </div>
-    <div id="adminPanel" class="admin-panel">
-        <span class="close-admin" onclick="toggleAdminPanel()">X</span>
+
+    <div class="admin-container hidden" id="adminPanel">
         <h2>Administration</h2>
         <table>
             <thead>
                 <tr>
-                    <th>Participant</th>
+                    <th>Numéro de Participant</th>
                     <th>Temps de Réaction (ms)</th>
-                    <th>Coordonnées Eye Tracking</th>
+                    <th>Eye Tracking</th>
                 </tr>
             </thead>
             <tbody id="adminTableBody"></tbody>
         </table>
+        <button onclick="toggleAdmin()">Retour</button>
     </div>
+
     <script>
+        const emails = [
+            { content: "Expéditeur : support@google.fr<br>Objet : Vérification de sécurité<br>Une vérification de sécurité a été effectuée sur votre compte. Aucun problème détecté.", isPhishing: false },
+            { content: "Expéditeur : admin@banquefausse.com<br>Objet : Problème de sécurité sur votre compte<br>Votre compte a rencontré un problème de sécurité. Cliquez <a href='http://faussebanque.com'>ici</a> pour résoudre le problème.", isPhishing: true }
+        ];
+
         let currentEmailIndex = 0;
         let startTime;
-        let participantData = [];
+        let results = [];
         const emailDisplay = document.getElementById("emailDisplay");
-        const adminTableBody = document.getElementById("adminTableBody");
+        const safeBtn = document.getElementById("safeBtn");
+        const dangerousBtn = document.getElementById("dangerousBtn");
+        const adminPanel = document.getElementById("adminPanel");
+        const experimentContainer = document.getElementById("experimentContainer");
+
         webgazer.setGazeListener((data, timestamp) => {
             if (data) {
-                participantData.push({ x: data.x, y: data.y, timestamp });
+                console.log(`X: ${data.x}, Y: ${data.y}, Timestamp: ${timestamp}`);
             }
         }).begin();
 
-        function recordResponse() {
-            const endTime = performance.now();
-            const reactionTime = endTime - startTime;
-            addToAdminTable(reactionTime);
-            currentEmailIndex++;
-            displayEmail();
-        }
-        
         function displayEmail() {
-            if (currentEmailIndex < 10) { // Remplacez 10 par emails.length si besoin
-                emailDisplay.innerHTML = "E-mail " + (currentEmailIndex + 1);
+            if (currentEmailIndex < emails.length) {
+                emailDisplay.innerHTML = emails[currentEmailIndex].content;
                 startTime = performance.now();
             } else {
                 endExperiment();
             }
         }
-        
+
+        function recordResponse(isSafe) {
+            const endTime = performance.now();
+            const reactionTime = endTime - startTime;
+            results.push({ participant: results.length + 1, reactionTime: reactionTime.toFixed(2), eyeTracking: "Données simulées" });
+            currentEmailIndex++;
+            displayEmail();
+        }
+
         function endExperiment() {
-            document.body.innerHTML = "<h1 style='text-align: center;'>C'est fini, merci !</h1>";
-            document.body.innerHTML += "<div class='admin-button' onclick='toggleAdminPanel()'></div>";
+            document.body.innerHTML = "<h1 style='text-align: center;'>C'est fini, merci !</h1><div class='admin-button' onclick='toggleAdmin()'></div>";
             webgazer.end();
         }
-        
-        function addToAdminTable(reactionTime) {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${currentEmailIndex + 1}</td>
-                <td>${reactionTime.toFixed(2)}</td>
-                <td>${participantData.map(d => `(${d.x.toFixed(1)}, ${d.y.toFixed(1)})`).join(" | ")}</td>
-            `;
-            adminTableBody.appendChild(row);
+
+        function toggleAdmin() {
+            if (adminPanel.classList.contains("hidden")) {
+                adminPanel.classList.remove("hidden");
+                experimentContainer.classList.add("hidden");
+                document.body.style.backgroundColor = "white";
+                populateAdminTable();
+            } else {
+                adminPanel.classList.add("hidden");
+                experimentContainer.classList.remove("hidden");
+            }
         }
-        
-        function toggleAdminPanel() {
-            const panel = document.getElementById("adminPanel");
-            panel.style.display = panel.style.display === "none" || panel.style.display === "" ? "block" : "none";
+
+        function populateAdminTable() {
+            const tableBody = document.getElementById("adminTableBody");
+            tableBody.innerHTML = "";
+            results.forEach(result => {
+                let row = `<tr><td>${result.participant}</td><td>${result.reactionTime}</td><td>${result.eyeTracking}</td></tr>`;
+                tableBody.innerHTML += row;
+            });
         }
-        
-        document.getElementById("safeBtn").addEventListener("click", recordResponse);
-        document.getElementById("dangerousBtn").addEventListener("click", recordResponse);
+
+        safeBtn.addEventListener("click", () => recordResponse(true));
+        dangerousBtn.addEventListener("click", () => recordResponse(false));
         displayEmail();
     </script>
 </body>

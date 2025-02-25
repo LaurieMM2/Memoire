@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expérience de Détection de Phishing</title>
     <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -172,13 +173,14 @@
         let currentEmailIndex = 0;
         let startTime;
         let results = [];
+        let eyeTrackingData = [];
         const emailDisplay = document.getElementById("emailDisplay");
         const safeBtn = document.getElementById("safeBtn");
         const dangerousBtn = document.getElementById("dangerousBtn");
 
         webgazer.setGazeListener((data, timestamp) => {
             if (data) {
-                console.log(`X: ${data.x}, Y: ${data.y}, Timestamp: ${timestamp}`);
+                eyeTrackingData.push({ x: data.x, y: data.y, timestamp: timestamp });
             }
         }).begin();
 
@@ -186,6 +188,7 @@
             if (currentEmailIndex < emails.length) {
                 emailDisplay.innerHTML = emails[currentEmailIndex].content;
                 startTime = performance.now();
+                eyeTrackingData = [];
             } else {
                 endExperiment();
             }
@@ -193,10 +196,16 @@
 
         function recordResponse(isSafe) {
             const endTime = performance.now();
-            const reactionTime = endTime - startTime;
+            const reactionTime = (endTime - startTime).toFixed(2);
             const email = emails[currentEmailIndex];
             const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
-            results.push({ participants: results.length + 1, reactionTime: reactionTime.toFixed(2), eyeTracking: "Données simulées" });   //ICI
+            
+            results.push({
+                Participant: results.length + 1,
+                "Temps de Réaction (ms)": reactionTime,
+                isCorrect: isCorrect ? "Correct" : "Incorrect",
+                EyeTracking: JSON.stringify(eyeTrackingData)
+            });   //ICI
 
             console.log({
                 emailContent: email.content,
@@ -210,33 +219,24 @@
         }
 
          function endExperiment() {
-            document.body.innerHTML = "<h1 style='text-align: center;'>C'est fini, merci !</h1>";
+            document.body.innerHTML = "<h1>Expérience terminée, merci !</h1>";
             let downloadBtn = document.createElement("button");
             downloadBtn.innerText = "Télécharger les résultats";
             downloadBtn.className = "download-button";
-            downloadBtn.onclick = downloadCSV;
+            downloadBtn.onclick = downloadExcel;
             document.body.appendChild(downloadBtn);
             webgazer.end();
         }
 
-        function downloadCSV() {
-            try {
-                let csvContent = "data:text/csv;charset=utf-8,Participant,Temps de Réaction (ms),Eye Tracking\n" + 
-                    results.map(e => `${e.participant},${e.reactionTime},${e.eyeTracking}`).join("\n");
-                let encodedUri = encodeURI(csvContent);
-                let link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", "resultats_experience.csv");
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (error) {
-                alert("Une erreur est survenue lors du téléchargement du fichier.");
-            }
+        function downloadExcel() {
+            let ws = XLSX.utils.json_to_sheet(results);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
         }
 
-        safeBtn.addEventListener("click", () => recordResponse(true));
-        dangerousBtn.addEventListener("click", () => recordResponse(false));
+        document.getElementById("safeBtn").addEventListener("click", () => recordResponse(true));
+        document.getElementById("dangerousBtn").addEventListener("click", () => recordResponse(false));
 
         displayEmail();
     </script>

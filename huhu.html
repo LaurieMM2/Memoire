@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expérience de Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+        }
+        .email-container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        button.safe {
+            background-color: #4CAF50;
+            color: white;
+        }
+        button.dangerous {
+            background-color: #f44336;
+            color: white;
+        }
+        .admin-container {
+            width: 90%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="experimentContainer">
+        <h1>Expérience de Détection de Phishing</h1>
+        <p>Classifiez chaque e-mail comme "Sûr" ou "Dangereux". Vos mouvements oculaires, clics sur les liens et temps de réaction seront enregistrés.</p>
+
+        <div id="emailDisplay" class="email-container"></div>
+        <div class="buttons">
+            <button id="safeBtn" class="safe">Sûr</button>
+            <button id="dangerousBtn" class="dangerous">Dangereux</button>
+        </div>
+    </div>
+
+    <div class="admin-container hidden" id="adminPanel">
+        <h2>Administration</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Numéro de Participant</th>
+                    <th>Temps de Réaction (ms)</th>
+                    <th>Eye Tracking</th>
+                </tr>
+            </thead>
+            <tbody id="adminTableBody"></tbody>
+        </table>
+        <button onclick="downloadCSV()">Télécharger les résultats</button>
+        <button onclick="toggleAdmin()">Retour</button>
+    </div>
+
+    <script>
+        const emails = [
+            { content: "Expéditeur : support@google.fr<br>Objet : Vérification de sécurité<br>Une vérification de sécurité a été effectuée sur votre compte. Aucun problème détecté.", isPhishing: false },
+            { content: "Expéditeur : admin@banquefausse.com<br>Objet : Problème de sécurité sur votre compte<br>Votre compte a rencontré un problème de sécurité. Cliquez <a href='http://faussebanque.com'>ici</a> pour résoudre le problème.", isPhishing: true }
+        ];
+
+        let currentEmailIndex = 0;
+        let startTime;
+        let results = [];
+        const emailDisplay = document.getElementById("emailDisplay");
+        const safeBtn = document.getElementById("safeBtn");
+        const dangerousBtn = document.getElementById("dangerousBtn");
+        const adminPanel = document.getElementById("adminPanel");
+        const experimentContainer = document.getElementById("experimentContainer");
+
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                console.log(`X: ${data.x}, Y: ${data.y}, Timestamp: ${timestamp}`);
+            }
+        }).begin();
+
+        function displayEmail() {
+            if (currentEmailIndex < emails.length) {
+                emailDisplay.innerHTML = emails[currentEmailIndex].content;
+                startTime = performance.now();
+            } else {
+                endExperiment();
+            }
+        }
+
+        function recordResponse(isSafe) {
+            const endTime = performance.now();
+            const reactionTime = endTime - startTime;
+            results.push({ participant: results.length + 1, reactionTime: reactionTime.toFixed(2), eyeTracking: "Données simulées" });
+            currentEmailIndex++;
+            displayEmail();
+        }
+
+        function endExperiment() {
+            document.body.innerHTML = "<h1 style='text-align: center;'>C'est fini, merci !</h1>";
+            webgazer.end();
+        }
+
+        function toggleAdmin() {
+            adminPanel.classList.toggle("hidden");
+            experimentContainer.classList.toggle("hidden");
+            if (!adminPanel.classList.contains("hidden")) {
+                populateAdminTable();
+            }
+        }
+
+        function populateAdminTable() {
+            const tableBody = document.getElementById("adminTableBody");
+            tableBody.innerHTML = "";
+            results.forEach(result => {
+                let row = `<tr><td>${result.participant}</td><td>${result.reactionTime}</td><td>${result.eyeTracking}</td></tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function downloadCSV() {
+            try {
+                let csvContent = "data:text/csv;charset=utf-8,Participant,Temps de Réaction (ms),Eye Tracking\n" + 
+                    results.map(e => `${e.participant},${e.reactionTime},${e.eyeTracking}`).join("\n");
+                let encodedUri = encodeURI(csvContent);
+                let link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "resultats_experience.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                alert("Une erreur est survenue lors du téléchargement du fichier.");
+            }
+        }
+
+        safeBtn.addEventListener("click", () => recordResponse(true));
+        dangerousBtn.addEventListener("click", () => recordResponse(false));
+        displayEmail();
+    </script>
+</body>
+</html>

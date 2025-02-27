@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expérience de Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .email-container {
+            background: white;
+            width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: left;
+        }
+        .email-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .email-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .email-header div {
+            font-size: 14px;
+            color: #333;
+        }
+        .email-subject {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .email-content {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+        .safe { background-color: #4CAF50; }
+        .dangerous { background-color: #f44336; }
+        .download-button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Expérience de Détection de Phishing</h1>
+    <p>Classifiez chaque e-mail comme "Sûr" ou "Dangereux".</p>
+
+    <div id="emailDisplay" class="email-container"></div>
+    <div class="buttons">
+        <button id="safeBtn" class="safe">Sûr</button>
+        <button id="dangerousBtn" class="dangerous">Dangereux</button>
+    </div>
+
+    <script>
+        const emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "Vérification de sécurité",
+                content: "Bonjour, nous avons détecté une connexion suspecte sur votre compte. Veuillez vérifier votre identité en cliquant sur le lien ci-dessous.",
+                isPhishing: false
+            },
+            {
+                sender: "admin@banquefausse.com",
+                name: "Banque Sécurité",
+                subject: "Problème de sécurité",
+                content: "Cher client, nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.",
+                isPhishing: true
+            }
+        ];
+
+        let currentEmailIndex = 0;
+        let startTime;
+        let results = [];
+        let eyeTrackingData = [];
+
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                eyeTrackingData.push({ x: data.x, y: data.y, timestamp: timestamp });
+            }
+        }).begin();
+
+        function displayEmail() {
+            if (currentEmailIndex < emails.length) {
+                const email = emails[currentEmailIndex];
+
+                document.getElementById("emailDisplay").innerHTML = `
+                    <div class="email-header">
+                        <img src="https://via.placeholder.com/40" alt="Profile">
+                        <div>
+                            <strong>${email.name}</strong> <br>
+                            <span style="color: gray;">${email.sender}</span>
+                        </div>
+                    </div>
+                    <div class="email-subject">${email.subject}</div>
+                    <div class="email-content">${email.content}</div>
+                `;
+
+                startTime = performance.now();
+                eyeTrackingData = [];
+            } else {
+                endExperiment();
+            }
+        }
+
+        function recordResponse(isSafe) {
+            const endTime = performance.now();
+            const reactionTime = (endTime - startTime).toFixed(2);
+            const email = emails[currentEmailIndex];
+            const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
+
+            results.push({
+                Participant: results.length + 1,
+                "Temps de Réaction (ms)": reactionTime,
+                isCorrect: isCorrect ? "Correct" : "Incorrect",
+                EyeTracking: JSON.stringify(eyeTrackingData)
+            });
+
+            currentEmailIndex++;
+            displayEmail();
+        }
+
+        function endExperiment() {
+            document.body.innerHTML = "<h1>Expérience terminée, merci !</h1>";
+            let downloadBtn = document.createElement("button");
+            downloadBtn.innerText = "Télécharger les résultats";
+            downloadBtn.className = "download-button";
+            downloadBtn.onclick = downloadExcel;
+            document.body.appendChild(downloadBtn);
+            webgazer.end();
+        }
+
+        function downloadExcel() {
+            let ws = XLSX.utils.json_to_sheet(results);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
+        }
+
+        document.getElementById("safeBtn").addEventListener("click", () => recordResponse(true));
+        document.getElementById("dangerousBtn").addEventListener("click", () => recordResponse(false));
+
+        displayEmail();
+    </script>
+</body>
+</html>

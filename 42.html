@@ -9,36 +9,70 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
         }
         .email-container {
-            margin: 20px auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            background-color: white;
-            width: 80%;
+            background: white;
+            width: 600px;
+            border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: left;
+        }
+        .email-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .email-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .email-header div {
+            font-size: 14px;
+            color: #333;
+        }
+        .email-subject {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .email-content {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
         }
         .buttons {
             margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
         }
         button {
             padding: 10px 20px;
-            margin: 10px;
             font-size: 16px;
             cursor: pointer;
             border: none;
             border-radius: 5px;
+            color: white;
         }
-        .safe { background-color: #4CAF50; color: white; }
-        .dangerous { background-color: #f44336; color: white; }
+        .safe { background-color: #4CAF50; }
+        .dangerous { background-color: #f44336; }
         .download-button {
+            margin-top: 20px;
             padding: 10px;
             font-size: 14px;
-            cursor: pointer;
             background-color: #007bff;
             color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -54,8 +88,20 @@
 
     <script>
         const emails = [
-            { content: "Expéditeur : support@google.fr<br>Objet : Vérification de sécurité", isPhishing: false },
-            { content: "Expéditeur : admin@banquefausse.com<br>Objet : Problème de sécurité", isPhishing: true }
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "Vérification de sécurité",
+                content: "Bonjour, nous avons détecté une connexion suspecte sur votre compte. Veuillez vérifier votre identité en cliquant sur le lien ci-dessous.",
+                isPhishing: false
+            },
+            {
+                sender: "admin@banquefausse.com",
+                name: "Banque Sécurité",
+                subject: "Problème de sécurité",
+                content: "Cher client, nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.",
+                isPhishing: true
+            }
         ];
 
         let currentEmailIndex = 0;
@@ -71,7 +117,20 @@
 
         function displayEmail() {
             if (currentEmailIndex < emails.length) {
-                document.getElementById("emailDisplay").innerHTML = emails[currentEmailIndex].content;
+                const email = emails[currentEmailIndex];
+
+                document.getElementById("emailDisplay").innerHTML = `
+                    <div class="email-header">
+                        <img src="https://via.placeholder.com/40" alt="Profile">
+                        <div>
+                            <strong>${email.name}</strong> <br>
+                            <span style="color: gray;">${email.sender}</span>
+                        </div>
+                    </div>
+                    <div class="email-subject">${email.subject}</div>
+                    <div class="email-content">${email.content}</div>
+                `;
+
                 startTime = performance.now();
                 eyeTrackingData = [];
             } else {

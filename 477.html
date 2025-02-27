@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expérience de Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .email-container {
+            background: white;
+            width: 850px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            text-align: left;
+            position: relative;
+        }
+        .email-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .email-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        .email-header div {
+            font-size: 14px;
+            color: #333;
+        }
+        .email-subject {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .email-content {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.6;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .email-footer {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            font-size: 14px;
+            color: gray;
+            display: flex;
+            justify-content: space-between;
+        }
+        .likert-scale {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .likert-scale label {
+            cursor: pointer;
+        }
+        .submit-button {
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        .email-actions {
+            display: flex;
+            gap: 15px;
+        }
+        .email-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="emailDisplay" class="email-container"></div>
+
+    <script>
+        const emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "Vérification de sécurité",
+                content: "Bonjour,<br><br>Nous avons détecté une connexion suspecte sur votre compte. Veuillez vérifier votre identité en cliquant sur le lien ci-dessous.<br><br><a href='#'>Vérifier maintenant</a><br><br>Cordialement,<br>L'équipe Google",
+                isPhishing: false
+            },
+            {
+                sender: "admin@banquefausse.com",
+                name: "Banque Sécurité",
+                subject: "Problème de sécurité",
+                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br>Service Sécurité",
+                isPhishing: true
+            }
+        ];
+
+        let currentEmailIndex = 0;
+        let startTime;
+        let results = [];
+        let eyeTrackingData = [];
+
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                eyeTrackingData.push({ x: data.x, y: data.y, timestamp: timestamp });
+            }
+        }).begin();
+
+        function displayEmail() {
+            if (currentEmailIndex < emails.length) {
+                const email = emails[currentEmailIndex];
+
+                document.getElementById("emailDisplay").innerHTML = `
+                    <div class="email-header">
+                        <img src="https://via.placeholder.com/50" alt="Profile">
+                        <div>
+                            <strong>${email.name}</strong> <br>
+                            <span style="color: gray;">${email.sender}</span>
+                        </div>
+                    </div>
+                    <div class="email-subject">${email.subject}</div>
+                    <div class="email-content">${email.content}</div>
+                    <div class="email-footer">
+                        <div class="email-actions">
+                            <button>Répondre</button>
+                            <button>Transférer</button>
+                            <button>Supprimer</button>
+                        </div>
+                        <span>📅 ${new Date().toLocaleDateString()}</span>
+                    </div>
+                    <div class="likert-scale">
+                        <span>1 (Pas suspect)</span>
+                        ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                            <label>
+                                <input type="radio" name="likert" value="${num}">
+                                ${num}
+                            </label>
+                        `).join('')}
+                        <span>7 (Très suspect)</span>
+                    </div>
+                    <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+                `;
+
+                startTime = performance.now();
+                eyeTrackingData = [];
+            } else {
+                endExperiment();
+            }
+        }
+
+        function recordResponse() {
+            const endTime = performance.now();
+            const reactionTime = (endTime - startTime).toFixed(2);
+            const email = emails[currentEmailIndex];
+
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (!selectedValue) {
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
+                return;
+            }
+
+            results.push({
+                Participant: results.length + 1,
+                "Temps de Réaction (ms)": reactionTime,
+                "Évaluation du risque (1-7)": selectedValue.value,
+                EyeTracking: JSON.stringify(eyeTrackingData)
+            });
+
+            currentEmailIndex++;
+            displayEmail();
+        }
+
+        function endExperiment() {
+            document.body.innerHTML = "<h1>Expérience terminée, merci !</h1>";
+            let downloadBtn = document.createElement("button");
+            downloadBtn.innerText = "Télécharger les résultats";
+            downloadBtn.className = "submit-button";
+            downloadBtn.onclick = downloadExcel;
+            document.body.appendChild(downloadBtn);
+            webgazer.end();
+        }
+
+        function downloadExcel() {
+            let ws = XLSX.utils.json_to_sheet(results);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
+        }
+
+        displayEmail();
+    </script>
+</body>
+</html>

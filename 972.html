@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boîte Mail - Expérience de Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e7eb;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        .sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            margin-top: 40vh; /* Décale encore plus la sidebar vers le bas */
+        }
+        .email-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .email-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .email-list li:hover {
+            background: #f0f0f0;
+        }
+        .email-content-container {
+            flex-grow: 1;
+            padding: 20px;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .submit-button {
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>📧 Boîte de Réception</h3>
+        <ul class="email-list" id="emailList"></ul>
+    </div>
+    <div class="email-content-container">
+        <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
+        <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
+    </div>
+    <script>
+        let emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "🔒 Vérification de sécurité",
+                content: "Bonjour,<br><br>Nous avons détecté une connexion suspecte sur votre compte. Veuillez vérifier votre identité en cliquant sur le lien ci-dessous.<br><br><a href='#'>Vérifier maintenant</a><br><br>Cordialement,<br>L'équipe Google",
+                isPhishing: false
+            },
+            {
+                sender: "admin@banquefausse.com",
+                name: "Banque Sécurité",
+                subject: "⚠️ Problème de sécurité",
+                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br>Service Sécurité",
+                isPhishing: true
+            }
+        ];
+        let results = [];
+        let eyeTrackingData = [];
+        
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                eyeTrackingData.push({ x: data.x, y: data.y, timestamp: timestamp });
+            }
+        }).begin();
+
+        function loadEmailList() {
+            const emailList = document.getElementById("emailList");
+            emailList.innerHTML = emails.map((email, index) => `
+                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
+            `).join('');
+        }
+        
+        function displayEmail(index) {
+            const email = emails[index];
+            document.getElementById("emailDisplay").innerHTML = `
+                <div class="email-subject">${email.subject}</div>
+                <div class="email-content">${email.content}</div>
+                <div class="likert-scale">
+                    <span>1 (Pas suspect)</span>
+                    ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                        <label>
+                            <input type="radio" name="likert" value="${num}">${num}
+                        </label>
+                    `).join('')}
+                    <span>7 (Très suspect)</span>
+                </div>
+                <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
+            `;
+        }
+
+        function recordResponse(index) {
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (!selectedValue) {
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
+                return;
+            }
+            results.push({ email: emails[index], eyeTracking: eyeTrackingData, note: selectedValue.value });
+            emails.splice(index, 1);
+            loadEmailList();
+            if (emails.length > 0) {
+                document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
+            } else {
+                endExperiment();
+            }
+        }
+
+        function endExperiment() {
+            document.getElementById("emailDisplay").innerHTML = "Expérience terminée, merci !";
+            document.getElementById("downloadBtn").style.display = "block";
+            webgazer.end();
+        }
+
+        function downloadExcel() {
+            let ws = XLSX.utils.json_to_sheet(results);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
+        }
+
+        loadEmailList();
+    </script>
+</body>
+</html>

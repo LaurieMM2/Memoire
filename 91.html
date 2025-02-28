@@ -82,21 +82,9 @@
         <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
     </div>
     <script>
-        const emails = [
-            {
-                sender: "support@google.fr",
-                name: "Google Support",
-                subject: "🔒 Vérification de sécurité",
-                content: "Bonjour,<br><br>Nous avons détecté une connexion suspecte sur votre compte. Veuillez vérifier votre identité en cliquant sur le lien ci-dessous.<br><br><a href='#'>Vérifier maintenant</a><br><br>Cordialement,<br>L'équipe Google",
-                isPhishing: false
-            },
-            {
-                sender: "admin@banquefausse.com",
-                name: "Banque Sécurité",
-                subject: "⚠️ Problème de sécurité",
-                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br>Service Sécurité",
-                isPhishing: true
-            }
+        let emails = [
+            { sender: "support@google.fr", name: "Google Support", subject: "🔒 Vérification de sécurité", content: "Bonjour, vérifiez votre identité ici.", isPhishing: false },
+            { sender: "admin@banquefausse.com", name: "Banque Sécurité", subject: "⚠️ Problème de sécurité", content: "Mettez à jour vos informations immédiatement.", isPhishing: true }
         ];
         let results = [];
         let eyeTrackingData = [];
@@ -110,10 +98,7 @@
         function loadEmailList() {
             const emailList = document.getElementById("emailList");
             emailList.innerHTML = emails.map((email, index) => `
-                <li id="email-${index}" onclick="displayEmail(${index})">
-                    <strong>${email.name}</strong><br>
-                    <small>${email.subject}</small>
-                </li>
+                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
             `).join('');
         }
         

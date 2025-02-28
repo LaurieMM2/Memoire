@@ -149,12 +149,12 @@
                 return;
             }
             results.push({ email: emails[index], eyeTracking: eyeTrackingData, note: selectedValue.value });
-            document.getElementById(`email-${index}`).remove();
             emails.splice(index, 1);
-            if (emails.length === 0) {
-                endExperiment();
-            } else {
+            loadEmailList();
+            if (emails.length > 0) {
                 document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
+            } else {
+                endExperiment();
             }
         }
         function endExperiment() {

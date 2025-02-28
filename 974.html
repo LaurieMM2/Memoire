@@ -198,7 +198,6 @@
         function recordResponse(index) {
             const endTime = performance.now();
             const reactionTime = (endTime - startTime).toFixed(2);
-            const email = emails[currentEmailIndex];
 
             const selectedValue = document.querySelector('input[name="likert"]:checked');
             if (!selectedValue) {

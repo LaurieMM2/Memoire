@@ -97,8 +97,14 @@
             }
         ];
         let results = [];
+        let eyeTrackingData = [];
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                eyeTrackingData.push({ x: data.x, y: data.y, timestamp: timestamp });
+            }
+        }).begin();
         function getInitials(name) {
-            return name.split(" ").map(word => word[0]).join("" ).toUpperCase();
+            return name.split(" ").map(word => word[0]).join("").toUpperCase();
         }
         function loadEmailList() {
             const emailList = document.getElementById("emailList");
@@ -121,11 +127,26 @@
                 </div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-content">${email.content}</div>
+                <div class="likert-scale">
+                    <span>1 (Pas suspect)</span>
+                    ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                        <label>
+                            <input type="radio" name="likert" value="${num}">
+                            ${num}
+                        </label>
+                    `).join('')}
+                    <span>7 (Très suspect)</span>
+                </div>
                 <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
             `;
         }
         function recordResponse(index) {
-            results.push(emails[index]);
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (!selectedValue) {
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
+                return;
+            }
+            results.push({ email: emails[index], eyeTracking: eyeTrackingData, note: selectedValue.value });
             document.getElementById(`email-${index}`).remove();
             emails.splice(index, 1);
             if (emails.length === 0) {
@@ -141,6 +162,7 @@
             downloadBtn.className = "submit-button";
             downloadBtn.onclick = downloadExcel;
             document.body.appendChild(downloadBtn);
+            webgazer.end();
         }
         function downloadExcel() {
             let ws = XLSX.utils.json_to_sheet(results);

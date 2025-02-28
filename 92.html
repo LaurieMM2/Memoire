@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BoÃ®te Mail - ExpÃ©rience de DÃ©tection de Phishing</title>
+    <title>Boîte Mail - Expérience de Détection de Phishing</title>
     <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
@@ -22,7 +22,6 @@
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            margin-top: 40vh; /* Décale encore plus la sidebar vers le bas */
         }
         .email-list {
             list-style: none;
@@ -74,17 +73,17 @@
 </head>
 <body>
     <div class="sidebar">
-        <h3>ðŸ“§ BoÃ®te de RÃ©ception</h3>
+        <h3>📧 Boîte de Réception</h3>
         <ul class="email-list" id="emailList"></ul>
     </div>
     <div class="email-content-container">
-        <div id="emailDisplay" class="email-container">SÃ©lectionnez un email pour l'afficher.</div>
-        <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">TÃ©lÃ©charger les rÃ©sultats</button>
+        <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
+        <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
     </div>
     <script>
         let emails = [
-            { sender: "support@google.fr", name: "Google Support", subject: "ðŸ”’ VÃ©rification de sÃ©curitÃ©", content: "Bonjour, vÃ©rifiez votre identitÃ© ici.", isPhishing: false },
-            { sender: "admin@banquefausse.com", name: "Banque SÃ©curitÃ©", subject: "âš ï¸ ProblÃ¨me de sÃ©curitÃ©", content: "Mettez Ã  jour vos informations immÃ©diatement.", isPhishing: true }
+            { sender: "support@google.fr", name: "Google Support", subject: "🔒 Vérification de sécurité", content: "Bonjour, vérifiez votre identité ici.", isPhishing: false },
+            { sender: "admin@banquefausse.com", name: "Banque Sécurité", subject: "⚠️ Problème de sécurité", content: "Mettez à jour vos informations immédiatement.", isPhishing: true }
         ];
         let results = [];
         let eyeTrackingData = [];
@@ -105,21 +104,13 @@
         function displayEmail(index) {
             const email = emails[index];
             document.getElementById("emailDisplay").innerHTML = `
-                <div class="email-header">
-                    <div class="email-avatar">${getInitials(email.name)}</div>
-                    <div>
-                        <strong>${email.name}</strong> <br>
-                        <span style="color: gray;">${email.sender}</span>
-                    </div>
-                </div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-content">${email.content}</div>
                 <div class="likert-scale">
                     <span>1 (Pas suspect)</span>
                     ${[1, 2, 3, 4, 5, 6, 7].map(num => `
                         <label>
-                            <input type="radio" name="likert" value="${num}">
-                            ${num}
+                            <input type="radio" name="likert" value="${num}">${num}
                         </label>
                     `).join('')}
                     <span>7 (Très suspect)</span>
@@ -131,21 +122,21 @@
         function recordResponse(index) {
             const selectedValue = document.querySelector('input[name="likert"]:checked');
             if (!selectedValue) {
-                alert("Veuillez sÃ©lectionner une valeur sur l'Ã©chelle.");
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
                 return;
             }
             results.push({ email: emails[index], eyeTracking: eyeTrackingData, note: selectedValue.value });
             emails.splice(index, 1);
             loadEmailList();
             if (emails.length > 0) {
-                document.getElementById("emailDisplay").innerHTML = "SÃ©lectionnez un email pour l'afficher.";
+                document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
             } else {
                 endExperiment();
             }
         }
 
         function endExperiment() {
-            document.getElementById("emailDisplay").innerHTML = "ExpÃ©rience terminÃ©e, merci !";
+            document.getElementById("emailDisplay").innerHTML = "Expérience terminée, merci !";
             document.getElementById("downloadBtn").style.display = "block";
             webgazer.end();
         }
@@ -153,7 +144,7 @@
         function downloadExcel() {
             let ws = XLSX.utils.json_to_sheet(results);
             let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "RÃ©sultats");
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
             XLSX.writeFile(wb, "resultats_experience.xlsx");
         }
 

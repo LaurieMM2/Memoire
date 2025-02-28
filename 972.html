@@ -86,14 +86,14 @@
             {
                 sender: "support@google.fr",
                 name: "Google Support",
-                subject: "🔒 Vérification de sécurité",
+                subject: "Vérification de sécurité",
                 content: "Bonjour,<br><br>Nous avons détecté une connexion suspecte sur votre compte. Veuillez vérifier votre identité en cliquant sur le lien ci-dessous.<br><br><a href='#'>Vérifier maintenant</a><br><br>Cordialement,<br>L'équipe Google",
                 isPhishing: false
             },
             {
                 sender: "admin@banquefausse.com",
                 name: "Banque Sécurité",
-                subject: "⚠️ Problème de sécurité",
+                subject: "Problème de sécurité",
                 content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br>Service Sécurité",
                 isPhishing: true
             }
@@ -117,13 +117,21 @@
         function displayEmail(index) {
             const email = emails[index];
             document.getElementById("emailDisplay").innerHTML = `
+                <div class="email-header">
+                    <div class="email-avatar">${getInitials(email.name)}</div>
+                    <div>
+                        <strong>${email.name}</strong> <br>
+                        <span style="color: gray;">${email.sender}</span>
+                    </div>
+                </div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-content">${email.content}</div>
                 <div class="likert-scale">
                     <span>1 (Pas suspect)</span>
                     ${[1, 2, 3, 4, 5, 6, 7].map(num => `
                         <label>
-                            <input type="radio" name="likert" value="${num}">${num}
+                            <input type="radio" name="likert" value="${num}">
+                            ${num}
                         </label>
                     `).join('')}
                     <span>7 (Très suspect)</span>

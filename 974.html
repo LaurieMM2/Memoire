@@ -41,6 +41,7 @@
             background: #f0f0f0;
         }
         .email-content-container {
+            background: white;
             flex-grow: 1;
             padding: 20px;
             background: #f5f5f5;
@@ -199,7 +200,12 @@
                 alert("Veuillez sélectionner une valeur sur l'échelle.");
                 return;
             }
-            results.push({ email: emails[index], eyeTracking: eyeTrackingData, note: selectedValue.value });
+            results.push({
+                Participant: results.length + 1,
+                "Temps de Réaction (ms)": reactionTime,
+                "Évaluation du risque (1-7)": selectedValue.value,
+                EyeTracking: JSON.stringify(eyeTrackingData)
+            });
             emails.splice(index, 1);
             loadEmailList();
             if (emails.length > 0) {

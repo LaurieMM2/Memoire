@@ -22,6 +22,7 @@
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
+            margin-top: 40vh; /* Décale encore plus la sidebar vers le bas */
         }
         .email-list {
             list-style: none;
@@ -81,9 +82,21 @@
         <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
     </div>
     <script>
-        let emails = [
-            { sender: "support@google.fr", name: "Google Support", subject: "🔒 Vérification de sécurité", content: "Bonjour, vérifiez votre identité ici.", isPhishing: false },
-            { sender: "admin@banquefausse.com", name: "Banque Sécurité", subject: "⚠️ Problème de sécurité", content: "Mettez à jour vos informations immédiatement.", isPhishing: true }
+        const emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "🔒 Vérification de sécurité",
+                content: "Bonjour,<br><br>Nous avons détecté une connexion suspecte sur votre compte. Veuillez vérifier votre identité en cliquant sur le lien ci-dessous.<br><br><a href='#'>Vérifier maintenant</a><br><br>Cordialement,<br>L'équipe Google",
+                isPhishing: false
+            },
+            {
+                sender: "admin@banquefausse.com",
+                name: "Banque Sécurité",
+                subject: "⚠️ Problème de sécurité",
+                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br>Service Sécurité",
+                isPhishing: true
+            }
         ];
         let results = [];
         let eyeTrackingData = [];
@@ -97,20 +110,31 @@
         function loadEmailList() {
             const emailList = document.getElementById("emailList");
             emailList.innerHTML = emails.map((email, index) => `
-                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
+                <li id="email-${index}" onclick="displayEmail(${index})">
+                    <strong>${email.name}</strong><br>
+                    <small>${email.subject}</small>
+                </li>
             `).join('');
         }
         
         function displayEmail(index) {
             const email = emails[index];
             document.getElementById("emailDisplay").innerHTML = `
+                <div class="email-header">
+                    <div class="email-avatar">${getInitials(email.name)}</div>
+                    <div>
+                        <strong>${email.name}</strong> <br>
+                        <span style="color: gray;">${email.sender}</span>
+                    </div>
+                </div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-content">${email.content}</div>
                 <div class="likert-scale">
                     <span>1 (Pas suspect)</span>
                     ${[1, 2, 3, 4, 5, 6, 7].map(num => `
                         <label>
-                            <input type="radio" name="likert" value="${num}">${num}
+                            <input type="radio" name="likert" value="${num}">
+                            ${num}
                         </label>
                     `).join('')}
                     <span>7 (Très suspect)</span>

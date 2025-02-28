@@ -148,7 +148,6 @@
                 isPhishing: true
             }
         ];
-        let startTime;
         let results = [];
         let eyeTrackingData = [];
         
@@ -196,9 +195,6 @@
         }
 
         function recordResponse(index) {
-            const endTime = performance.now();
-            const reactionTime = (endTime - startTime).toFixed(2);
-
             const selectedValue = document.querySelector('input[name="likert"]:checked');
             if (!selectedValue) {
                 alert("Veuillez sélectionner une valeur sur l'échelle.");
@@ -206,7 +202,6 @@
             }
             results.push({
                 email: emails[index],
-                "Temps de Réaction (ms)": reactionTime,
                 "Évaluation du risque (1-7)": selectedValue.value,
                 EyeTracking: JSON.stringify(eyeTrackingData)
             });

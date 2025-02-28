@@ -113,6 +113,10 @@
                 <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
             `).join('');
         }
+
+        function getInitials(name) {
+            return name.split(" ").map(word => word[0]).join("").toUpperCase();
+        }
         
         function displayEmail(index) {
             const email = emails[index];

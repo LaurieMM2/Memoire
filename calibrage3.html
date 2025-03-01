@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calibration Eye Tracking</title>
+    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simpleheat/0.4.0/simpleheat.min.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        #calibrationPointsContainer { position: relative; margin-top: 30vh; height: 50vh; }
+        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
+        #thanksScreen { display: none; }
+    </style>
+</head>
+<body>
+    <div id="calibrationScreen">
+        <h1>Calibration</h1>
+        <p>Cliquez 30 fois sur chaque point pour les faire disparaître.</p>
+        <div id="calibrationPointsContainer">
+            <div id="calibrationPoints"></div>
+        </div>
+    </div>
+    
+    <div id="thanksScreen">
+        <h1>Merci, c'est fini !</h1>
+        <button id="downloadData">Télécharger les données</button>
+        <button id="downloadHeatmap">Télécharger la carte de chaleur</button>
+        <canvas id="heatmap"></canvas>
+    </div>
+
+    <script>
+        const points = [
+            [10, 10], [50, 10], [90, 10],
+            [10, 40], [50, 40], [90, 40],
+            [10, 70], [50, 70], [90, 70]
+        ];
+        let data = [];
+        let remaining = points.length;
+        const calibrationContainer = document.getElementById("calibrationPoints");
+        const canvas = document.getElementById("heatmap");
+        const ctx = canvas.getContext("2d");
+        const heat = simpleheat(canvas);
+
+        points.forEach(([x, y], index) => {
+            const point = document.createElement("div");
+            point.className = "calibration-point";
+            point.style.left = `${x}%`;
+            point.style.top = `${y}%`;
+            point.dataset.clicks = 0;
+            point.onclick = () => {
+                point.dataset.clicks = parseInt(point.dataset.clicks) + 1;
+                if (parseInt(point.dataset.clicks) >= 30) {
+                    point.remove();
+                    remaining--;
+                    if (remaining === 0) finishCalibration();
+                }
+            };
+            calibrationContainer.appendChild(point);
+        });
+
+        function finishCalibration() {
+            document.getElementById("calibrationScreen").style.display = "none";
+            document.getElementById("thanksScreen").style.display = "block";
+            webgazer.pause();
+            drawHeatmap();
+        }
+
+        webgazer.setGazeListener((dataPoint, elapsedTime) => {
+            if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
+        }).begin();
+
+        document.getElementById("downloadData").addEventListener("click", () => {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([["Time", "X", "Y"], ...data]);
+            XLSX.utils.book_append_sheet(wb, ws, "EyeTrackingData");
+            XLSX.writeFile(wb, "eye_tracking_data.xlsx");
+        });
+
+        function drawHeatmap() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            heat.data(data.map(d => [d[1], d[2], 1]));
+            heat.max(10);
+            heat.draw(0.05);
+        }
+        document.getElementById("downloadHeatmap").addEventListener("click", () => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'heatmap.png';
+            link.click();
+        });
+      
+    </script>
+</body>
+</html>

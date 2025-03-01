@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
+        #calibrationPointsContainer { position: relative; margin-top: 40vh; height: 50vh; }
         .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
         #thanksScreen { display: none; }
     </style>
@@ -15,8 +16,10 @@
 <body>
     <div id="calibrationScreen">
         <h1>Calibration</h1>
-        <p>Cliquez 5 fois sur chaque point pour les faire disparaître.</p>
-        <div id="calibrationPoints"></div>
+        <p>Cliquez 30 fois sur chaque point pour les faire disparaître.</p>
+        <div id="calibrationPointsContainer">
+            <div id="calibrationPoints"></div>
+        </div>
     </div>
     
     <div id="thanksScreen">
@@ -26,9 +29,9 @@
 
     <script>
         const points = [
-            [10, 30], [50, 30], [90, 30],
-            [10, 60], [50, 60], [90, 60],
-            [10, 90], [50, 90], [90, 90]
+            [10, 10], [50, 10], [90, 10],
+            [10, 40], [50, 40], [90, 40],
+            [10, 70], [50, 70], [90, 70]
         ];
         let data = [];
         let remaining = points.length;
@@ -38,11 +41,11 @@
             const point = document.createElement("div");
             point.className = "calibration-point";
             point.style.left = `${x}%`;
-            point.style.top = `${y}vh`;
+            point.style.top = `${y}%`;
             point.dataset.clicks = 0;
             point.onclick = () => {
                 point.dataset.clicks = parseInt(point.dataset.clicks) + 1;
-                if (parseInt(point.dataset.clicks) >= 5) {
+                if (parseInt(point.dataset.clicks) >= 30) {
                     point.remove();
                     remaining--;
                     if (remaining === 0) finishCalibration();

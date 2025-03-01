@@ -401,7 +401,7 @@
             }
             let reactionTime = Date.now() - startTime; // Calculer le temps de réaction
             results.push({
-                email: emails.name,
+                email: emails[index].sender,
                 "Temps de Réaction (ms)": reactionTime,
                 "Évaluation du risque (1-7)": selectedValue.value,
                 EyeTracking: JSON.stringify(eyeTrackingData)

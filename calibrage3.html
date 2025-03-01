@@ -9,10 +9,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simpleheat/0.4.0/simpleheat.min.js"></script>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; position: relative; }
-        #calibrationPointsContainer { position: relative; margin-top: 30vh; height: 50vh; width: 100vw; }
-        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; cursor: pointer; }
+        #calibrationPointsContainer { 
+            position: relative; 
+            margin-top: 30vh; 
+            height: 50vh; 
+            width: 100vw; 
+        }
+        .calibration-point { 
+            width: 20px; 
+            height: 20px; 
+            background: red; 
+            border-radius: 50%; 
+            position: absolute; 
+            cursor: pointer; 
+        }
         #thanksScreen { display: none; }
-        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        canvas { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+        }
     </style>
 </head>
 <body>
@@ -48,6 +67,7 @@
             point.style.left = `${x}%`;
             point.style.top = `${y}%`;
             point.dataset.clicks = 0;
+            point.style.transform = "translate(-50%, -50%)";
             calibrationContainer.appendChild(point);
             point.addEventListener("click", () => {
                 point.dataset.clicks = parseInt(point.dataset.clicks) + 1;
@@ -68,11 +88,16 @@
 
         function startEyeTracking() {
             webgazer.setGazeListener((dataPoint, elapsedTime) => {
-                if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
-            }).begin();
+                if (dataPoint) {
+                    console.log(`Gaze Data: X=${dataPoint.x}, Y=${dataPoint.y}`);
+                    data.push([elapsedTime, dataPoint.x, dataPoint.y]);
+                }
+            }).begin().showPredictionPoints(true);
         }
         
-        setTimeout(startEyeTracking, 2000); // Ajout d'un délai pour éviter les problèmes d'initialisation
+        window.onload = () => {
+            setTimeout(startEyeTracking, 2000); // Ajout d'un délai pour éviter les problèmes d'initialisation
+        };
 
         document.getElementById("downloadData").addEventListener("click", () => {
             const wb = XLSX.utils.book_new();

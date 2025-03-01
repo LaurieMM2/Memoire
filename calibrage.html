@@ -8,14 +8,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
-        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
+        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; margin-top: 40vh; }
         #thanksScreen { display: none; }
     </style>
 </head>
 <body>
     <div id="calibrationScreen">
         <h1>Calibration</h1>
-        <p>Cliquez sur chaque point jusqu'à ce qu'ils disparaissent.</p>
+        <p>Cliquez 5 fois sur chaque point pour les faire disparaître.</p>
         <div id="calibrationPoints"></div>
     </div>
     
@@ -39,10 +39,14 @@
             point.className = "calibration-point";
             point.style.left = `${x}%`;
             point.style.top = `${y}%`;
+            point.dataset.clicks = 0;
             point.onclick = () => {
-                point.remove();
-                remaining--;
-                if (remaining === 0) finishCalibration();
+                point.dataset.clicks = parseInt(point.dataset.clicks) + 1;
+                if (parseInt(point.dataset.clicks) >= 5) {
+                    point.remove();
+                    remaining--;
+                    if (remaining === 0) finishCalibration();
+                }
             };
             calibrationContainer.appendChild(point);
         });

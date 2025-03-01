@@ -3,114 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calibration WebGazer</title>
+    <title>Calibration Eye Tracking</title>
     <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/heatmap.js/2.0.5/heatmap.min.js"></script>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: #f5f5f5;
-            flex-direction: column;
-        }
-        #calibration-container {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            margin-top: 40vh;
-        }
-        .calibration-point {
-            width: 20px;
-            height: 20px;
-            background: red;
-            border-radius: 50%;
-            position: absolute;
-            cursor: pointer;
-        }
-        #thank-you {
-            display: none;
-            text-align: center;
-        }
-        #heatmapContainer {
-            width: 100vw;
-            height: 100vh;
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: none;
-        }
+        body { text-align: center; font-family: Arial, sans-serif; }
+        #calibrationPointsContainer { position: relative; margin-top: 40vh; height: 50vh; }
+        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
+        #thanksScreen { display: none; }
     </style>
 </head>
 <body>
-    <div id="calibration-container"></div>
-    <div id="thank-you">
-        <h1>Merci, c'est fini !</h1>
-        <button onclick="downloadHeatmap()">Télécharger la heatmap</button>
+    <div id="calibrationScreen">
+        <h1>Calibration</h1>
+        <p>Cliquez 30 fois sur chaque point pour les faire disparaître.</p>
+        <div id="calibrationPointsContainer">
+            <div id="calibrationPoints"></div>
+        </div>
     </div>
-    <div id="heatmapContainer"></div>
+    
+    <div id="thanksScreen">
+        <h1>Merci, c'est fini !</h1>
+        <button id="downloadData">Télécharger les données</button>
+    </div>
+
     <script>
-        let points = [
-            { x: 10, y: 10 }, { x: 180, y: 10 }, { x: 350, y: 10 },
-            { x: 10, y: 180 }, { x: 180, y: 180 }, { x: 350, y: 180 },
-            { x: 10, y: 350 }, { x: 180, y: 350 }, { x: 350, y: 350 }
+        const points = [
+            [10, 10], [50, 10], [90, 10],
+            [10, 40], [50, 40], [90, 40],
+            [10, 70], [50, 70], [90, 70]
         ];
-        let clickCounts = Array(points.length).fill(0);
         let gazeData = [];
-        let container = document.getElementById("calibration-container");
-        let heatmapInstance = h337.create({
-            container: document.getElementById("heatmapContainer"),
-            radius: 30
-        });
-        
-        points.forEach((pos, index) => {
-            let point = document.createElement("div");
+        let remaining = points.length;
+        const calibrationContainer = document.getElementById("calibrationPoints");
+
+        points.forEach(([x, y], index) => {
+            const point = document.createElement("div");
             point.className = "calibration-point";
-            point.style.left = pos.x + "px";
-            point.style.top = pos.y + "px";
+            point.style.left = `${x}%`;
+            point.style.top = `${y}%`;
+            point.dataset.clicks = 0;
             point.onclick = () => {
-                clickCounts[index]++;
-                if (clickCounts[index] >= 30) {
-                    point.style.display = "none";
-                    checkCompletion();
+                point.dataset.clicks = parseInt(point.dataset.clicks) + 1;
+                if (parseInt(point.dataset.clicks) >= 30) {
+                    point.remove();
+                    remaining--;
+                    if (remaining === 0) finishCalibration();
                 }
             };
-            container.appendChild(point);
+            calibrationContainer.appendChild(point);
         });
-        
-        function checkCompletion() {
-            if (clickCounts.every(count => count >= 30)) {
-                document.getElementById("calibration-container").style.display = "none";
-                document.getElementById("thank-you").style.display = "block";
-                document.getElementById("heatmapContainer").style.display = "block";
-                renderHeatmap();
-            }
+
+        function finishCalibration() {
+            document.getElementById("calibrationScreen").style.display = "none";
+            document.getElementById("thanksScreen").style.display = "block";
+            webgazer.pause();
         }
 
-        function renderHeatmap() {
-            heatmapInstance.setData({
-                max: 100,
-                data: gazeData.map(d => ({ x: d.x, y: d.y, value: 1 }))
-            });
-        }
+        webgazer.setGazeListener((dataPoint, elapsedTime) => {
+            if (dataPoint) gazeData.push({ time: elapsedTime, x: dataPoint.x, y: dataPoint.y });
+        }).begin();
 
-        function downloadHeatmap() {
-            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gazeData));
-            let a = document.createElement("a");
+        document.getElementById("downloadData").addEventListener("click", () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gazeData));
+            const a = document.createElement("a");
             a.href = dataStr;
-            a.download = "heatmap_data.json";
+            a.download = "eye_tracking_data.json";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-        }
-        
-        webgazer.setGazeListener((data, timestamp) => {
-            if (data) {
-                gazeData.push({ x: data.x, y: data.y, time: timestamp });
-            }
-        }).begin();
+        });
     </script>
 </body>
 </html>

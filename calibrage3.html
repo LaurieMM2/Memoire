@@ -8,19 +8,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simpleheat/0.4.0/simpleheat.min.js"></script>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        #calibrationPointsContainer { position: relative; margin-top: 30vh; height: 50vh; }
-        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
+        body { text-align: center; font-family: Arial, sans-serif; position: relative; }
+        #calibrationPointsContainer { position: relative; margin-top: 30vh; height: 50vh; width: 100vw; }
+        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; cursor: pointer; }
         #thanksScreen { display: none; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
     </style>
 </head>
 <body>
     <div id="calibrationScreen">
         <h1>Calibration</h1>
         <p>Cliquez 30 fois sur chaque point pour les faire disparaître.</p>
-        <div id="calibrationPointsContainer">
-            <div id="calibrationPoints"></div>
-        </div>
+        <div id="calibrationPointsContainer"></div>
     </div>
     
     <div id="thanksScreen">
@@ -38,26 +37,26 @@
         ];
         let data = [];
         let remaining = points.length;
-        const calibrationContainer = document.getElementById("calibrationPoints");
+        const calibrationContainer = document.getElementById("calibrationPointsContainer");
         const canvas = document.getElementById("heatmap");
         const ctx = canvas.getContext("2d");
         const heat = simpleheat(canvas);
 
-        points.forEach(([x, y], index) => {
+        points.forEach(([x, y]) => {
             const point = document.createElement("div");
             point.className = "calibration-point";
             point.style.left = `${x}%`;
             point.style.top = `${y}%`;
             point.dataset.clicks = 0;
-            point.onclick = () => {
+            calibrationContainer.appendChild(point);
+            point.addEventListener("click", () => {
                 point.dataset.clicks = parseInt(point.dataset.clicks) + 1;
                 if (parseInt(point.dataset.clicks) >= 30) {
                     point.remove();
                     remaining--;
                     if (remaining === 0) finishCalibration();
                 }
-            };
-            calibrationContainer.appendChild(point);
+            });
         });
 
         function finishCalibration() {
@@ -67,13 +66,17 @@
             drawHeatmap();
         }
 
-        webgazer.setGazeListener((dataPoint, elapsedTime) => {
-            if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
-        }).begin();
+        function startEyeTracking() {
+            webgazer.setGazeListener((dataPoint, elapsedTime) => {
+                if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
+            }).begin();
+        }
+        
+        setTimeout(startEyeTracking, 2000); // Ajout d'un délai pour éviter les problèmes d'initialisation
 
         document.getElementById("downloadData").addEventListener("click", () => {
             const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet([["Time", "X", "Y"], ...data]);
+            const ws = XLSX.utils.aoa_to_sheet([ ["Time", "X", "Y"], ...data ]);
             XLSX.utils.book_append_sheet(wb, ws, "EyeTrackingData");
             XLSX.writeFile(wb, "eye_tracking_data.xlsx");
         });
@@ -85,13 +88,13 @@
             heat.max(10);
             heat.draw(0.05);
         }
+
         document.getElementById("downloadHeatmap").addEventListener("click", () => {
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
             link.download = 'heatmap.png';
             link.click();
         });
-      
     </script>
 </body>
 </html>

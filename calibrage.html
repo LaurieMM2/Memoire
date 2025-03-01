@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calibration Eye Tracking</title>
+    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
+        #thanksScreen { display: none; }
+    </style>
+</head>
+<body>
+    <div id="calibrationScreen">
+        <h1>Calibration</h1>
+        <p>Cliquez sur chaque point jusqu'à ce qu'ils disparaissent.</p>
+        <div id="calibrationPoints"></div>
+    </div>
+    
+    <div id="thanksScreen">
+        <h1>Merci, c'est fini !</h1>
+        <button id="downloadData">Télécharger les données</button>
+    </div>
+
+    <script>
+        const points = [
+            [10, 10], [50, 10], [90, 10],
+            [10, 50], [50, 50], [90, 50],
+            [10, 90], [50, 90], [90, 90]
+        ];
+        let data = [];
+        let remaining = points.length;
+        const calibrationContainer = document.getElementById("calibrationPoints");
+
+        points.forEach(([x, y], index) => {
+            const point = document.createElement("div");
+            point.className = "calibration-point";
+            point.style.left = `${x}%`;
+            point.style.top = `${y}%`;
+            point.onclick = () => {
+                point.remove();
+                remaining--;
+                if (remaining === 0) finishCalibration();
+            };
+            calibrationContainer.appendChild(point);
+        });
+
+        function finishCalibration() {
+            document.getElementById("calibrationScreen").style.display = "none";
+            document.getElementById("thanksScreen").style.display = "block";
+            webgazer.pause();
+        }
+
+        webgazer.setGazeListener((dataPoint, elapsedTime) => {
+            if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
+        }).begin();
+
+        document.getElementById("downloadData").addEventListener("click", () => {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([["Time", "X", "Y"], ...data]);
+            XLSX.utils.book_append_sheet(wb, ws, "EyeTrackingData");
+            XLSX.writeFile(wb, "eye_tracking_data.xlsx");
+        });
+    </script>
+</body>
+</html>

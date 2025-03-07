@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calibration + Boîte Mail</title>
+    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        #calibrationScreen, #mailScreen { display: none; }
+        #calibrationPointsContainer { position: relative; margin-top: 40vh; height: 50vh; }
+        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
+    </style>
+</head>
+<body>
+    <div id="calibrationScreen">
+        <h1>Calibration</h1>
+        <p>Cliquez 30 fois sur chaque point pour les faire disparaître.</p>
+        <div id="calibrationPointsContainer">
+            <div id="calibrationPoints"></div>
+        </div>
+    </div>
+    
+    <div id="mailScreen">
+        <h1>Boîte Mail</h1>
+        <div class="sidebar">
+            <h3>📧 Boîte de Réception</h3>
+            <ul class="email-list" id="emailList"></ul>
+        </div>
+        <div class="email-content-container">
+            <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
+            <button id="downloadBtn" onclick="downloadExcel()">Télécharger les résultats</button>
+        </div>
+    </div>
+
+    <script>
+        const calibrationData = [];
+        let remaining = 9;
+        const calibrationContainer = document.getElementById("calibrationPoints");
+
+        [[10,10],[50,10],[90,10],[10,40],[50,40],[90,40],[10,70],[50,70],[90,70]].forEach(([x, y]) => {
+            const point = document.createElement("div");
+            point.className = "calibration-point";
+            point.style.left = `${x}%`;
+            point.style.top = `${y}%`;
+            point.dataset.clicks = 0;
+            point.onclick = () => {
+                point.dataset.clicks++;
+                if (point.dataset.clicks >= 30) {
+                    point.remove();
+                    remaining--;
+                    if (remaining === 0) finishCalibration();
+                }
+            };
+            calibrationContainer.appendChild(point);
+        });
+
+        function finishCalibration() {
+            document.getElementById("calibrationScreen").style.display = "none";
+            document.getElementById("mailScreen").style.display = "block";
+            webgazer.pause();
+        }
+
+        webgazer.setGazeListener((data, time) => {
+            if (data) calibrationData.push([time, data.x, data.y]);
+        }).begin();
+
+        function downloadExcel() {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([['Time', 'X', 'Y'], ...calibrationData]);
+            XLSX.utils.book_append_sheet(wb, ws, "CalibrationData");
+            XLSX.writeFile(wb, "experiment_results.xlsx");
+        }
+    </script>
+</body>
+</html>

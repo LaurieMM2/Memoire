@@ -3,111 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expérience de Détection de Phishing</title>
+    <title>Boîte Mail - Expérience de Détection de Phishing</title>
     <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background-color: #e5e7eb;
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
+            margin: 0;
+        }
+        .sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
             flex-direction: column;
+            margin-top: 40vh;
+        }
+        .email-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .email-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .email-list li:hover {
+            background: #f0f0f0;
+        }
+        .email-content-container {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #e5e7eb;
         }
         .email-container {
             background: white;
-            width: 600px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             padding: 20px;
-            text-align: left;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
         }
-        .email-header {
+        .notation-container {
+            background: #b0b3b8;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            display: none;
+        }
+        .likert-scale {
+            margin-top: 25px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-        }
-        .email-header img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        .email-header div {
-            font-size: 14px;
-            color: #333;
-        }
-        .email-subject {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .email-content {
-            font-size: 14px;
-            color: #555;
-            line-height: 1.5;
-        }
-        .buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-around;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            color: white;
-        }
-        .safe { background-color: #4CAF50; }
-        .dangerous { background-color: #f44336; }
-        .download-button {
-            margin-top: 20px;
+            font-size: 15px;
+            background: #f1f1f1;
             padding: 10px;
-            font-size: 14px;
+            border-radius: 8px;
+        }
+        .submit-button {
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 16px;
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Expérience de Détection de Phishing</h1>
-    <p>Classifiez chaque e-mail comme "Sûr" ou "Dangereux".</p>
-
-    <div id="emailDisplay" class="email-container"></div>
-    <div class="buttons">
-        <button id="safeBtn" class="safe">Sûr</button>
-        <button id="dangerousBtn" class="dangerous">Dangereux</button>
+    <div class="sidebar">
+        <h3>📧 Boîte de Réception</h3>
+        <ul class="email-list" id="emailList"></ul>
+    </div>
+    <div class="email-content-container">
+        <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
+        <button id="downloadBtn" class="submit-button hidden" onclick="downloadExcel()">📥 Télécharger les résultats</button>
+        <div class="notation-container" id="notationContainer">
+            <p>Évaluation du risque :</p>
+            <div class="likert-scale" id="likertScale"></div>
+            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+        </div>
     </div>
 
     <script>
-        const emails = [
-            {
-                sender: "support@google.fr",
-                name: "Google Support",
-                subject: "Vérification de sécurité",
-                content: "Bonjour, nous avons détecté une connexion suspecte sur votre compte. Veuillez vérifier votre identité en cliquant sur le lien ci-dessous.",
-                isPhishing: false
-            },
-            {
-                sender: "admin@banquefausse.com",
-                name: "Banque Sécurité",
-                subject: "Problème de sécurité",
-                content: "Cher client, nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.",
-                isPhishing: true
-            }
+        let emails = [
+            { sender: "support@google.fr", name: "Google Support", subject: "Alerte de sécurité", content: "Bonjour, ceci est un test.", isPhishing: false },
+            { sender: "admin@banque-arnaque.com", name: "Banque Sécurité", subject: "Problème de sécurité", content: "Cher client, veuillez mettre à jour vos infos.", isPhishing: true }
         ];
 
-        let currentEmailIndex = 0;
-        let startTime;
         let results = [];
         let eyeTrackingData = [];
+        let startTime;
+        let currentEmailIndex = null;
 
         webgazer.setGazeListener((data, timestamp) => {
             if (data) {
@@ -115,54 +126,66 @@
             }
         }).begin();
 
-        function displayEmail() {
-            if (currentEmailIndex < emails.length) {
-                const email = emails[currentEmailIndex];
+        function loadEmailList() {
+            const emailList = document.getElementById("emailList");
+            emailList.innerHTML = emails.map((email, index) => `
+                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
+            `).join('');
 
-                document.getElementById("emailDisplay").innerHTML = `
-                    <div class="email-header">
-                        <img src="https://via.placeholder.com/40" alt="Profile">
-                        <div>
-                            <strong>${email.name}</strong> <br>
-                            <span style="color: gray;">${email.sender}</span>
-                        </div>
-                    </div>
-                    <div class="email-subject">${email.subject}</div>
-                    <div class="email-content">${email.content}</div>
-                `;
-
-                startTime = performance.now();
-                eyeTrackingData = [];
-            } else {
-                endExperiment();
+            if (emails.length === 0) {
+                document.getElementById("downloadBtn").classList.remove("hidden");
+                document.getElementById("emailDisplay").innerHTML = "✅ Tous les emails ont été notés.";
+                document.getElementById("notationContainer").style.display = "none";
             }
         }
 
-        function recordResponse(isSafe) {
-            const endTime = performance.now();
-            const reactionTime = (endTime - startTime).toFixed(2);
-            const email = emails[currentEmailIndex];
-            const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
+        function displayEmail(index) {
+            startTime = Date.now();
+            eyeTrackingData = [];
+            currentEmailIndex = index;
+            const email = emails[index];
+
+            document.getElementById("emailDisplay").innerHTML = `
+                <div class="email-header">
+                    <div class="email-avatar">${email.name[0]}</div>
+                    <div><strong>${email.name}</strong> <br><span style="color: gray;">${email.sender}</span></div>
+                </div>
+                <div class="email-content">${email.content}</div>
+            `;
+
+            document.getElementById("notationContainer").style.display = "block";
+            generateLikertScale();
+        }
+
+        function generateLikertScale() {
+            document.getElementById("likertScale").innerHTML = `
+                <span>1 (Pas suspect)</span>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `<label><input type="radio" name="likert" value="${num}"> ${num}</label>`).join('')}
+                <span>7 (Très suspect)</span>
+            `;
+        }
+
+        function recordResponse() {
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (!selectedValue) {
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
+                return;
+            }
+
+            alert("Réponse soumise !");
+            let reactionTime = Date.now() - startTime;
 
             results.push({
-                Participant: results.length + 1,
+                email: emails[currentEmailIndex].sender,
                 "Temps de Réaction (ms)": reactionTime,
-                isCorrect: isCorrect ? "Correct" : "Incorrect",
+                "Évaluation du risque (1-7)": selectedValue.value,
                 EyeTracking: JSON.stringify(eyeTrackingData)
             });
 
-            currentEmailIndex++;
-            displayEmail();
-        }
-
-        function endExperiment() {
-            document.body.innerHTML = "<h1>Expérience terminée, merci !</h1>";
-            let downloadBtn = document.createElement("button");
-            downloadBtn.innerText = "Télécharger les résultats";
-            downloadBtn.className = "download-button";
-            downloadBtn.onclick = downloadExcel;
-            document.body.appendChild(downloadBtn);
-            webgazer.end();
+            emails.splice(currentEmailIndex, 1);
+            currentEmailIndex = null;
+            document.getElementById("notationContainer").style.display = "none";
+            loadEmailList();
         }
 
         function downloadExcel() {
@@ -172,10 +195,7 @@
             XLSX.writeFile(wb, "resultats_experience.xlsx");
         }
 
-        document.getElementById("safeBtn").addEventListener("click", () => recordResponse(true));
-        document.getElementById("dangerousBtn").addEventListener("click", () => recordResponse(false));
-
-        displayEmail();
+        loadEmailList();
     </script>
 </body>
 </html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calibration Eye Tracking - Milieu</title>
+    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    </style>
+</head>
+<body>
+    <div class="calibration-point"></div>
+    <script>
+        let data = [];
+        webgazer.setGazeListener((dataPoint, elapsedTime) => {
+            if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
+        }).begin();
+
+        setTimeout(() => {
+            saveData("eye_tracking_data_1.xlsx", "point_gauche_final.html");
+        }, 10000);
+
+        function saveData(filename, nextPage) {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([["Time", "X", "Y"], ...data]);
+            XLSX.utils.book_append_sheet(wb, ws, "EyeTrackingData");
+            XLSX.writeFile(wb, filename);
+            window.location.href = nextPage;
+        }
+    </script>
+</body>
+</html>

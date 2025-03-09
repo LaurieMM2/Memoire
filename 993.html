@@ -146,6 +146,7 @@
         <div class="notation-container" id="notationContainer" style="display: none;">
             <p>Évaluation du risque :</p>
             <div class="likert-scale" id="likertScale"></div>
+            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
         </div>
     </div>
     <script>
@@ -255,7 +256,7 @@
             generateLikertScale();
         }
 
-        function generateLikertScale(index) {
+        function generateLikertScale() {
             let scaleContainer = document.getElementById("likertScale");
             scaleContainer.innerHTML = `
                 <span>1 (Pas suspect)</span>
@@ -265,7 +266,6 @@
                     </label>
                 `).join('')}
                 <span>7 (Très suspect)</span>
-                <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
             `;
         }
 

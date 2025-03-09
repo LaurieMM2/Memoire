@@ -22,7 +22,7 @@
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            margin-top: 40vh;
+            margin-top: 40vh; /* Décale encore plus la sidebar vers le bas */
         }
         .email-list {
             list-style: none;
@@ -50,6 +50,13 @@
             justify-content: center;
             align-items: center;
         }
+        .notation-container { /* AJOUTÉ POUR SÉPARER VISUELLEMENT LA NOTATION */
+            margin-top: 20px;
+            padding: 15px;
+            background: #f1f1f1;
+            border-radius: 8px;
+            text-align: center;
+        }
         .email-container {
             background: white;
             border-radius: 8px;
@@ -59,16 +66,66 @@
             display: flex;
             flex-direction: column;
         }
-        .notation-container {
-            margin-top: 20px;
-            padding: 15px;
+        .email-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .email-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4caf50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        .email-subject {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .email-content {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.6;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .likert-scale {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
             background: #f1f1f1;
+            padding: 10px;
             border-radius: 8px;
-            text-align: center;
         }
         .likert-scale label {
-            margin: 0 5px;
             cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+        }
+        .likert-scale label:hover {
+            background-color: #ddd;
+            border-radius: 5px;
+        }
+        .submit-button {
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -79,6 +136,7 @@
     </div>
     <div class="email-content-container">
         <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
+        <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
     </div>
     <script>
         let emails = [
@@ -86,24 +144,75 @@
                 sender: "support@google.fr",
                 name: "Google Support",
                 subject: "Alerte de sécurité",
-                content: "Nous avons détecté une connexion suspecte.",
+                content: "Bonjour,<br><br>Nous avons détecté une nouvelle connexion à votre compte Google depuis un Windows. Si c'était vous, aucune action de votre part n'est requise. Dans le cas contraire, nous vous aiderons à sécuriser votre compte. Vous pouvez aussi voir l'activité liée à la sécurité de votre compte en cliquant sur le lien ci-dessous.<br><br><a href='#'>Consulter l'activité</a><br><br>Cordialement,<br>L'équipe Google",
                 isPhishing: false
-            },
+            }, //0 crédit 0 ortho (00)
             {
                 sender: "admin@banque-arnaque.com",
                 name: "Banque Sécurité",
                 subject: "Problème de sécurité",
-                content: "Mettez à jour vos informations immédiatement.",
+                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br>Service Sécurité",
                 isPhishing: true
-            },
+            }, //2 crédit 0 ortho
+            {
+                sender: "support@airfrance.fr",
+                name: "Support Air France",
+                subject: "Détails de vautre vol",
+                content: "Cher passagé,<br><br>Voici les détails de vautre vol réservait. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour les voir. Bons voyage !<br><br>Service Clients",
+                isPhishing: false
+            }, //0 crédit 2 ortho
+            {
+                sender: "impots@gouv-faux.fr",
+                name: "Administration fiscale",
+                subject: "Frode détectait sur votre dossié fiscal",
+                content: "Cher contribuable,<br><br>Votre dossié fiscal est sou investigation. Prenait des mesures <a href='http://fraude-fiscale-faux.com'>ici</a>.<br><br>Service Fiscalité",
+                isPhishing: true
+            }, //2 crédit 2 ortho
+            {
+                sender: "no-reply@i.impots.gouv.fr",
+                name: "Administration fiscale",
+                subject: "Remboursement d'impôts disponible",
+                content: "Cher contribuable,<br><br>Vous avez droit à un remboursement. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour le réclamer.<br><br>Service Fiscalité",
+                isPhishing: true
+            },//1 crédit 0 ortho
+            {
+                sender: "administration@universite.fr",
+                name: "Université",
+                subject: "Confirmation d'inscription",
+                content: "Cher étudiant,<br><br>Votre inscription pour le semestre est confirmée. Bonne continuation.<br><br>Service Inscriptions",
+                isPhishing: false
+            },// (00)
+            {
+                sender: "RH@entreprise.com",
+                name: "Ressources Humaines",
+                subject: "Réunions d'équipe programmée",
+                content: "Bonjour,<br><br>Une réunion est prévu vendredi à 10h. Merci de confirmée votre présence en cliquant <a href='http://dropbox-faux.com'>ici</a><br><br>Service RH",
+                isPhishing: false
+            },//0 crédit 1 ortho
             {
                 sender: "support@fdrop.box.com",
                 name: "Support Dropbox",
                 subject: "Partage de fichiers en attente",
-                content: "Un fichier important vous a été partagé.",
+                content: "Cher utilisateur,<br><br>Un fichier importants vous à été partagé. Accédez-y <a href='http://dropbox-faux.com'>ici</a>.<br><br>Service Support",
                 isPhishing: true
-            }
+            },//1 crédit 1 ortho
+            {
+                sender: "info@bibliotheque.fr",
+                name: "Bibliothèque",
+                subject: "Rappel de retour de livres",
+                content: "Cher lecteur,<br><br>N'oubliez pas de retourner vos livres avant la date limite.<br><br>Service Bibliothèque",
+                isPhishing: false
+            },// (00)
         ];
+        let results = [];
+        let eyeTrackingData = [];
+        let startTime;
+        
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                eyeTrackingData.push({ x: data.x, y: data.y, timestamp: timestamp });
+            }
+        }).begin();
 
         function loadEmailList() {
             const emailList = document.getElementById("emailList");
@@ -112,24 +221,72 @@
             `).join('');
         }
 
+        function getInitials(name) {
+            return name.split(" ").map(word => word[0]).join("").toUpperCase();
+        }
+        
         function displayEmail(index) {
+            startTime = Date.now(); // Démarrer le chronomètre
+            eyeTrackingData = []; // Réinitialiser les données eye-tracking
             const email = emails[index];
             document.getElementById("emailDisplay").innerHTML = `
-                <div><strong>${email.name}</strong> (${email.sender})</div>
-                <div>${email.subject}</div>
-                <p>${email.content}</p>
-                <div class="notation-container">
-                    <p>Évaluation du risque :</p>
-                    <div class="likert-scale">
-                        ${[1, 2, 3, 4, 5, 6, 7].map(num => `
-                            <label>
-                                <input type="radio" name="likert" value="${num}"> ${num}
-                            </label>
-                        `).join('')}
+                <div class="email-header">
+                    <div class="email-avatar">${getInitials(email.name)}</div>
+                    <div>
+                        <strong>${email.name}</strong> <br>
+                        <span style="color: gray;">${email.sender}</span>
                     </div>
-                    <button class="submit-button" onclick="alert('Réponse soumise !')">Soumettre</button>
                 </div>
+                <div class="email-subject">${email.subject}</div>
+                <div class="email-content">${email.content}</div>
+                <div class="notation-container">
+                <div class="likert-scale">
+                    <span>1 (Pas suspect)</span>
+                    ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                        <label>
+                            <input type="radio" name="likert" value="${num}">
+                            ${num}
+                        </label>
+                    `).join('')}
+                    <span>7 (Très suspect)</span>
+                </div>
+                <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
             `;
+        }
+
+        function recordResponse(index) {
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (!selectedValue) {
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
+                return;
+            }
+            let reactionTime = Date.now() - startTime; // Calculer le temps de réaction
+            results.push({
+                email: emails[index].sender,
+                "Temps de Réaction (ms)": reactionTime,
+                "Évaluation du risque (1-7)": selectedValue.value,
+                EyeTracking: JSON.stringify(eyeTrackingData)
+            });
+            emails.splice(index, 1);
+            loadEmailList();
+            if (emails.length > 0) {
+                document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
+            } else {
+                endExperiment();
+            }
+        }
+
+        function endExperiment() {
+            document.getElementById("emailDisplay").innerHTML = "Expérience terminée, merci !";
+            document.getElementById("downloadBtn").style.display = "block";
+            webgazer.end();
+        }
+
+        function downloadExcel() {
+            let ws = XLSX.utils.json_to_sheet(results);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
         }
 
         loadEmailList();

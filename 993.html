@@ -44,7 +44,7 @@
             align-items: center;
         }
         .email-container {
-            background: black;
+            background: white;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             padding: 20px;
@@ -53,8 +53,7 @@
             display: flex;
             flex-direction: column;
         }
-        .email-content {
-            flex-grow: 1;
+        .email-content-container {
             padding-bottom: 15px;
             border-bottom: 2px solid #ddd; /* Séparation claire */
             margin-bottom: 15px;
@@ -130,12 +129,12 @@
             currentEmailIndex = index;
             const email = emails[index];
             document.getElementById("emailDisplay").innerHTML = `
-                <div class="email-content">
+                <div class="email-content-container">
                     <div><strong>${email.name}</strong> (${email.sender})</div>
                     <div><strong>${email.subject}</strong></div>
                     <p>${email.content}</p>
                 </div>
-                <!-- Bloc de notation séparé du contenu -->
+                <!-- Bloc de notation séparé du contenu mais toujours dans .email-container -->
                 <div class="notation-container">
                     <p>Évaluation du risque :</p>
                     <div class="likert-scale">

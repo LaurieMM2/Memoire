@@ -7,133 +7,72 @@
     <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #e5e7eb;
-            display: flex;
-            height: 100vh;
-            margin: 0;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            display: flex;
-            width: 80%;
-            margin-top: 20px;
-        }
-        .sidebar {
-            width: 300px;
-            background: #ffffff;
-            border-right: 1px solid #ccc;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
-        .email-content-container {
-            flex-grow: 1;
-            padding: 20px;
-            background: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
         .email-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .email-content {
             background: white;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            padding: 20px;
-            flex-grow: 1;
-            width: 100%;
         }
         .notation-container {
-            width: 80%;
-            background: #d1d5db;
+            background: #f1f1f1;
             padding: 15px;
-            margin-top: 10px;
             border-radius: 8px;
             text-align: center;
-        }
-        .likert-scale {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 15px;
-            padding: 10px;
-        }
-        .submit-button {
-            margin-top: 15px;
-            padding: 12px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="sidebar">
-            <h3>📧 Boîte de Réception</h3>
-            <ul class="email-list" id="emailList"></ul>
-        </div>
-        <div class="email-content-container">
-            <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
-        </div>
-    </div>
-    <div class="notation-container">
-        <h4>Évaluation du risque</h4>
-        <div class="likert-scale" id="notationScale">
-            <span>1 (Pas suspect)</span>
-            ${[1, 2, 3, 4, 5, 6, 7].map(num => `
-                <label>
-                    <input type="radio" name="likert" value="${num}">
-                    ${num}
-                </label>
-            `).join('')}
-            <span>7 (Très suspect)</span>
-        </div>
-        <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+    <div class="email-content-container">
+        <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
+        <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
     </div>
     <script>
         let emails = [
-            {
-                sender: "support@airfrance.fr",
-                name: "Support Air France",
-                subject: "Détails de vautre vol",
-                content: "Cher passagé,<br><br>Voici les détails de vautre vol réservait. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour les voir. Bons voyage !<br><br>Service Clients",
-                isPhishing: false
-            }, // 0 crédit 2 ortho
             {
                 sender: "admin@banque-arnaque.com",
                 name: "Banque Sécurité",
                 subject: "Problème de sécurité",
                 content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br>Service Sécurité",
                 isPhishing: true
-            }, // 2 crédit 0 ortho
+            }, //2 crédit 0 ortho
         ];
-        
-        function loadEmailList() {
-            const emailList = document.getElementById("emailList");
-            emailList.innerHTML = emails.map((email, index) => `
-                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
-            `).join('');
-        }
+
         function displayEmail(index) {
+            startTime = Date.now();
+            eyeTrackingData = [];
             const email = emails[index];
             document.getElementById("emailDisplay").innerHTML = `
-                <strong>${email.name}</strong> <br>
-                <span style="color: gray;">${email.sender}</span> <br><br>
-                <strong>${email.subject}</strong> <br>
-                <div>${email.content}</div>
+                <div class="email-content">
+                    <div class="email-header">
+                        <div class="email-avatar">${getInitials(email.name)}</div>
+                        <div>
+                            <strong>${email.name}</strong> <br>
+                            <span style="color: gray;">${email.sender}</span>
+                        </div>
+                    </div>
+                    <div class="email-subject">${email.subject}</div>
+                    <div class="email-content">${email.content}</div>
+                </div>
+                <div class="notation-container">
+                    <div class="likert-scale">
+                        <span>1 (Pas suspect)</span>
+                        ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                            <label>
+                                <input type="radio" name="likert" value="${num}">
+                                ${num}
+                            </label>
+                        `).join('')}
+                        <span>7 (Très suspect)</span>
+                    </div>
+                    <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
+                </div>
             `;
         }
-        function recordResponse() {
-            alert("Réponse enregistrée");
-        }
-        loadEmailList();
     </script>
 </body>
 </html>

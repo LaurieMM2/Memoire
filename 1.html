@@ -149,10 +149,6 @@
             `;
 
             document.getElementById("notationContainer").style.display = "block";
-            
-            console.log("Email affiché:", email.subject);
-            console.log("Note enregistrée:", email.rating);
-
             generateLikertScale(email.rating);
         }
 
@@ -168,9 +164,12 @@
                 <span>7 (Très suspect)</span>
             `;
 
-            if (selectedValue !== null) {
-                document.querySelector(`input[name="likert"][value="${selectedValue}"]`).checked = true;
-            }
+            // Ajout d'un EventListener pour assurer la sauvegarde
+            document.querySelectorAll('input[name="likert"]').forEach(input => {
+                input.addEventListener("change", function() {
+                    emails[currentEmailIndex].rating = parseInt(this.value);
+                });
+            });
         }
 
         function recordResponse() {
@@ -181,7 +180,6 @@
             }
 
             emails[currentEmailIndex].rating = parseInt(selectedValue.value);
-            console.log("Nouvelle note enregistrée:", emails[currentEmailIndex].rating);
             alert("Réponse soumise !");
         }
 

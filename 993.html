@@ -13,6 +13,8 @@
             display: flex;
             height: 100vh;
             margin: 0;
+            flex-direction: column; /* Permet d'empiler les éléments verticalement */
+            align-items: center; /* Centre le contenu */
         }
         .sidebar {
             width: 300px;
@@ -50,12 +52,12 @@
             justify-content: center;
             align-items: center;
         }
-        .notation-container { /* AJOUTÉ POUR SÉPARER VISUELLEMENT LA NOTATION */
-            margin-top: 20px;
+        .notation-container { /* AJOUTÉ : DÉPLACÉ EN DEHORS DU MAIL */
             padding: 15px;
             background: #f1f1f1;
             border-radius: 8px;
             text-align: center;
+            width: 80%;
         }
         .email-container {
             background: white;
@@ -138,6 +140,14 @@
     <div class="email-content-container">
         <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
         <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
+    </div>
+    <!-- NOTATION EN DEHORS DE L'EMAIL -->
+    <div id="notationContainer" class="notation-container" style="display: none;"> <!-- AJOUTÉ : INITIALEMENT CACHÉ -->
+        <p>Évaluation du risque :</p>
+        <div class="likert-scale" id="likertScale">
+            <!-- Les options seront générées dynamiquement -->
+        </div>
+        <button class="submit-button" onclick="recordResponse()">Soumettre</button>
     </div>
     <script>
         let emails = [

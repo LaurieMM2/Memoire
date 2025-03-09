@@ -14,7 +14,6 @@
             height: 100vh;
             margin: 0;
         }
-
         .sidebar {
             width: 300px;
             background: #ffffff;
@@ -25,7 +24,22 @@
             flex-direction: column;
             margin-top: 40vh;
         }
-
+        .email-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .email-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .email-list li:hover {
+            background: #f0f0f0;
+        }
         .email-content-container {
             background: #f5f5f5;
             flex-grow: 1;
@@ -34,24 +48,19 @@
             flex-direction: column;
             align-items: center;
         }
-
         .email-container {
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             padding: 20px;
-            width: 100%;
+            width: 80%;
             max-width: 600px;
-            display: flex;
-            flex-direction: column;
         }
-
         .email-header {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
         }
-
         .email-avatar {
             width: 50px;
             height: 50px;
@@ -65,13 +74,11 @@
             font-weight: bold;
             margin-right: 12px;
         }
-
         .email-subject {
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 15px;
         }
-
         .email-content {
             font-size: 15px;
             color: #444;
@@ -79,39 +86,33 @@
             border-top: 1px solid #ddd;
             padding-top: 15px;
         }
-
-        /* ✅ NOUVEAU STYLE : Séparation claire de la notation */
         .notation-container {
-            background: #f9f9f9;
-            padding: 15px;
+            background: white;
             border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            margin-top: 20px;
             text-align: center;
-            margin-top: 20px; /* Espace pour séparer de l'email content */
-            border-top: 2px solid #ddd; /* Bordure pour bien distinguer */
-            width: 100%;
-            max-width: 600px; /* Aligné avec l'email-container */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Légère ombre */
         }
-
         .likert-scale {
+            margin-top: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 15px;
             padding: 10px;
         }
-
         .likert-scale label {
             cursor: pointer;
             padding: 5px;
             transition: 0.2s;
         }
-
         .likert-scale label:hover {
             background-color: #ddd;
             border-radius: 5px;
         }
-
         .submit-button {
             margin-top: 15px;
             padding: 12px;
@@ -134,58 +135,71 @@
 
     <div class="email-content-container">
         <div id="emailDisplay" class="email-container">
-            <div class="email-header">
-                <div class="email-avatar" id="emailAvatar"></div>
-                <div>
-                    <strong id="emailSenderName"></strong> <br>
-                    <span style="color: gray;" id="emailSender"></span>
-                </div>
-            </div>
-            <div class="email-subject" id="emailSubject"></div>
-            <div class="email-content" id="emailContent"></div>
+            Sélectionnez un email pour l'afficher.
         </div>
 
-        <!-- ✅ NOUVEAU : Notation bien séparée -->
-        <div class="notation-container">
+        <div id="notationContainer" class="notation-container" style="display: none;">
             <p>Évaluation du risque :</p>
             <div class="likert-scale">
                 <span>1 (Pas suspect)</span>
-                <label><input type="radio" name="likert" value="1"> 1</label>
-                <label><input type="radio" name="likert" value="2"> 2</label>
-                <label><input type="radio" name="likert" value="3"> 3</label>
-                <label><input type="radio" name="likert" value="4"> 4</label>
-                <label><input type="radio" name="likert" value="5"> 5</label>
-                <label><input type="radio" name="likert" value="6"> 6</label>
-                <label><input type="radio" name="likert" value="7"> 7</label>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                    <label>
+                        <input type="radio" name="likert" value="${num}">
+                        ${num}
+                    </label>
+                `).join('')}
                 <span>7 (Très suspect)</span>
             </div>
             <button class="submit-button" onclick="recordResponse()">Soumettre</button>
         </div>
+
+        <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
     </div>
 
     <script>
+        let emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "Alerte de sécurité",
+                content: "Nous avons détecté une connexion suspecte...",
+                isPhishing: false
+            },
+            {
+                sender: "admin@banque-arnaque.com",
+                name: "Banque Sécurité",
+                subject: "Problème de sécurité",
+                content: "Merci de mettre à jour vos informations...",
+                isPhishing: true
+            }
+        ];
+        let results = [];
+        let startTime;
+
         function loadEmailList() {
             const emailList = document.getElementById("emailList");
             emailList.innerHTML = emails.map((email, index) => `
-                <li onclick="displayEmail(${index})">
-                    <strong>${email.name}</strong><br>
-                    <small>${email.subject}</small>
-                </li>
+                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
             `).join('');
         }
 
-        function getInitials(name) {
-            return name.split(" ").map(word => word[0]).join("").toUpperCase();
-        }
-
         function displayEmail(index) {
+            startTime = Date.now();
             const email = emails[index];
 
-            document.getElementById("emailAvatar").textContent = getInitials(email.name);
-            document.getElementById("emailSenderName").textContent = email.name;
-            document.getElementById("emailSender").textContent = email.sender;
-            document.getElementById("emailSubject").textContent = email.subject;
-            document.getElementById("emailContent").innerHTML = email.content;
+            document.getElementById("emailDisplay").innerHTML = `
+                <div class="email-header">
+                    <div class="email-avatar">${email.name[0]}</div>
+                    <div>
+                        <strong>${email.name}</strong> <br>
+                        <span style="color: gray;">${email.sender}</span>
+                    </div>
+                </div>
+                <div class="email-subject">${email.subject}</div>
+                <div class="email-content">${email.content}</div>
+            `;
+
+            document.getElementById("notationContainer").style.display = "block";
         }
 
         function recordResponse() {
@@ -194,17 +208,26 @@
                 alert("Veuillez sélectionner une valeur sur l'échelle.");
                 return;
             }
-            alert("Votre réponse a été enregistrée : " + selectedValue.value);
+            let reactionTime = Date.now() - startTime;
+            results.push({
+                "Évaluation du risque (1-7)": selectedValue.value,
+                "Temps de Réaction (ms)": reactionTime
+            });
+
+            document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
+            document.getElementById("notationContainer").style.display = "none";
+
+            if (results.length === emails.length) {
+                document.getElementById("downloadBtn").style.display = "block";
+            }
         }
 
-        let emails = [
-            {
-                sender: "support@google.fr",
-                name: "Google Support",
-                subject: "Alerte de sécurité",
-                content: "Bonjour,<br><br>Nous avons détecté une nouvelle connexion à votre compte Google..."
-            }
-        ];
+        function downloadExcel() {
+            let ws = XLSX.utils.json_to_sheet(results);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
+        }
 
         loadEmailList();
     </script>

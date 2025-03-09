@@ -16,28 +16,24 @@
     
     <script>
         let data = [];
-        let downloadComplete = false;
 
         webgazer.setGazeListener((dataPoint, elapsedTime) => {
             if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
         }).begin();
 
         setTimeout(() => {
-            saveData("eye_tracking_data_1.xlsx", "point_gauche.html");
+            saveData("eye_tracking_data_1.xlsx");
         }, 10000);
 
-        function saveData(filename, nextPage) {
+        setTimeout(() => {
+            window.location.href = "point_gauche.html";
+        }, 12000);
+
+        function saveData(filename) {
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet([["Time", "X", "Y"], ...data]);
             XLSX.utils.book_append_sheet(wb, ws, "EyeTrackingData");
             XLSX.writeFile(wb, filename);
-            
-            document.addEventListener("visibilitychange", () => {
-                if (document.visibilityState === "visible" && !downloadComplete) {
-                    downloadComplete = true;
-                    window.location.href = nextPage;
-                }
-            });
         }
     </script>
 </body>

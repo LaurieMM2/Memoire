@@ -146,7 +146,7 @@
         <div class="notation-container" id="notationContainer" style="display: none;">
             <p>Évaluation du risque :</p>
             <div class="likert-scale" id="likertScale"></div>
-            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+            <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
         </div>
     <script>
         let emails = [
@@ -249,20 +249,24 @@
                 </div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-content">${email.content}</div>
-                <div class="likert-scale">
-                    <span>1 (Pas suspect)</span>
-                    ${[1, 2, 3, 4, 5, 6, 7].map(num => `
-                        <label>
-                            <input type="radio" name="likert" value="${num}">
-                            ${num}
-                        </label>
-                    `).join('')}
-                    <span>7 (Très suspect)</span>
                 </div>
-                <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
+                
             `;
         }
 
+        function generateLikertScale() {
+            let scaleContainer = document.getElementById("likertScale");
+            scaleContainer.innerHTML = `
+                <span>1 (Pas suspect)</span>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                    <label>
+                        <input type="radio" name="likert" value="${num}"> ${num}
+                    </label>
+                `).join('')}
+                <span>7 (Très suspect)</span>
+            `;
+        }
+        
         function recordResponse(index) {
             const selectedValue = document.querySelector('input[name="likert"]:checked');
             if (!selectedValue) {

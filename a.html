@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boîte Mail - Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            gap: 20px;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .email-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .email-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .email-list li:hover {
+            background: #f0f0f0;
+        }
+
+        .email-content-container {
+            background: white;
+            flex-grow: 1;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .email-container {
+            background: white;
+            padding: 20px;
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        /* 🆕 Nouveau style pour donner un effet visuel distinct */
+        .notation-container {
+            background: #f8f9fa; /* Fond légèrement gris pour différencier */
+            width: 100%;
+            padding: 15px;
+            border-top: 2px solid #ddd;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1); /* Ombre pour effet de séparation */
+            text-align: center;
+        }
+
+        .likert-scale {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+
+        .submit-button {
+            margin-top: 10px;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h3>📧 Boîte de Réception</h3>
+            <ul class="email-list" id="emailList"></ul>
+        </div>
+
+        <div class="email-content-container">
+            <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
+
+            <!-- Notation maintenant intégrée mais visuellement distincte -->
+            <div class="notation-container" id="notationContainer">
+                <p>Évaluation du risque :</p>
+                <div class="likert-scale" id="likertScale"></div>
+                <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "Alerte de sécurité",
+                content: "Bonjour, nous avons détecté une connexion suspecte. Vérifiez votre compte.",
+                isPhishing: false
+            },
+            {
+                sender: "admin@banque-arnaque.com",
+                name: "Banque Sécurité",
+                subject: "Problème de sécurité",
+                content: "Votre compte est compromis, mettez à jour vos informations immédiatement.",
+                isPhishing: true
+            }
+        ];
+        
+        function loadEmailList() {
+            const emailList = document.getElementById("emailList");
+            emailList.innerHTML = emails.map((email, index) => `
+                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
+            `).join('');
+        }
+
+        function displayEmail(index) {
+            const email = emails[index];
+            document.getElementById("emailDisplay").innerHTML = `
+                <strong>${email.name}</strong> <br>
+                <span style="color: gray;">${email.sender}</span> <br>
+                <div class="email-subject">${email.subject}</div>
+                <div class="email-content">${email.content}</div>
+            `;
+
+            generateLikertScale();
+        }
+
+        function generateLikertScale() {
+            let scaleContainer = document.getElementById("likertScale");
+            scaleContainer.innerHTML = `
+                <span>1 (Pas suspect)</span>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                    <label>
+                        <input type="radio" name="likert" value="${num}"> ${num}
+                    </label>
+                `).join('')}
+                <span>7 (Très suspect)</span>
+            `;
+        }
+
+        function recordResponse() {
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (selectedValue) {
+                alert("Vous avez noté : " + selectedValue.value);
+            } else {
+                alert("Veuillez sélectionner une note avant de soumettre.");
+            }
+        }
+
+        loadEmailList();
+    </script>
+</body>
+</html>

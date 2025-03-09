@@ -1,59 +1,191 @@
-<script>
-    let emails = [
-        {
-            sender: "support@google.fr",
-            name: "Google Support",
-            subject: "Alerte de sécurité",
-            content: "Nous avons détecté une connexion suspecte.",
-            isPhishing: false,
-            rating: null // Ajout d'un champ pour la notation
-        },
-        {
-            sender: "admin@banque-arnaque.com",
-            name: "Banque Sécurité",
-            subject: "Problème de sécurité",
-            content: "Mettez à jour vos informations immédiatement.",
-            isPhishing: true,
-            rating: null
-        }
-    ];
-    let currentEmailIndex = null;
-
-    function displayEmail(index) {
-        currentEmailIndex = index;
-        const email = emails[index];
-        document.getElementById("emailDisplay").innerHTML = `
-            <div><strong>${email.name}</strong> (${email.sender})</div>
-            <div><strong>${email.subject}</strong></div>
-            <p>${email.content}</p>
-        `;
-
-        document.getElementById("notationContainer").style.display = "block";
-        generateLikertScale(email.rating);
-    }
-
-    function generateLikertScale(selectedValue = null) {
-        let scaleContainer = document.getElementById("likertScale");
-        scaleContainer.innerHTML = `
-            <span>1 (Pas suspect)</span>
-            ${[1, 2, 3, 4, 5, 6, 7].map(num => `
-                <label>
-                    <input type="radio" name="likert" value="${num}" ${selectedValue == num ? "checked" : ""}> ${num}
-                </label>
-            `).join('')}
-            <span>7 (Très suspect)</span>
-        `;
-    }
-
-    function recordResponse() {
-        const selectedValue = document.querySelector('input[name="likert"]:checked');
-        if (!selectedValue) {
-            alert("Veuillez sélectionner une valeur sur l'échelle.");
-            return;
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boîte Mail - Expérience de Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e7eb;
+            display: flex;
+            height: 100vh;
+            margin: 0;
         }
 
-        // Enregistrer la notation dans l'email affiché
-        emails[currentEmailIndex].rating = selectedValue.value;
-        alert("Réponse soumise !");
-    }
-</script>
+        .sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .email-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .email-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .email-list li:hover {
+            background: #f0f0f0;
+        }
+
+        .email-content-container {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #e5e7eb;
+        }
+
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+
+        .notation-container {
+            background: #b0b3b8;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .likert-scale {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .likert-scale label {
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .submit-button {
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>📧 Boîte de Réception</h3>
+        <ul class="email-list" id="emailList"></ul>
+    </div>
+    
+    <div class="email-content-container">
+        <div id="emailDisplay" class="email-container">
+            Sélectionnez un email pour l'afficher.
+        </div>
+        <div class="notation-container" id="notationContainer" style="display: none;">
+            <p>Évaluation du risque :</p>
+            <div class="likert-scale" id="likertScale"></div>
+            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+        </div>
+    </div>
+
+    <script>
+        let emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "Alerte de sécurité",
+                content: "Nous avons détecté une connexion suspecte.",
+                isPhishing: false,
+                rating: null
+            },
+            {
+                sender: "admin@banque-arnaque.com",
+                name: "Banque Sécurité",
+                subject: "Problème de sécurité",
+                content: "Mettez à jour vos informations immédiatement.",
+                isPhishing: true,
+                rating: null
+            }
+        ];
+        let currentEmailIndex = null;
+
+        function loadEmailList() {
+            const emailList = document.getElementById("emailList");
+            emailList.innerHTML = emails.map((email, index) => `
+                <li onclick="displayEmail(${index})"><strong>${email.name}</strong><br><small>${email.subject}</small></li>
+            `).join('');
+        }
+
+        function displayEmail(index) {
+            currentEmailIndex = index;
+            const email = emails[index];
+            document.getElementById("emailDisplay").innerHTML = `
+                <div><strong>${email.name}</strong> (${email.sender})</div>
+                <div><strong>${email.subject}</strong></div>
+                <p>${email.content}</p>
+            `;
+
+            document.getElementById("notationContainer").style.display = "block";
+            
+            console.log("Email affiché:", email.subject);
+            console.log("Note enregistrée:", email.rating);
+
+            generateLikertScale(email.rating);
+        }
+
+        function generateLikertScale(selectedValue) {
+            let scaleContainer = document.getElementById("likertScale");
+            scaleContainer.innerHTML = `
+                <span>1 (Pas suspect)</span>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                    <label>
+                        <input type="radio" name="likert" value="${num}" ${selectedValue == num ? "checked" : ""}> ${num}
+                    </label>
+                `).join('')}
+                <span>7 (Très suspect)</span>
+            `;
+
+            if (selectedValue !== null) {
+                document.querySelector(`input[name="likert"][value="${selectedValue}"]`).checked = true;
+            }
+        }
+
+        function recordResponse() {
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (!selectedValue) {
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
+                return;
+            }
+
+            emails[currentEmailIndex].rating = parseInt(selectedValue.value);
+            console.log("Nouvelle note enregistrée:", emails[currentEmailIndex].rating);
+            alert("Réponse soumise !");
+        }
+
+        loadEmailList();
+    </script>
+</body>
+</html>

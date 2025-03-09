@@ -13,8 +13,11 @@
 </head>
 <body>
     <div class="calibration-point"></div>
+    
     <script>
         let data = [];
+        let downloadComplete = false;
+
         webgazer.setGazeListener((dataPoint, elapsedTime) => {
             if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
         }).begin();
@@ -28,7 +31,13 @@
             const ws = XLSX.utils.aoa_to_sheet([["Time", "X", "Y"], ...data]);
             XLSX.utils.book_append_sheet(wb, ws, "EyeTrackingData");
             XLSX.writeFile(wb, filename);
-            window.location.href = nextPage;
+            
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === "visible" && !downloadComplete) {
+                    downloadComplete = true;
+                    window.location.href = nextPage;
+                }
+            });
         }
     </script>
 </body>

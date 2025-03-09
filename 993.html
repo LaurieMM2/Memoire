@@ -59,71 +59,6 @@
             display: flex;
             flex-direction: column;
         }
-        .email-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .email-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: #4caf50;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            margin-right: 12px;
-        }
-        .email-subject {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .email-content {
-            font-size: 15px;
-            color: #444;
-            line-height: 1.6;
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-            margin-bottom: 20px;
-        }
-        .notation-container {
-            background: #f1f1f1;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .likert-scale {
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 15px;
-        }
-        .likert-scale label {
-            cursor: pointer;
-            padding: 5px;
-            transition: 0.2s;
-        }
-        .likert-scale label:hover {
-            background-color: #ddd;
-            border-radius: 5px;
-        }
-        .submit-button {
-            margin-top: 15px;
-            padding: 12px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -133,31 +68,49 @@
     </div>
     <div class="email-content-container">
         <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
-        <div id="notationContainer" class="notation-container" style="display: none;">
-            <p><strong>Commentaires sur cet email :</strong></p>
-            <p id="emailComments"></p>
-            <div class="likert-scale">
-                <span>1 (Pas suspect)</span>
-                ${[1, 2, 3, 4, 5, 6, 7].map(num => `
-                    <label>
-                        <input type="radio" name="likert" value="${num}">
-                        ${num}
-                    </label>
-                `).join('')}
-                <span>7 (Très suspect)</span>
-            </div>
-            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
-        </div>
-        <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
     </div>
     <script>
-        const emailComments = {
-            "support@fdrop.box.com": "1 crédit, 1 faute d'orthographe. Semble suspect en raison du domaine inhabituel et des erreurs de langue."
-        };
+        let emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "Alerte de sécurité",
+                content: "Nous avons détecté une connexion suspecte.",
+                isPhishing: false
+            },
+            {
+                sender: "admin@banque-arnaque.com",
+                name: "Banque Sécurité",
+                subject: "Problème de sécurité",
+                content: "Mettez à jour vos informations immédiatement.",
+                isPhishing: true
+            },
+            {
+                sender: "support@fdrop.box.com",
+                name: "Support Dropbox",
+                subject: "Partage de fichiers en attente",
+                content: "Un fichier important vous a été partagé.",
+                isPhishing: true
+            }
+        ];
 
-        function displayEmailComments(sender) {
-            document.getElementById("emailComments").innerText = emailComments[sender] || "Pas de commentaire spécifique.";
+        function loadEmailList() {
+            const emailList = document.getElementById("emailList");
+            emailList.innerHTML = emails.map((email, index) => `
+                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
+            `).join('');
         }
+
+        function displayEmail(index) {
+            const email = emails[index];
+            document.getElementById("emailDisplay").innerHTML = `
+                <div><strong>${email.name}</strong> (${email.sender})</div>
+                <div>${email.subject}</div>
+                <p>${email.content}</p>
+            `;
+        }
+
+        loadEmailList();
     </script>
 </body>
 </html>

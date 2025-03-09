@@ -146,7 +146,7 @@
         <div class="notation-container" id="notationContainer" style="display: none;">
             <p>Évaluation du risque :</p>
             <div class="likert-scale" id="likertScale"></div>
-            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+            <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
         </div>
     </div>
     <script>
@@ -250,7 +250,6 @@
                 </div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-content">${email.content}</div>
-                <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
             `;
 
             document.getElementById("notationContainer").style.display = "block";

@@ -250,16 +250,6 @@
                 </div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-content">${email.content}</div>
-                <div class="likert-scale">
-                    <span>1 (Pas suspect)</span>
-                    ${[1, 2, 3, 4, 5, 6, 7].map(num => `
-                        <label>
-                            <input type="radio" name="likert" value="${num}">
-                            ${num}
-                        </label>
-                    `).join('')}
-                    <span>7 (Très suspect)</span>
-                </div>
                 <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
             `;
         }

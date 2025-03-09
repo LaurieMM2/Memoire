@@ -97,8 +97,20 @@
         <div id="emailDisplay" class="email-container">
             Sélectionnez un email pour l'afficher.
         </div>
+        <div class="notation-container">
+            <p>Évaluation du risque :</p>
+            <div class="likert-scale">
+                <span>1 (Pas suspect)</span>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                    <label>
+                        <input type="radio" name="likert" value="${num}"> ${num}
+                    </label>
+                `).join('')}
+                <span>7 (Très suspect)</span>
+            </div>
+            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+        </div>
     </div>
-
     <script>
         let emails = [
             {

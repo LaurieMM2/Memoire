@@ -3,215 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expérience de Détection de Phishing</title>
+    <title>Boîte Mail - Expérience de Détection de Phishing</title>
     <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
+            background-color: #e5e7eb;
+            display: flex;
+            height: 100vh;
             margin: 0;
+        }
+        .sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            margin-top: 40vh; /* Décale encore plus la sidebar vers le bas */
+        }
+        .email-list {
+            list-style: none;
             padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .email-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .email-list li:hover {
+            background: #f0f0f0;
+        }
+        /* 📌 Conteneur principal avec la couleur d’arrière-plan */
+        .email-content-container {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #e5e7eb; /* Même couleur que l’arrière-plan */
+        }
+
+        /* 📌 Conteneur pour l'email */
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px; /* Espace avec le bloc notation */
+        }
+
+        /* 📌 Conteneur pour la notation */
+        .notation-container {
+            background: #b0b3b8; /* Gris plus foncé que l’arrière-plan */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+       }
+        .email-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .email-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4caf50;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #f4f4f9;
-            flex-direction: column;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 12px;
         }
-        .container {
-            text-align: center;
+        .email-subject {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
         }
-        .email-container {
-            margin: 20px auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            width: 80%;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background-color: white;
+        .email-content {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.6;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
         }
-        .buttons {
-            margin-top: 20px;
+        .likert-scale {
+            margin-top: 25px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 8px;
         }
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 16px;
+        .likert-scale label {
             cursor: pointer;
-            border: none;
+            padding: 5px;
+            transition: 0.2s;
+        }
+        .likert-scale label:hover {
+            background-color: #ddd;
             border-radius: 5px;
         }
-        button.safe {
-            background-color: #4CAF50;
+        .submit-button {
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #007bff;
             color: white;
-        }
-        button.dangerous {
-            background-color: #f44336;
-            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="experimentContainer">
-        <h1>Expérience de Détection de Phishing</h1>
-        <p>Classifiez chaque e-mail comme "Sûr" ou "Dangereux". Vos mouvements oculaires, clics sur les liens et temps de réaction seront enregistrés.</p>
-
-        <div id="emailDisplay" class="email-container">
-            <!-- Le contenu des e-mails sera chargé ici -->
+    <div class="sidebar">
+        <h3>📧 Boîte de Réception</h3>
+        <ul class="email-list" id="emailList"></ul>
+    </div>
+    <div class="email-content-container">
+        <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
+        <button id="downloadBtn" class="submit-button" style="display: none;" onclick="downloadExcel()">Télécharger les résultats</button>
         </div>
-        <div class="buttons">
-            <button id="safeBtn" class="safe">Sûr</button>
-            <button id="dangerousBtn" class="dangerous">Dangereux</button>
+        <div class="notation-container" id="notationContainer" style="display: none;">
+            <p>Évaluation du risque :</p>
+            <div class="likert-scale" id="likertScale"></div>
         </div>
     </div>
-
     <script>
-        const emails = [
-            // Difficile - Non Frauduleux 3
-            { content: "Expéditeur : support@google.fr<br>Objet : Vérification de sécurité<br>Une vérification de sécurité a été effectuée sur votre compte. Aucun problème détecté.", isPhishing: false },
-
-            // Facile - Frauduleux 1
-            { content: "Expéditeur : admin@banquefausse.com<br>Objet : Problème de sécurité sur votre compte<br>Votre compte a rencontré un problème de sécurité. Cliquez <a href='http://faussebanque.com'>ici</a> pour résoudre le problème.", isPhishing: true },
-
-            // Moyen - Non Frauduleux 4
-            { content: "Expéditeur : support@airfrance.fr<br>Objet : Détails de votre vol<br>Voici les détails de votre vol réservé. Bon voyage !", isPhishing: false },
-
-            // Difficile - Frauduleux 5
-            { content: "Expéditeur : impots@gouv-faux.fr<br>Objet : Fraude détectée sur votre dossier fiscal<br>Votre dossier fiscal est sous investigation. Prenez des mesures <a href='http://fraude-fiscale-faux.com'>ici</a>.", isPhishing: true },
-
-            // Facile - Non Frauduleux 2
-            { content: "Expéditeur : newsletter@magazine.com<br>Objet : Votre newsletter du mois<br>Découvrez les dernières actualités dans notre newsletter mensuelle.", isPhishing: false },
-
-            // Moyen - Frauduleux 3
-            { content: "Expéditeur : impots@gouv-faux.com<br>Objet : Remboursement d'impôts disponible<br>Vous avez droit à un remboursement. Cliquez <a href='http://remboursement-faux.com'>ici</a>.", isPhishing: true },
-
-            // Difficile - Non Frauduleux 1
-            { content: "Expéditeur : administration@universite.fr<br>Objet : Confirmation d'inscription<br>Votre inscription pour le semestre est confirmée. Bonne continuation.", isPhishing: false },
-
-            // Facile - Frauduleux 4
-            { content: "Expéditeur : urgent@fauxmail.com<br>Objet : URGENT : Vérifiez votre compte<br>Votre compte sera suspendu sous 24h. Cliquez <a href='http://urgencefaux.com'>ici</a>.", isPhishing: true },
-
-            // Moyen - Non Frauduleux 1
-            { content: "Expéditeur : RH@entreprise.com<br>Objet : Réunion d'équipe programmée<br>Bonjour, une réunion est prévue vendredi à 10h. Merci de confirmer votre présence.", isPhishing: false },
-
-            // Difficile - Frauduleux 2
-            { content: "Expéditeur : support@dropbox-faux.com<br>Objet : Partage de fichier en attente<br>Un fichier important vous a été partagé. Accédez-y <a href='http://dropbox-faux.com'>ici</a>.", isPhishing: true },
-
-            // Facile - Non Frauduleux 5
-            { content: "Expéditeur : info@bibliotheque.fr<br>Objet : Rappel de retour de livres<br>N'oubliez pas de retourner vos livres avant la date limite.", isPhishing: false },
-
-            // Moyen - Frauduleux 1
-            { content: "Expéditeur : serviceclient@fauxbanque.com<br>Objet : Action requise pour votre compte<br>Nous avons besoin de vérifier vos informations bancaires. Cliquez <a href='http://verifbanque-faux.com'>ici</a>.", isPhishing: true },
-
-            // Difficile - Non Frauduleux 4
-            { content: "Expéditeur : contact@societe.fr<br>Objet : Facture de votre dernier achat<br>Veuillez trouver ci-joint votre facture.", isPhishing: false },
-
-            // Facile - Frauduleux 2
-            { content: "Expéditeur : support@netflix-promo.com<br>Objet : Offre spéciale Netflix<br>Profitez d'un abonnement gratuit en cliquant <a href='http://netflix-faux.com'>ici</a>.", isPhishing: true },
-
-            // Moyen - Non Frauduleux 3
-            { content: "Expéditeur : info@cinema.fr<br>Objet : Confirmation de votre réservation<br>Votre place de cinéma est confirmée. Bon film !", isPhishing: false },
-
-            // Difficile - Frauduleux 3
-            { content: "Expéditeur : URGENCE@sécurité.fr<br>Objet : Compte compromis !<br>Votre compte a été compromis. Action immédiate requise <a href='http://urgence-faux.com'>ici</a>.", isPhishing: true },
-
-            // Facile - Non Frauduleux 1
-            { content: "Expéditeur : info@universite.com<br>Objet : Informations sur la rentrée<br>Bonjour, veuillez trouver ci-joint le planning de la rentrée universitaire.", isPhishing: false },
-
-            // Moyen - Frauduleux 5
-            { content: "Expéditeur : admin@universite-faux.com<br>Objet : Changement de mot de passe obligatoire<br>Veuillez réinitialiser votre mot de passe immédiatement <a href='http://reset-faux.com'>ici</a>.", isPhishing: true },
-
-            // Difficile - Non Frauduleux 5
-            { content: "Expéditeur : banque@client.fr<br>Objet : Relevé bancaire mensuel<br>Votre relevé bancaire est disponible dans votre espace personnel.", isPhishing: false },
-
-            // Facile - Frauduleux 3
-            { content: "Expéditeur : loterie@fakewin.com<br>Objet : Félicitations ! Vous avez gagné !<br>Vous avez gagné un prix ! Cliquez <a href='http://fauxgagnant.com'>ici</a> pour le réclamer.", isPhishing: true },
-
-            // Moyen - Non Frauduleux 2
-            { content: "Expéditeur : contact@banque.fr<br>Objet : Notification de virement reçu<br>Un virement a été crédité sur votre compte. Consultez votre espace client.", isPhishing: false },
-
-            // Difficile - Frauduleux 1
-            { content: "Expéditeur : sécurité@banque.fr<br>Objet : Alerte de connexion suspecte<br>Nous avons détecté une connexion suspecte à votre compte. Vérifiez immédiatement <a href='http://alerte-faux.com'>ici</a>.", isPhishing: true },
-
-            // Facile - Non Frauduleux 4
-            { content: "Expéditeur : contact@club-sportif.com<br>Objet : Mise à jour des horaires<br>Les horaires des entraînements ont été mis à jour. Consultez-les sur le site officiel.", isPhishing: false },
-
-            // Moyen - Frauduleux 2
-            { content: "Expéditeur : apple-support@fauxapple.com<br>Objet : Problème de facturation<br>Un problème de facturation a été détecté sur votre compte Apple. Résolvez-le <a href='http://apple-faux.com'>ici</a>.", isPhishing: true },
-
-            // Difficile - Non Frauduleux 2
-            { content: "Expéditeur : noreply@linkedin.com<br>Objet : Nouvelle connexion à votre compte<br>Une nouvelle connexion a été détectée. Si ce n'était pas vous, changez votre mot de passe.", isPhishing: false },
-
-            // Facile - Frauduleux 5
-            { content: "Expéditeur : it-support@fauxentreprise.com<br>Objet : Problème technique détecté<br>Un problème technique a été détecté. Corrigez-le en cliquant <a href='http://problème-tech-faux.com'>ici</a>.", isPhishing: true },
-
-            // Moyen - Non Frauduleux 5
-            { content: "Expéditeur : communication@ecole.fr<br>Objet : Inscriptions ouvertes<br>Les inscriptions pour le semestre prochain sont ouvertes. Inscrivez-vous rapidement.", isPhishing: false },
-
-            // Difficile - Frauduleux 4
-            { content: "Expéditeur : IT@entreprise-faux.com<br>Objet : Maintenance système obligatoire<br>Veuillez confirmer vos informations pour la mise à jour <a href='http://it-faux.com'>ici</a>.", isPhishing: true },
-
-            // Facile - Non Frauduleux 3
-            { content: "Expéditeur : support@amazon.fr<br>Objet : Confirmation de commande<br>Votre commande a été confirmée. Merci pour votre achat.", isPhishing: false },
-
-            // Moyen - Frauduleux 4
-            { content: "Expéditeur : sécurité@paypal-faux.com<br>Objet : Compte suspendu temporairement<br>Votre compte est suspendu. Réactivez-le <a href='http://paypal-faux.com'>ici</a>.", isPhishing: true }
+        let emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "Alerte de sécurité",
+                content: "Bonjour,<br><br>Nous avons détecté une nouvelle connexion à votre compte Google depuis un Windows. Si c'était vous, aucune action de votre part n'est requise. Dans le cas contraire, nous vous aiderons à sécuriser votre compte. Vous pouvez aussi voir l'activité liée à la sécurité de votre compte en cliquant sur le lien ci-dessous.<br><br><a href='#'>Consulter l'activité</a><br><br>Cordialement,<br>L'équipe Google",
+                isPhishing: false
+            }, //0 crédit 0 ortho (00)
+            {
+                sender: "admin@banque-arnaque.com",
+                name: "Banque Sécurité",
+                subject: "Problème de sécurité",
+                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br>Service Sécurité",
+                isPhishing: true
+            }, //2 crédit 0 ortho
+            {
+                sender: "support@airfrance.fr",
+                name: "Support Air France",
+                subject: "Détails de vautre vol",
+                content: "Cher passagé,<br><br>Voici les détails de vautre vol réservait. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour les voir. Bons voyage !<br><br>Service Clients",
+                isPhishing: false
+            }, //0 crédit 2 ortho
+            {
+                sender: "impots@gouv-faux.fr",
+                name: "Administration fiscale",
+                subject: "Frode détectait sur votre dossié fiscal",
+                content: "Cher contribuable,<br><br>Votre dossié fiscal est sou investigation. Prenait des mesures <a href='http://fraude-fiscale-faux.com'>ici</a>.<br><br>Service Fiscalité",
+                isPhishing: true
+            }, //2 crédit 2 ortho
+            {
+                sender: "no-reply@i.impots.gouv.fr",
+                name: "Administration fiscale",
+                subject: "Remboursement d'impôts disponible",
+                content: "Cher contribuable,<br><br>Vous avez droit à un remboursement. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour le réclamer.<br><br>Service Fiscalité",
+                isPhishing: true
+            },//1 crédit 0 ortho
+            {
+                sender: "administration@universite.fr",
+                name: "Université",
+                subject: "Confirmation d'inscription",
+                content: "Cher étudiant,<br><br>Votre inscription pour le semestre est confirmée. Bonne continuation.<br><br>Service Inscriptions",
+                isPhishing: false
+            },// (00)
+            {
+                sender: "RH@entreprise.com",
+                name: "Ressources Humaines",
+                subject: "Réunions d'équipe programmée",
+                content: "Bonjour,<br><br>Une réunion est prévu vendredi à 10h. Merci de confirmée votre présence en cliquant <a href='http://dropbox-faux.com'>ici</a><br><br>Service RH",
+                isPhishing: false
+            },//0 crédit 1 ortho
+            {
+                sender: "support@fdrop.box.com",
+                name: "Support Dropbox",
+                subject: "Partage de fichiers en attente",
+                content: "Cher utilisateur,<br><br>Un fichier importants vous à été partagé. Accédez-y <a href='http://dropbox-faux.com'>ici</a>.<br><br>Service Support",
+                isPhishing: true
+            },//1 crédit 1 ortho
+            {
+                sender: "info@bibliotheque.fr",
+                name: "Bibliothèque",
+                subject: "Rappel de retour de livres",
+                content: "Cher lecteur,<br><br>N'oubliez pas de retourner vos livres avant la date limite.<br><br>Service Bibliothèque",
+                isPhishing: false
+            },// (00)
         ];
-
-        let currentEmailIndex = 0;
+        let results = [];
+        let eyeTrackingData = [];
         let startTime;
-        const emailDisplay = document.getElementById("emailDisplay");
-        const safeBtn = document.getElementById("safeBtn");
-        const dangerousBtn = document.getElementById("dangerousBtn");
-
+        
         webgazer.setGazeListener((data, timestamp) => {
             if (data) {
-                console.log(`X: ${data.x}, Y: ${data.y}, Timestamp: ${timestamp}`);
+                eyeTrackingData.push({ x: data.x, y: data.y, timestamp: timestamp });
             }
         }).begin();
 
-        function displayEmail() {
-            if (currentEmailIndex < emails.length) {
-                emailDisplay.innerHTML = emails[currentEmailIndex].content;
-                startTime = performance.now();
+        function loadEmailList() {
+            const emailList = document.getElementById("emailList");
+            emailList.innerHTML = emails.map((email, index) => `
+                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
+            `).join('');
+        }
+
+        function getInitials(name) {
+            return name.split(" ").map(word => word[0]).join("").toUpperCase();
+        }
+        
+        function displayEmail(index) {
+            startTime = Date.now(); // Démarrer le chronomètre
+            eyeTrackingData = []; // Réinitialiser les données eye-tracking
+            const email = emails[index];
+            document.getElementById("emailDisplay").innerHTML = `
+                <div class="email-header">
+                    <div class="email-avatar">${getInitials(email.name)}</div>
+                    <div>
+                        <strong>${email.name}</strong> <br>
+                        <span style="color: gray;">${email.sender}</span>
+                    </div>
+                </div>
+                <div class="email-subject">${email.subject}</div>
+                <div class="email-content">${email.content}</div>
+            `;
+
+            document.getElementById("notationContainer").style.display = "block";
+            generateLikertScale();
+        }
+
+        function generateLikertScale() {
+            let scaleContainer = document.getElementById("likertScale");
+            scaleContainer.innerHTML = `
+                <span>1 (Pas suspect)</span>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                    <label>
+                        <input type="radio" name="likert" value="${num}"> ${num}
+                    </label>
+                `).join('')}
+                <span>7 (Très suspect)</span>
+                <button class="submit-button" onclick="recordResponse(${index})">Soumettre</button>
+            `;
+        }
+
+        function recordResponse(index) {
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (!selectedValue) {
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
+                return;
+            }
+            let reactionTime = Date.now() - startTime; // Calculer le temps de réaction
+            results.push({
+                email: emails[index].sender,
+                "Temps de Réaction (ms)": reactionTime,
+                "Évaluation du risque (1-7)": selectedValue.value,
+                EyeTracking: JSON.stringify(eyeTrackingData)
+            });
+            emails.splice(index, 1);
+            loadEmailList();
+            if (emails.length > 0) {
+                document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
             } else {
                 endExperiment();
             }
         }
 
-        function recordResponse(isSafe) {
-            const endTime = performance.now();
-            const reactionTime = endTime - startTime;
-            const email = emails[currentEmailIndex];
-            const isCorrect = (isSafe && !email.isPhishing) || (!isSafe && email.isPhishing);
-
-            console.log({
-                emailContent: email.content,
-                isPhishing: email.isPhishing,
-                isCorrect: isCorrect,
-                reactionTime: reactionTime
-            });
-
-            currentEmailIndex++;
-            displayEmail();
-        }
-
         function endExperiment() {
-            document.body.innerHTML = "<h1 style='text-align: center;'>C'est fini, merci !</h1>";
+            document.getElementById("emailDisplay").innerHTML = "Expérience terminée, merci !";
+            document.getElementById("downloadBtn").style.display = "block";
             webgazer.end();
-          const downloadBtn = document.createElement("button");
-            downloadBtn.textContent = "Télécharger les données";
-            downloadBtn.style.marginTop = "20px";
-            downloadBtn.onclick = downloadData;
-            document.body.appendChild(downloadBtn);
         }
 
-        safeBtn.addEventListener("click", () => recordResponse(true));
-        dangerousBtn.addEventListener("click", () => recordResponse(false));
+        function downloadExcel() {
+            let ws = XLSX.utils.json_to_sheet(results);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
+        }
 
-        displayEmail();
+        loadEmailList();
     </script>
 </body>
 </html>

@@ -88,10 +88,12 @@
             text-align: center;
             margin-top: 20px; /* Espace pour séparer de l'email content */
             border-top: 2px solid #ddd; /* Bordure pour bien distinguer */
+            width: 100%;
+            max-width: 600px; /* Aligné avec l'email-container */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Légère ombre */
         }
 
         .likert-scale {
-            margin-top: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -141,21 +143,23 @@
             </div>
             <div class="email-subject" id="emailSubject"></div>
             <div class="email-content" id="emailContent"></div>
+        </div>
 
-            <!-- ✅ NOUVEAU : Notation séparée proprement -->
-            <div class="notation-container">
-                <p>Évaluation du risque :</p>
-                <div class="likert-scale">
-                    <span>1 (Pas suspect)</span>
-                    ${[1, 2, 3, 4, 5, 6, 7].map(num => `
-                        <label>
-                            <input type="radio" name="likert" value="${num}"> ${num}
-                        </label>
-                    `).join('')}
-                    <span>7 (Très suspect)</span>
-                </div>
-                <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+        <!-- ✅ NOUVEAU : Notation bien séparée -->
+        <div class="notation-container">
+            <p>Évaluation du risque :</p>
+            <div class="likert-scale">
+                <span>1 (Pas suspect)</span>
+                <label><input type="radio" name="likert" value="1"> 1</label>
+                <label><input type="radio" name="likert" value="2"> 2</label>
+                <label><input type="radio" name="likert" value="3"> 3</label>
+                <label><input type="radio" name="likert" value="4"> 4</label>
+                <label><input type="radio" name="likert" value="5"> 5</label>
+                <label><input type="radio" name="likert" value="6"> 6</label>
+                <label><input type="radio" name="likert" value="7"> 7</label>
+                <span>7 (Très suspect)</span>
             </div>
+            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
         </div>
     </div>
 

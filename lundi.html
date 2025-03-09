@@ -97,6 +97,12 @@
             border-top: 1px solid #ddd;
             padding-top: 15px;
         }
+        .email-signature {
+            font-size: 15px;
+            color: #444;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
         .likert-scale {
             margin-top: 25px;
             display: flex;
@@ -153,63 +159,72 @@
                 sender: "support@google.fr",
                 name: "Google Support",
                 subject: "Alerte de sécurité",
-                content: "Bonjour,<br><br>Nous avons détecté une nouvelle connexion à votre compte Google depuis un Windows. Si c'était vous, aucune action de votre part n'est requise. Dans le cas contraire, nous vous aiderons à sécuriser votre compte. Vous pouvez aussi voir l'activité liée à la sécurité de votre compte en cliquant sur le lien ci-dessous.<br><br><a href='#'>Consulter l'activité</a><br><br>Cordialement,<br>L'équipe Google",
+                content: "Bonjour,<br><br>Nous avons détecté une nouvelle connexion à votre compte Google depuis un Windows. Si c'était vous, aucune action de votre part n'est requise. Dans le cas contraire, nous vous aiderons à sécuriser votre compte. Vous pouvez aussi voir l'activité liée à la sécurité de votre compte en cliquant sur le lien ci-dessous.<br><br><a href='#'>Consulter l'activité</a><br><br><br><br>Cordialement,<br>",
+                signature: "L'équipe Google",
                 isPhishing: false
             }, //0 crédit 0 ortho (00)
             {
                 sender: "admin@banque-arnaque.com",
                 name: "Banque Sécurité",
                 subject: "Problème de sécurité",
-                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br>Service Sécurité",
+                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br><br><br>Cordialement,<br>",
+                signature: "Service Sécurité",
                 isPhishing: true
             }, //2 crédit 0 ortho
             {
                 sender: "support@airfrance.fr",
                 name: "Support Air France",
                 subject: "Détails de vautre vol",
-                content: "Cher passagé,<br><br>Voici les détails de vautre vol réservait. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour les voir. Bons voyage !<br><br>Service Clients",
+                content: "Cher passagé,<br><br>Voici les détails de vautre vol réservait. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour les voir. Bons voyage !<br><br><br><br>Cordialement,<br>",
+                signature: "Service Clients",
                 isPhishing: false
             }, //0 crédit 2 ortho
             {
                 sender: "impots@gouv-faux.fr",
                 name: "Administration fiscale",
                 subject: "Frode détectait sur votre dossié fiscal",
-                content: "Cher contribuable,<br><br>Votre dossié fiscal est sou investigation. Prenait des mesures <a href='http://fraude-fiscale-faux.com'>ici</a>.<br><br>Service Fiscalité",
+                content: "Cher contribuable,<br><br>Votre dossié fiscal est sou investigation. Prenait des mesures <a href='http://fraude-fiscale-faux.com'>ici</a>.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Fiscalité",
                 isPhishing: true
             }, //2 crédit 2 ortho
             {
                 sender: "no-reply@i.impots.gouv.fr",
                 name: "Administration fiscale",
                 subject: "Remboursement d'impôts disponible",
-                content: "Cher contribuable,<br><br>Vous avez droit à un remboursement. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour le réclamer.<br><br>Service Fiscalité",
+                content: "Cher contribuable,<br><br>Vous avez droit à un remboursement. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour le réclamer.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Fiscalité",
                 isPhishing: true
             },//1 crédit 0 ortho
             {
                 sender: "administration@universite.fr",
                 name: "Université",
                 subject: "Confirmation d'inscription",
-                content: "Cher étudiant,<br><br>Votre inscription pour le semestre est confirmée. Bonne continuation.<br><br>Service Inscriptions",
+                content: "Cher étudiant,<br><br>Votre inscription pour le semestre est confirmée. Bonne continuation.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Inscriptions",
                 isPhishing: false
             },// (00)
             {
                 sender: "RH@entreprise.com",
                 name: "Ressources Humaines",
                 subject: "Réunions d'équipe programmée",
-                content: "Bonjour,<br><br>Une réunion est prévu vendredi à 10h. Merci de confirmée votre présence en cliquant <a href='http://dropbox-faux.com'>ici</a><br><br>Service RH",
+                content: "Bonjour,<br><br>Une réunion est prévu vendredi à 10h. Merci de confirmée votre présence en cliquant <a href='http://dropbox-faux.com'>ici</a><br><br><br><br>Cordialement,<br>",
+                signature: "Service RH",
                 isPhishing: false
             },//0 crédit 1 ortho
             {
                 sender: "support@fdrop.box.com",
                 name: "Support Dropbox",
                 subject: "Partage de fichiers en attente",
-                content: "Cher utilisateur,<br><br>Un fichier importants vous à été partagé. Accédez-y <a href='http://dropbox-faux.com'>ici</a>.<br><br>Service Support",
+                content: "Cher utilisateur,<br><br>Un fichier importants vous à été partagé. Accédez-y <a href='http://dropbox-faux.com'>ici</a>.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Support",
                 isPhishing: true
             },//1 crédit 1 ortho
             {
                 sender: "info@bibliotheque.fr",
                 name: "Bibliothèque",
                 subject: "Rappel de retour de livres",
-                content: "Cher lecteur,<br><br>N'oubliez pas de retourner vos livres avant la date limite.<br><br>Service Bibliothèque",
+                content: "Cher lecteur,<br><br>N'oubliez pas de retourner vos livres avant la date limite.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Bibliothèque",
                 isPhishing: false
             },// (00)
         ];
@@ -256,6 +271,7 @@
                 </div>
                 <div class="email-subject">${email.subject}</div>
                 <div class="email-content">${email.content}</div>
+                <div class="email-signature">${email.signature}</div>
             `;
             document.getElementById("notationContainer").style.display = "block";
             generateLikertScale();
@@ -304,6 +320,7 @@
             let wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Résultats");
             XLSX.writeFile(wb, "resultats_experience.xlsx");
+            window.location.href = "boite_mail.html";
         }
 
         loadEmailList();

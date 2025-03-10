@@ -5,73 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calibration Eye Tracking</title>
     <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
-        #calibrationPointsContainer { position: relative; margin-top: 40vh; height: 50vh; }
+        #container { width: 100%; height: 80vh; display: flex; align-items: center; justify-content: center; position: relative; }
         .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
-        #thanksScreen { display: none; }
+        #thanksMessage { display: none; font-size: 24px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="calibrationScreen">
-        <h1>Calibration</h1>
-        <p>Cliquez 30 fois sur chaque point pour les faire disparaître.</p>
-        <div id="calibrationPointsContainer">
-            <div id="calibrationPoints"></div>
-        </div>
-    </div>
-    
-    <div id="thanksScreen">
-        <h1>Merci, c'est fini !</h1>
-        <button id="downloadData">Télécharger les données</button>
+
+    <h1>Calibration Eye Tracking</h1>
+    <div id="container">
+        <!-- Contenu modifiable ici -->
     </div>
 
     <script>
         const points = [
-            [10, 10], [50, 10], [90, 10],
-            [10, 40], [50, 40], [90, 40],
-            [10, 70], [50, 70], [90, 70]
+            { left: "50%", top: "50%" }, // Milieu
+            { left: "10%", top: "50%" }, // Gauche
+            { left: "90%", top: "50%" }  // Droite
         ];
-        let gazeData = [];
-        let remaining = points.length;
-        const calibrationContainer = document.getElementById("calibrationPoints");
+        let data = [];
+        let index = 0;
+        const container = document.getElementById("container");
 
-        points.forEach(([x, y], index) => {
+        function showPoint() {
+            if (index >= points.length) {
+                container.innerHTML = '<div id="thanksMessage">Merci, c\'est fini !</div>';
+                return;
+            }
+            
+            container.innerHTML = ""; // Nettoyer le container
             const point = document.createElement("div");
             point.className = "calibration-point";
-            point.style.left = `${x}%`;
-            point.style.top = `${y}%`;
-            point.dataset.clicks = 0;
-            point.onclick = () => {
-                point.dataset.clicks = parseInt(point.dataset.clicks) + 1;
-                if (parseInt(point.dataset.clicks) >= 30) {
-                    point.remove();
-                    remaining--;
-                    if (remaining === 0) finishCalibration();
-                }
-            };
-            calibrationContainer.appendChild(point);
-        });
+            point.style.left = points[index].left;
+            point.style.top = points[index].top;
+            container.appendChild(point);
 
-        function finishCalibration() {
-            document.getElementById("calibrationScreen").style.display = "none";
-            document.getElementById("thanksScreen").style.display = "block";
-            webgazer.pause();
+            webgazer.setGazeListener((dataPoint, elapsedTime) => {
+                if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
+            }).begin();
+
+            setTimeout(() => {
+                container.innerHTML = ""; // Supprimer le point
+                saveData();
+                index++;
+                showPoint();
+            }, 10000);
         }
 
-        webgazer.setGazeListener((dataPoint, elapsedTime) => {
-            if (dataPoint) gazeData.push({ time: elapsedTime, x: dataPoint.x, y: dataPoint.y });
-        }).begin();
+        function saveData() {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([["Time", "X", "Y"], ...data]);
+            XLSX.utils.book_append_sheet(wb, ws, "EyeTrackingData");
+            XLSX.writeFile(wb, `eye_tracking_data_${index + 1}.xlsx`);
+            data = []; // Réinitialiser les données
+        }
 
-        document.getElementById("downloadData").addEventListener("click", () => {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gazeData));
-            const a = document.createElement("a");
-            a.href = dataStr;
-            a.download = "eye_tracking_data.json";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        });
+        showPoint();
     </script>
+
 </body>
 </html>

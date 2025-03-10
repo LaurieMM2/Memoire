@@ -7,36 +7,40 @@
     <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        #container { width: 100%; height: 80vh; display: flex; align-items: center; justify-content: center; position: relative; }
+        body { text-align: center; font-family: Arial, sans-serif; margin: 0; }
+        #mainContainer { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .pointContainer { width: 100%; height: 30vh; display: flex; align-items: center; justify-content: center; position: relative; }
         .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
         #thanksMessage { display: none; font-size: 24px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>Calibration Eye Tracking</h1>
-    <div id="container">
-        <!-- Contenu modifiable ici -->
+    <div id="mainContainer">
+        <h1>Calibration Eye Tracking</h1>
+        <div id="topContainer" class="pointContainer"></div>
+        <div id="middleContainer" class="pointContainer"></div>
+        <div id="bottomContainer" class="pointContainer"></div>
     </div>
 
     <script>
         const points = [
-            { left: "50%", top: "50%" }, // Milieu
-            { left: "10%", top: "50%" }, // Gauche
-            { left: "90%", top: "50%" }  // Droite
+            { container: "middleContainer", left: "50%", top: "50%" }, // Milieu
+            { container: "topContainer", left: "10%", top: "50%" },    // Gauche
+            { container: "bottomContainer", left: "90%", top: "50%" }  // Droite
         ];
         let data = [];
         let index = 0;
-        const container = document.getElementById("container");
 
         function showPoint() {
             if (index >= points.length) {
-                container.innerHTML = '<div id="thanksMessage">Merci, c\'est fini !</div>';
+                document.getElementById("mainContainer").innerHTML = '<div id="thanksMessage">Merci, c\'est fini !</div>';
                 return;
             }
             
-            container.innerHTML = ""; // Nettoyer le container
+            const container = document.getElementById(points[index].container);
+            container.innerHTML = ""; // Nettoyer uniquement le bon container
+
             const point = document.createElement("div");
             point.className = "calibration-point";
             point.style.left = points[index].left;
@@ -48,7 +52,7 @@
             }).begin();
 
             setTimeout(() => {
-                container.innerHTML = ""; // Supprimer le point
+                container.innerHTML = ""; // Supprimer le point du container
                 saveData();
                 index++;
                 showPoint();

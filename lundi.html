@@ -312,11 +312,10 @@
         }
         
         function displayEmail(index) {
-            startTime = Date.now();
-            eyeTrackingData = [];
+            startTime = Date.now(); // DÃ©marrer le chronomÃ¨tre
+            eyeTrackingData = []; // RÃ©initialiser les donnÃ©es eye-tracking
             currentEmailIndex = index;
             const email = emails[index];
-
             document.getElementById("emailDisplay").innerHTML = `
                 <div class="email-header">
                     <div class="email-avatar">${getInitials(email.name)}</div>
@@ -329,11 +328,9 @@
                 <div class="email-content">${email.content}</div>
                 <div class="email-signature">${email.signature}</div>
             `;
-
             document.getElementById("notationContainer").style.display = "block";
             generateLikertScale();
-
-            setTimeout(defineZones, 500); // Attendre le rendu de l'email avant d'analyser les zones
+            setTimeout(defineZones, 500); // Attendre le rendu de l'email avant d'analyser
         }
 
         function generateLikertScale() {

@@ -372,9 +372,41 @@
         }
 
         function downloadExcel() {
-            let ws = XLSX.utils.json_to_sheet(results);
-            let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            let wb = XLSX.utils.book_new(); // Création du fichier Excel
+
+            // 🔹 Première feuille : Résumé des emails avec temps de réaction et évaluation
+            let summaryData = results.map(result => ({
+                "Email": result.email,
+                "Temps de Réaction (ms)": result["Temps de Réaction (ms)"],
+                "Évaluation du Risque (1-7)": result["Évaluation du risque (1-7)"]
+            }));
+
+            let wsSummary = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, wsSummary, "Résumé Général");
+
+            // 🔹 Feuilles individuelles pour les données d'eyetracking de chaque email
+            results.forEach(result => {
+                let eyeTrackingData = JSON.parse(result.EyeTracking); // Convertir les données en objet
+                let dataForSheet = [];
+
+                // Transformer les données d'eyetracking en format tabulaire
+                eyeTrackingData.forEach((point, index) => {
+                    dataForSheet.push({
+                        "Index": index + 1,
+                        "Coordonnée X": point.x,
+                        "Coordonnée Y": point.y,
+                        "Zone d'Intérêt": point.zone,
+                        "Timestamp (ms)": point.timestamp
+                    });
+                });
+
+                // Créer une feuille spécifique pour chaque email
+                let ws = XLSX.utils.json_to_sheet(dataForSheet);
+                let sheetName = result.email.substring(0, 30); // Limiter à 30 caractères pour compatibilité Excel
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            });
+
+            // Générer et télécharger le fichier Excel
             XLSX.writeFile(wb, "resultats_experience.xlsx");
             window.location.href = "ccalibrage.html";
         }

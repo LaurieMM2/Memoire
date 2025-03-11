@@ -302,7 +302,7 @@
 
             if (emails.length === 0) {
                 document.getElementById("downloadBtn").classList.remove("hidden");
-                document.getElementById("emailDisplay").innerHTML = "âœ… Tous les emails ont Ã©tÃ© notÃ©s.";
+                document.getElementById("emailDisplay").innerHTML = "Tous les emails ont été notés.";
                 document.getElementById("notationContainer").style.display = "none";
             }
         }
@@ -344,14 +344,14 @@
         function recordResponse(index) {
             const selectedValue = document.querySelector('input[name="likert"]:checked');
             if (!selectedValue) {
-                alert("Veuillez sÃ©lectionner une valeur sur l'Ã©chelle.");
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
                 return;
             }
             let reactionTime = Date.now() - startTime; // Calculer le temps de rÃ©action
             results.push({
                 email: emails[currentEmailIndex].sender,
-                "Temps de RÃ©action (ms)": reactionTime,
-                "Ã‰valuation du risque (1-7)": selectedValue.value,
+                "Temps de Réaction (ms)": reactionTime,
+                "Evaluation du risque (1-7)": selectedValue.value,
                 EyeTracking: JSON.stringify(eyeTrackingData)
             });
             emails.splice(currentEmailIndex, 1);
@@ -359,7 +359,7 @@
             document.getElementById("notationContainer").style.display = "none";
             loadEmailList();
             if (emails.length > 0) { //PAS MODIF
-                document.getElementById("emailDisplay").innerHTML = "SÃ©lectionnez un email pour l'afficher.";
+                document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
             } else {
                 endExperiment();
             }
@@ -374,7 +374,7 @@
         function downloadExcel() {
             let ws = XLSX.utils.json_to_sheet(results);
             let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "RÃ©sultats");
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
             XLSX.writeFile(wb, "resultats_experience.xlsx");
             window.location.href = "ccalibrage.html";
         }

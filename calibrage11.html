@@ -9,9 +9,12 @@
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
         .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
+        #startButton { padding: 10px 20px; font-size: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
+    <button id="startButton">Commencer</button>
+
     <script>
         const points = [
             { left: "50%", top: "50%" }, // Milieu
@@ -20,6 +23,13 @@
         ];
         let data = [];
         let index = 0;
+
+        webgazer.setGazeListener((dataPoint, elapsedTime) => {
+            if (dataPoint) {
+                const sanitized = sanitizeGaze(dataPoint.x, dataPoint.y);
+                data.push([elapsedTime, sanitized.x, sanitized.y]);
+            }
+        }).begin();
 
         function sanitizeGaze(x, y) {
             const width = window.innerWidth;
@@ -44,13 +54,6 @@
             point.style.top = points[index].top;
             document.body.appendChild(point);
 
-            webgazer.setGazeListener((dataPoint, elapsedTime) => {
-                if (dataPoint) {
-                    const sanitized = sanitizeGaze(dataPoint.x, dataPoint.y);
-                    data.push([elapsedTime, sanitized.x, sanitized.y]);
-                }
-            }).begin();
-
             setTimeout(() => {
                 document.body.removeChild(point);
                 saveData();
@@ -59,7 +62,10 @@
             }, 10000);
         }
 
-        setTimeout(showPoint, 20000); // Délai de 20 secondes avant le premier point
+        document.getElementById("startButton").addEventListener("click", () => {
+            document.getElementById("startButton").style.display = "none";
+            showPoint();
+        });
 
         function saveData() {
             const wb = XLSX.utils.book_new();

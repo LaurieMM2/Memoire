@@ -10,9 +10,20 @@
         body { text-align: center; font-family: Arial, sans-serif; }
         .calibration-point { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; }
         #thanksMessage { display: none; font-size: 24px; font-weight: bold; margin-top: 20px; }
+        #startButton {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
+    <button id="startButton">Commencer</button>
     <div id="thanksMessage">Merci, c'est fini !</div>
 
     <script>
@@ -24,6 +35,19 @@
         let data = [];
         let index = 0;
 
+        // 🔹 Fonction pour filtrer les valeurs erronées
+        function sanitizeGaze(x, y) {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            // Corriger les valeurs hors limites
+            x = Math.max(0, Math.min(x, width));
+            y = Math.max(0, Math.min(y, height));
+
+            return { x, y };
+        }
+
+        // Fonction pour afficher les points de calibration
         function showPoint() {
             if (index >= points.length) {
                 document.getElementById("thanksMessage").style.display = "block";
@@ -37,8 +61,11 @@
             document.body.appendChild(point);
 
             webgazer.setGazeListener((dataPoint, elapsedTime) => {
-                if (dataPoint) data.push([elapsedTime, dataPoint.x, dataPoint.y]);
-            }).begin();
+                if (dataPoint) {
+                    const sanitized = sanitizeGaze(dataPoint.x, dataPoint.y);
+                    data.push([elapsedTime, sanitized.x, sanitized.y]);
+                }
+            });
 
             setTimeout(() => {
                 document.body.removeChild(point);
@@ -48,6 +75,7 @@
             }, 10000);
         }
 
+        // Fonction pour sauvegarder les données
         function saveData() {
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet([["Time", "X", "Y"], ...data]);
@@ -56,7 +84,14 @@
             data = []; // Réinitialiser les données
         }
 
-        showPoint();
+        // Fonction qui démarre la calibration après un clic sur "Commencer"
+        document.getElementById("startButton").addEventListener("click", function() {
+            this.style.display = "none"; // Cacher le bouton après clic
+            showPoint(); // Lancer la calibration
+        });
+
+        // Démarrer l'eyetracking dès le début, mais sans calibration
+        webgazer.begin();
     </script>
 </body>
 </html>

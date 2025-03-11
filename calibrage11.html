@@ -59,6 +59,8 @@
             }, 10000);
         }
 
+        setTimeout(showPoint, 20000); // Délai de 20 secondes avant le premier point
+
         function saveData() {
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet([["Time", "X", "Y"], ...data]);
@@ -67,7 +69,6 @@
             data = []; // Réinitialiser les données
         }
 
-        showPoint();
     </script>
 </body>
 </html>

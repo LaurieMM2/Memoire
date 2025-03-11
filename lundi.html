@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boîte Mail - Expérience de Détection de Phishing</title>
+    <title>BoÃ®te Mail - ExpÃ©rience de DÃ©tection de Phishing</title>
     <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
@@ -22,7 +22,7 @@
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            margin-top: 40vh; /* Décale encore plus la sidebar vers le bas */
+            margin-top: 40vh; /* DÃ©cale encore plus la sidebar vers le bas */
         }
         .email-list {
             list-style: none;
@@ -141,14 +141,14 @@
 </head>
 <body>
     <div class="sidebar">
-        <h3>📧 Boîte de Réception</h3>
+        <h3>ðŸ“§ BoÃ®te de RÃ©ception</h3>
         <ul class="email-list" id="emailList"></ul>
     </div>
     <div class="email-content-container">
-        <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
-        <button id="downloadBtn" class="submit-button hidden" onclick="downloadExcel()">📥 Télécharger les résultats</button>
+        <div id="emailDisplay" class="email-container">SÃ©lectionnez un email pour l'afficher.</div>
+        <button id="downloadBtn" class="submit-button hidden" onclick="downloadExcel()">ðŸ“¥ TÃ©lÃ©charger les rÃ©sultats</button>
         <div class="notation-container" id="notationContainer">
-            <p>Évaluation du risque :</p>
+            <p>Ã‰valuation du risque :</p>
             <div class="likert-scale" id="likertScale"></div>
             <button class="submit-button" onclick="recordResponse()">Soumettre</button>
         </div>
@@ -158,84 +158,139 @@
             {
                 sender: "support@google.fr",
                 name: "Google Support",
-                subject: "Alerte de sécurité",
-                content: "Bonjour,<br><br>Nous avons détecté une nouvelle connexion à votre compte Google depuis un Windows. Si c'était vous, aucune action de votre part n'est requise. Dans le cas contraire, nous vous aiderons à sécuriser votre compte. Vous pouvez aussi voir l'activité liée à la sécurité de votre compte en cliquant sur le lien ci-dessous.<br><br><a href='#'>Consulter l'activité</a><br><br><br><br>Cordialement,<br>",
-                signature: "L'équipe Google",
+                subject: "Alerte de sÃ©curitÃ©",
+                content: "Bonjour,<br><br>Nous avons dÃ©tectÃ© une nouvelle connexion Ã  votre compte Google depuis un Windows. Si c'Ã©tait vous, aucune action de votre part n'est requise. Dans le cas contraire, nous vous aiderons Ã  sÃ©curiser votre compte. Vous pouvez aussi voir l'activitÃ© liÃ©e Ã  la sÃ©curitÃ© de votre compte en cliquant sur le lien ci-dessous.<br><br><a href='#'>Consulter l'activitÃ©</a><br><br><br><br>Cordialement,<br>",
+                signature: "L'Ã©quipe Google",
                 isPhishing: false
-            }, //0 crédit 0 ortho (00)
+            }, //0 crÃ©dit 0 ortho (00)
             {
                 sender: "admin@banque-arnaque.com",
-                name: "Banque Sécurité",
-                subject: "Problème de sécurité",
-                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br><br><br>Cordialement,<br>",
-                signature: "Service Sécurité",
+                name: "Banque SÃ©curitÃ©",
+                subject: "ProblÃ¨me de sÃ©curitÃ©",
+                content: "Cher client,<br><br>Nous avons remarquÃ© une activitÃ© inhabituelle sur votre compte bancaire. Merci de mettre Ã  jour vos informations immÃ©diatement.<br><br><a href='#'>Mettre Ã  jour</a><br><br><br><br>Cordialement,<br>",
+                signature: "Service SÃ©curitÃ©",
                 isPhishing: true
-            }, //2 crédit 0 ortho
+            }, //2 crÃ©dit 0 ortho
             {
                 sender: "support@airfrance.fr",
                 name: "Support Air France",
-                subject: "Détails de vautre vol",
-                content: "Cher passagé,<br><br>Voici les détails de vautre vol réservait. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour les voir. Bons voyage !<br><br><br><br>Cordialement,<br>",
+                subject: "DÃ©tails de vautre vol",
+                content: "Cher passagÃ©,<br><br>Voici les dÃ©tails de vautre vol rÃ©servait. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour les voir. Bons voyage !<br><br><br><br>Cordialement,<br>",
                 signature: "Service Clients",
                 isPhishing: false
-            }, //0 crédit 2 ortho
+            }, //0 crÃ©dit 2 ortho
             {
                 sender: "impots@gouv-faux.fr",
                 name: "Administration fiscale",
-                subject: "Frode détectait sur votre dossié fiscal",
-                content: "Cher contribuable,<br><br>Votre dossié fiscal est sou investigation. Prenait des mesures <a href='http://fraude-fiscale-faux.com'>ici</a>.<br><br><br><br>Cordialement,<br>",
-                signature: "Service Fiscalité",
+                subject: "Frode dÃ©tectait sur votre dossiÃ© fiscal",
+                content: "Cher contribuable,<br><br>Votre dossiÃ© fiscal est sou investigation. Prenait des mesures <a href='http://fraude-fiscale-faux.com'>ici</a>.<br><br><br><br>Cordialement,<br>",
+                signature: "Service FiscalitÃ©",
                 isPhishing: true
-            }, //2 crédit 2 ortho
+            }, //2 crÃ©dit 2 ortho
             {
                 sender: "no-reply@i.impots.gouv.fr",
                 name: "Administration fiscale",
-                subject: "Remboursement d'impôts disponible",
-                content: "Cher contribuable,<br><br>Vous avez droit à un remboursement. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour le réclamer.<br><br><br><br>Cordialement,<br>",
-                signature: "Service Fiscalité",
+                subject: "Remboursement d'impÃ´ts disponible",
+                content: "Cher contribuable,<br><br>Vous avez droit Ã  un remboursement. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour le rÃ©clamer.<br><br><br><br>Cordialement,<br>",
+                signature: "Service FiscalitÃ©",
                 isPhishing: true
-            },//1 crédit 0 ortho
+            },//1 crÃ©dit 0 ortho
             {
                 sender: "administration@universite.fr",
-                name: "Université",
+                name: "UniversitÃ©",
                 subject: "Confirmation d'inscription",
-                content: "Cher étudiant,<br><br>Votre inscription pour le semestre est confirmée. Bonne continuation.<br><br><br><br>Cordialement,<br>",
+                content: "Cher Ã©tudiant,<br><br>Votre inscription pour le semestre est confirmÃ©e. Bonne continuation.<br><br><br><br>Cordialement,<br>",
                 signature: "Service Inscriptions",
                 isPhishing: false
             },// (00)
             {
                 sender: "RH@entreprise.com",
                 name: "Ressources Humaines",
-                subject: "Réunions d'équipe programmée",
-                content: "Bonjour,<br><br>Une réunion est prévu vendredi à 10h. Merci de confirmée votre présence en cliquant <a href='http://dropbox-faux.com'>ici</a><br><br><br><br>Cordialement,<br>",
+                subject: "RÃ©unions d'Ã©quipe programmÃ©e",
+                content: "Bonjour,<br><br>Une rÃ©union est prÃ©vu vendredi Ã  10h. Merci de confirmÃ©e votre prÃ©sence en cliquant <a href='http://dropbox-faux.com'>ici</a><br><br><br><br>Cordialement,<br>",
                 signature: "Service RH",
                 isPhishing: false
-            },//0 crédit 1 ortho
+            },//0 crÃ©dit 1 ortho
             {
                 sender: "support@fdrop.box.com",
                 name: "Support Dropbox",
                 subject: "Partage de fichiers en attente",
-                content: "Cher utilisateur,<br><br>Un fichier importants vous à été partagé. Accédez-y <a href='http://dropbox-faux.com'>ici</a>.<br><br><br><br>Cordialement,<br>",
+                content: "Cher utilisateur,<br><br>Un fichier importants vous Ã  Ã©tÃ© partagÃ©. AccÃ©dez-y <a href='http://dropbox-faux.com'>ici</a>.<br><br><br><br>Cordialement,<br>",
                 signature: "Service Support",
                 isPhishing: true
-            },//1 crédit 1 ortho
+            },//1 crÃ©dit 1 ortho
             {
                 sender: "info@bibliotheque.fr",
-                name: "Bibliothèque",
+                name: "BibliothÃ¨que",
                 subject: "Rappel de retour de livres",
                 content: "Cher lecteur,<br><br>N'oubliez pas de retourner vos livres avant la date limite.<br><br><br><br>Cordialement,<br>",
-                signature: "Service Bibliothèque",
+                signature: "Service BibliothÃ¨que",
                 isPhishing: false
             },// (00)
         ];
+        
+        function sanitizeGaze(x, y) {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            x = Math.max(0, Math.min(x, width));
+            y = Math.max(0, Math.min(y, height));
+
+            return { x, y };
+        }
+
         let results = [];
         let eyeTrackingData = [];
         let startTime;
         let currentEmailIndex = null;
+        let zoneBoundaries = {}; // Stocke les limites des zones d'intérêt
+
+        // Fonction pour définir les zones d'intérêt sur la page
+        function defineZones() {
+            const emailDisplay = document.getElementById("emailDisplay");
+            if (!emailDisplay) return;
+
+            zoneBoundaries = {
+                avatar: getElementBounds(".email-avatar"),
+                expediteur: getElementBounds(".email-header div"),
+                sujet: getElementBounds(".email-subject"),
+                contenu: getElementBounds(".email-content"),
+                signature: getElementBounds(".email-signature"),
+                notation: getElementBounds(".notation-container")
+            };
+        }
+
+        // Fonction pour récupérer les coordonnées d'un élément HTML
+        function getElementBounds(selector) {
+            const element = document.querySelector(selector);
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                return { 
+                    top: rect.top, 
+                    bottom: rect.bottom, 
+                    left: rect.left, 
+                    right: rect.right 
+                };
+            }
+            return null;
+        }
+
+        // Fonction pour classifier les points d'eyetracking en fonction des zones
+        function categorizeGazePoint(x, y) {
+            for (const [zone, bounds] of Object.entries(zoneBoundaries)) {
+                if (bounds && x >= bounds.left && x <= bounds.right && y >= bounds.top && y <= bounds.bottom) {
+                    return zone;
+                }
+            }
+            return "autre";
+        }
         
+        // Capture des données eye-tracking et classification des points
         webgazer.setGazeListener((data, timestamp) => {
             if (data) {
-                eyeTrackingData.push({ x: data.x, y: data.y, timestamp: timestamp });
+                const sanitized = sanitizeGaze(data.x, data.y);
+                const zone = categorizeGazePoint(sanitized.x, sanitized.y); // Associe le point à une zone
+                eyeTrackingData.push({ x: sanitized.x, y: sanitized.y, zone, timestamp });
             }
         }).begin();
 
@@ -247,7 +302,7 @@
 
             if (emails.length === 0) {
                 document.getElementById("downloadBtn").classList.remove("hidden");
-                document.getElementById("emailDisplay").innerHTML = "✅ Tous les emails ont été notés.";
+                document.getElementById("emailDisplay").innerHTML = "âœ… Tous les emails ont Ã©tÃ© notÃ©s.";
                 document.getElementById("notationContainer").style.display = "none";
             }
         }
@@ -257,10 +312,11 @@
         }
         
         function displayEmail(index) {
-            startTime = Date.now(); // Démarrer le chronomètre
-            eyeTrackingData = []; // Réinitialiser les données eye-tracking
+            startTime = Date.now();
+            eyeTrackingData = [];
             currentEmailIndex = index;
             const email = emails[index];
+
             document.getElementById("emailDisplay").innerHTML = `
                 <div class="email-header">
                     <div class="email-avatar">${getInitials(email.name)}</div>
@@ -273,29 +329,32 @@
                 <div class="email-content">${email.content}</div>
                 <div class="email-signature">${email.signature}</div>
             `;
+
             document.getElementById("notationContainer").style.display = "block";
             generateLikertScale();
+
+            setTimeout(defineZones, 500); // Attendre le rendu de l'email avant d'analyser les zones
         }
 
         function generateLikertScale() {
             document.getElementById("likertScale").innerHTML = `
                 <span>1 (Pas suspect)</span>
                 ${[1, 2, 3, 4, 5, 6, 7].map(num => `<label><input type="radio" name="likert" value="${num}"> ${num}</label>`).join('')}
-                <span>7 (Très suspect)</span>
+                <span>7 (TrÃ¨s suspect)</span>
             `;
         }
 
         function recordResponse(index) {
             const selectedValue = document.querySelector('input[name="likert"]:checked');
             if (!selectedValue) {
-                alert("Veuillez sélectionner une valeur sur l'échelle.");
+                alert("Veuillez sÃ©lectionner une valeur sur l'Ã©chelle.");
                 return;
             }
-            let reactionTime = Date.now() - startTime; // Calculer le temps de réaction
+            let reactionTime = Date.now() - startTime; // Calculer le temps de rÃ©action
             results.push({
                 email: emails[currentEmailIndex].sender,
-                "Temps de Réaction (ms)": reactionTime,
-                "Évaluation du risque (1-7)": selectedValue.value,
+                "Temps de RÃ©action (ms)": reactionTime,
+                "Ã‰valuation du risque (1-7)": selectedValue.value,
                 EyeTracking: JSON.stringify(eyeTrackingData)
             });
             emails.splice(currentEmailIndex, 1);
@@ -303,14 +362,14 @@
             document.getElementById("notationContainer").style.display = "none";
             loadEmailList();
             if (emails.length > 0) { //PAS MODIF
-                document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
+                document.getElementById("emailDisplay").innerHTML = "SÃ©lectionnez un email pour l'afficher.";
             } else {
                 endExperiment();
             }
         }
 
         function endExperiment() { // PAS ENLEVE
-            document.getElementById("emailDisplay").innerHTML = "Expérience terminée, merci !";
+            document.getElementById("emailDisplay").innerHTML = "ExpÃ©rience terminÃ©e, merci !";
             document.getElementById("downloadBtn").style.display = "block";
             webgazer.end();
         }
@@ -318,7 +377,7 @@
         function downloadExcel() {
             let ws = XLSX.utils.json_to_sheet(results);
             let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            XLSX.utils.book_append_sheet(wb, ws, "RÃ©sultats");
             XLSX.writeFile(wb, "resultats_experience.xlsx");
             window.location.href = "ccalibrage.html";
         }

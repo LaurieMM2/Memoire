@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boîte Mail - Expérience de Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e7eb;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        .sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .email-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .email-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .email-list li:hover {
+            background: #f0f0f0;
+        }
+        .email-content-container {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #e5e7eb;
+        }
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .notation-container {
+            background: #b0b3b8;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <ul class="email-list" id="emailList"></ul>
+    </div>
+    <div class="email-content-container">
+        <div class="email-container" id="emailContent"></div>
+        <div class="notation-container">
+            <button onclick="rateEmail(true)">Légitime</button>
+            <button onclick="rateEmail(false)">Phishing</button>
+        </div>
+        <button onclick="exportToExcel()">Exporter les résultats</button>
+    </div>
+
+    <script>
+        let eyeTrackingData = [];
+        let ratings = [];
+        let startTime = 0;
+
+        const emails = [
+            { subject: "Votre compte a été compromis!", content: "Cliquez ici pour sécuriser votre compte immédiatement.", phishing: true },
+            { subject: "Félicitations! Vous avez gagné un iPhone!", content: "Réclamez votre prix en cliquant sur ce lien.", phishing: true },
+            { subject: "Mise à jour de sécurité de votre banque", content: "Veuillez confirmer votre identité en suivant ce lien.", phishing: true },
+            { subject: "Réunion d'équipe demain", content: "N'oubliez pas la réunion prévue à 10h demain.", phishing: false },
+            { subject: "Facture mensuelle", content: "Votre facture est maintenant disponible dans votre espace client.", phishing: false }
+        ];
+
+        function displayEmails() {
+            const emailList = document.getElementById("emailList");
+            emails.forEach((email, index) => {
+                let li = document.createElement("li");
+                li.textContent = email.subject;
+                li.onclick = () => openEmail(index);
+                emailList.appendChild(li);
+            });
+        }
+
+        function openEmail(index) {
+            startTime = Date.now();
+            eyeTrackingData = [];
+
+            const emailContent = document.getElementById("emailContent");
+            emailContent.innerHTML = `<h2>${emails[index].subject}</h2><p>${emails[index].content}</p>`;
+            emailContent.style.display = "block";
+            document.querySelector(".notation-container").style.display = "block";
+            emailContent.dataset.index = index;
+        }
+
+        function rateEmail(isLegit) {
+            let index = document.getElementById("emailContent").dataset.index;
+            let reactionTime = Date.now() - startTime;
+            let email = emails[index];
+            ratings.push({
+                subject: email.subject,
+                content: email.content,
+                isLegit,
+                reactionTime,
+                eyeTrackingData: JSON.stringify(eyeTrackingData)
+            });
+            alert("Réponse enregistrée!");
+        }
+
+        function exportToExcel() {
+            let ws = XLSX.utils.json_to_sheet(ratings);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Résultats");
+            XLSX.writeFile(wb, "resultats.xlsx");
+        }
+
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                eyeTrackingData.push({ x: data.x, y: data.y, timestamp: timestamp });
+            }
+        }).begin();
+
+        displayEmails();
+    </script>
+</body>
+</html>

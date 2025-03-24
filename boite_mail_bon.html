@@ -221,6 +221,20 @@
         <div id="finalMessage" style="display: none; font-size: 18px; font-weight: bold; margin-bottom: 20px;">
             Expérience terminée, merci !
         </div>
+        <div id="personalityContainer" class="questionnaire-container" style="display: none;">
+            <form id="personalityForm">
+                <div class="questionnaire-instructions">
+                    Veuillez lire attentivement chaque énoncé et évaluez à quel point cet énoncé vous décrit.
+                    <br><br>
+                    1 = Total désaccord &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 5 = Total accord
+                </div>
+                <div id="personalityItems"></div>
+                <div style="text-align: center;">
+                    <button type="submit" class="submit-button">Soumettre le questionnaire</button>
+                </div>
+            </form>
+        </div>
+
         <button id="downloadBtn" class="submit-button" onclick="downloadExcel()" style="display: none;">
             Télécharger les résultats
         </button>
@@ -340,6 +354,32 @@
         ];
 
         let questionnaireResponses = [];
+
+        const personalityItems = [
+            "1. Je suis le bout en train dans les partys.",
+            "2. Je sympathise avec les sentiments des autres.",
+            "3. J’accomplis les tâches ménagères sans délai.",
+            "4. J’ai de fréquentes sautes d’humeur.",
+            "5. J’ai une imagination fertile.",
+            "6. Je ne parle pas beaucoup.",
+            "7. Les problèmes des autres ne m'intéressent pas.",
+            "8. J’oublie souvent de ranger les choses là où elles vont.",
+            "9. Je suis détendu la plupart du temps.",
+            "10. Je n'ai pas d'intérêt pour les idées abstraites.",
+            "11. Je parle à plusieurs personnes différentes dans les partys.",
+            "12. Je ressens les émotions des autres.",
+            "13. J’aime l’ordre.",
+            "14. Je suis facilement contrarié.",
+            "15. J’ai de la difficulté à comprendre les idées abstraites.",
+            "16. J’ai tendance à rester en retrait.",
+            "17. Je ne suis pas vraiment intéressé par les autres.",
+            "18. Je suis désordonné.",
+            "19. Je me sens rarement déprimé.",
+            "20. J’ai très peu d’imagination."
+        ];
+
+        let personalityResponses = [];
+
 
         
         function sanitizeGaze(x, y) {
@@ -526,6 +566,36 @@
         }
 
 
+        function generatePersonalityQuestionnaire() {
+            const container = document.getElementById("personalityItems");
+            container.innerHTML = "";
+
+            let tableHTML = `
+                <table class="questionnaire-table">
+                    <thead>
+                        <tr>
+                            <th>Énoncé</th>
+                            ${[1, 2, 3, 4, 5].map(val => `<th>${val}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${personalityItems.map((question, index) => {
+                            const id = `p${index + 1}`;
+                            return `
+                                <tr>
+                                    <td><strong>${question}</strong></td>
+                                    ${[1, 2, 3, 4, 5].map(val => `
+                                        <td><input type="radio" name="${id}" value="${val}" required></td>
+                                    `).join('')}
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
 
 
         function endExperiment() {
@@ -583,6 +653,12 @@
                 XLSX.utils.book_append_sheet(wb, wsQuestionnaire, "Questionnaire");
             }
 
+            if (personalityResponses.length > 0) {
+                let wsPersonality = XLSX.utils.json_to_sheet(personalityResponses);
+                XLSX.utils.book_append_sheet(wb, wsPersonality, "Personnalité");
+            }
+
+
             // 🔹 Générer et télécharger le fichier Excel
             XLSX.writeFile(wb, "resultats_experience.xlsx");
             window.location.href = "ccalibrage.html";
@@ -604,10 +680,29 @@
             console.log("Réponses questionnaire :", questionnaireResponses); // Optionnel
 
             document.getElementById("questionnaireContainer").style.display = "none";
+            generatePersonalityQuestionnaire();
+            document.getElementById("personalityContainer").style.display = "block";
+
+        });
+
+        document.getElementById("personalityForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            personalityResponses = personalityItems.map((question, i) => {
+                const key = `p${i + 1}`;
+                return {
+                    Question: question,
+                    Réponse: formData.get(key)
+                };
+            });
+
+            document.getElementById("personalityContainer").style.display = "none";
             document.getElementById("finalMessage").style.display = "block";
             document.getElementById("downloadBtn").style.display = "inline-block";
             document.getElementById("downloadBtn").disabled = false;
         });
+
     </script>
 </body>
 </html>

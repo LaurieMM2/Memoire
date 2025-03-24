@@ -940,7 +940,8 @@
             let summaryData = results.map(result => ({
                 "Email": result.email,
                 "Temps de Réaction (ms)": result["Temps de Réaction (ms)"],
-                "Évaluation du Risque (1-7)": result["Évaluation du risque (1-7)"]
+                "Évaluation du Risque (1-7)": result["Évaluation du risque (1-7)"],
+                "Confiance (1-7)": result.Confidence
             }));
 
             let wsSummary = XLSX.utils.json_to_sheet(summaryData);

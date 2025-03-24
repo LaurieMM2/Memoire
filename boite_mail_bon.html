@@ -66,6 +66,39 @@
             align-items: center;
             background: #e5e7eb;
         }
+        .questionnaire-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .questionnaire-table th,
+        .questionnaire-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .questionnaire-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .questionnaire-table td:first-child {
+            text-align: left;
+        }
+
+        .questionnaire-instructions {
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #f9f9f9;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 6px;
+        }
+
         .email-container {
             background: white;
             border-radius: 8px;
@@ -178,10 +211,6 @@
     <div class="email-content-container">
         <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
         <div id="questionnaireContainer" class="questionnaire-container">
-            <p>
-                Merci de répondre au questionnaire suivant. Pour chaque énoncé, indiquez à quel point vous seriez susceptible d’agir ainsi,
-                de 1 (Pas du tout risqué) à 7 (Extrêmement risqué) :
-            </p>
             <form id="questionnaireForm">
                 <button type="submit" class="submit-button" style="margin-bottom: 30px;">
                     Soumettre le questionnaire
@@ -454,34 +483,48 @@
             const container = document.getElementById("questionnaireItems");
             container.innerHTML = "";
 
-            // 💡 Consigne claire
-            const instructionHTML = `
+            const instructions = `
                 <div class="questionnaire-instructions">
                     Merci de répondre au questionnaire suivant. Pour chaque énoncé, indiquez à quel point vous seriez susceptible d’agir ainsi :
-                </div>
-                <div class="questionnaire-scale-info">
-                    1 = Pas du tout risqué &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 7 = Extrêmement risqué
+                    <br><br>1 = Pas du tout risqué &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 7 = Extrêmement risqué
                 </div>
             `;
-            container.insertAdjacentHTML("beforebegin", instructionHTML);
+            container.insertAdjacentHTML("beforebegin", instructions);
 
-            questionnaireItems.forEach((question, index) => {
-                const id = `q${index + 1}`;
-                const questionHTML = `
-                    <div style="margin-bottom: 15px; text-align: left;">
-                        <label><strong>${question}</strong></label><br>
-                        <div style="display: flex; justify-content: space-between;">
-                            ${[1, 2, 3, 4, 5, 6, 7].map(val => `
-                                <label>
-                                    <input type="radio" name="${id}" value="${val}" required> ${val}
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML("beforeend", questionHTML);
-            });
+            let tableHTML = `
+                <table class="questionnaire-table">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            ${[1, 2, 3, 4, 5, 6, 7].map(val => `<th>${val}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${questionnaireItems.map((question, index) => {
+                            const id = `q${index + 1}`;
+                            return `
+                                <tr>
+                                    <td><strong>${question}</strong></td>
+                                    ${[1, 2, 3, 4, 5, 6, 7].map(val => `
+                                        <td>
+                                            <input type="radio" name="${id}" value="${val}" required>
+                                        </td>
+                                    `).join('')}
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                <div style="text-align: center;">
+                    <button type="submit" class="submit-button">
+                        Soumettre le questionnaire
+                    </button>
+                </div>
+            `;
+
+            container.innerHTML = tableHTML;
         }
+
 
 
 
@@ -561,11 +604,9 @@
             console.log("Réponses questionnaire :", questionnaireResponses); // Optionnel
 
             document.getElementById("questionnaireContainer").style.display = "none";
-            document.getElementById("questionnaireContainer").style.display = "none";
             document.getElementById("finalMessage").style.display = "block";
             document.getElementById("downloadBtn").style.display = "inline-block";
             document.getElementById("downloadBtn").disabled = false;
-            document.getElementById("downloadBtn").classList.remove("hidden");
         });
     </script>
 </body>

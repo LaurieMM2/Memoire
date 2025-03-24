@@ -40,6 +40,24 @@
         .email-list li:hover {
             background: #f0f0f0;
         }
+        .questionnaire-instructions {
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #f9f9f9;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 6px;
+        }
+
+        .questionnaire-scale-info {
+            text-align: center;
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
         .email-content-container {
             flex-grow: 1;
             padding: 20px;
@@ -171,7 +189,12 @@
                 <div id="questionnaireItems"></div>
             </form>
         </div>
-        <button id="downloadBtn" class="submit-button hidden" onclick="downloadExcel()">Télécharger les résultats</button>
+        <div id="finalMessage" style="display: none; font-size: 18px; font-weight: bold; margin-bottom: 20px;">
+            Expérience terminée, merci !
+        </div>
+        <button id="downloadBtn" class="submit-button" onclick="downloadExcel()" style="display: none;">
+            Télécharger les résultats
+        </button>
         <div class="notation-container" id="notationContainer">
             <p>Evaluation du risque :</p>
             <div class="likert-scale" id="likertScale"></div>
@@ -431,6 +454,17 @@
             const container = document.getElementById("questionnaireItems");
             container.innerHTML = "";
 
+            // 💡 Consigne claire
+            const instructionHTML = `
+                <div class="questionnaire-instructions">
+                    Merci de répondre au questionnaire suivant. Pour chaque énoncé, indiquez à quel point vous seriez susceptible d’agir ainsi :
+                </div>
+                <div class="questionnaire-scale-info">
+                    1 = Pas du tout risqué &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 7 = Extrêmement risqué
+                </div>
+            `;
+            container.insertAdjacentHTML("beforebegin", instructionHTML);
+
             questionnaireItems.forEach((question, index) => {
                 const id = `q${index + 1}`;
                 const questionHTML = `
@@ -450,8 +484,8 @@
         }
 
 
+
         function endExperiment() {
-            document.getElementById("emailDisplay").innerHTML = "Expérience terminée, merci !";
             document.getElementById("notationContainer").style.display = "none";
             webgazer.end();
 
@@ -527,6 +561,10 @@
             console.log("Réponses questionnaire :", questionnaireResponses); // Optionnel
 
             document.getElementById("questionnaireContainer").style.display = "none";
+            document.getElementById("questionnaireContainer").style.display = "none";
+            document.getElementById("finalMessage").style.display = "block";
+            document.getElementById("downloadBtn").style.display = "inline-block";
+            document.getElementById("downloadBtn").disabled = false;
             document.getElementById("downloadBtn").classList.remove("hidden");
         });
     </script>

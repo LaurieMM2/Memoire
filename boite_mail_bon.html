@@ -246,6 +246,50 @@
                 </div>
             </form>
         </div>
+        <div id="demographicContainer" class="questionnaire-container" style="display: none;">
+            <form id="demographicForm">
+                <div class="questionnaire-instructions">
+                    Merci de répondre aux questions suivantes :
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="age"><strong>Quel est votre âge ?</strong></label><br>
+                    <input type="number" name="age" id="age" required>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label><strong>Quel est votre sexe ?</strong></label><br>
+                    <label><input type="radio" name="sex" value="Homme" required> Homme</label>
+                    <label><input type="radio" name="sex" value="Femme" required> Femme</label>
+                    <label><input type="radio" name="sex" value="Autre" required> Autre</label>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label><strong>Niveau d'études :</strong></label><br>
+                    <select name="education" required>
+                        <option value="">--Sélectionnez--</option>
+                        <option value="Aucun diplôme">Aucun diplôme</option>
+                        <option value="Collège">Collège</option>
+                        <option value="Lycée">Lycée</option>
+                        <option value="Bac">Bac</option>
+                        <option value="Bac+2">Bac+2</option>
+                        <option value="Bac+3">Bac+3</option>
+                        <option value="Bac+5 ou plus">Bac+5 ou plus</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label><strong>Êtes-vous dyslexique ?</strong></label><br>
+                    <label><input type="radio" name="dyslexic" value="Oui" required> Oui</label>
+                    <label><input type="radio" name="dyslexic" value="Non" required> Non</label>
+                    <label><input type="radio" name="dyslexic" value="Je ne sais pas"> Je ne sais pas</label>
+                </div>
+
+                <div style="text-align: center;">
+                    <button type="submit" class="submit-button">Soumettre</button>
+                </div>
+            </form>
+        </div>
 
         <button id="downloadBtn" class="submit-button" onclick="downloadExcel()" style="display: none;">
             Télécharger les résultats
@@ -575,6 +619,7 @@
 
         let asdSsdResponses = [];
 
+        let demographicResponses = {};
 
         
         function sanitizeGaze(x, y) {
@@ -886,6 +931,11 @@
                 let wsAsdSsd = XLSX.utils.json_to_sheet(asdSsdResponses);
                 XLSX.utils.book_append_sheet(wb, wsAsdSsd, "ASD-SSD Continuum");
             }
+            if (Object.keys(demographicResponses).length > 0) {
+                let wsDemographics = XLSX.utils.json_to_sheet([demographicResponses]);
+                XLSX.utils.book_append_sheet(wb, wsDemographics, "Données démographiques");
+            }
+
 
 
             // 🔹 Générer et télécharger le fichier Excel
@@ -942,11 +992,27 @@
                 };
             });
 
+
             document.getElementById("asdSsdContainer").style.display = "none";
+            document.getElementById("demographicContainer").style.display = "block";
+        });
+        document.getElementById("demographicForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            demographicResponses = {
+                Age: formData.get("age"),
+                Sexe: formData.get("sex"),
+                "Niveau d'études": formData.get("education"),
+                Dyslexie: formData.get("dyslexic")
+            };
+
+            document.getElementById("demographicContainer").style.display = "none";
             document.getElementById("finalMessage").style.display = "block";
             document.getElementById("downloadBtn").style.display = "inline-block";
             document.getElementById("downloadBtn").disabled = false;
         });
+
 
     </script>
 </body>

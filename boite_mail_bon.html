@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boîte Mail - Expérience de Détection de Phishing</title>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer/dist/webgazer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e7eb;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        .sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            margin-top: 40vh; /* DÃ©cale encore plus la sidebar vers le bas */
+        }
+        .email-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .email-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .email-list li:hover {
+            background: #f0f0f0;
+        }
+        .email-content-container {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #e5e7eb;
+        }
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+
+        .questionnaire-container {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            text-align: left;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .notation-container {
+            background: #b0b3b8;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            display: none;
+        }
+        .email-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+        .email-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4caf50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 50px;
+        }
+        .email-subject {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+        .email-content {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.6;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .email-signature {
+            font-size: 15px;
+            color: #444;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .likert-scale {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .likert-scale label {
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+        }
+        .likert-scale label:hover {
+            background-color: #ddd;
+            border-radius: 5px;
+        }
+        .submit-button {
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Boîte de Réception</h3>
+        <ul class="email-list" id="emailList"></ul>
+    </div>
+    <div class="email-content-container">
+        <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
+        <div id="questionnaireContainer" class="questionnaire-container">
+            <p>
+                Merci de répondre au questionnaire suivant. Pour chaque énoncé, indiquez à quel point vous seriez susceptible d’agir ainsi,
+                de 1 (Pas du tout risqué) à 7 (Extrêmement risqué) :
+            </p>
+            <form id="questionnaireForm">
+                <button type="submit" class="submit-button" style="margin-bottom: 30px;">
+                    Soumettre le questionnaire
+                </button>
+                <div id="questionnaireItems"></div>
+            </form>
+        </div>
+        <button id="downloadBtn" class="submit-button hidden" onclick="downloadExcel()">Télécharger les résultats</button>
+        <div class="notation-container" id="notationContainer">
+            <p>Evaluation du risque :</p>
+            <div class="likert-scale" id="likertScale"></div>
+            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+        </div>
+    </div>
+    <script>
+        let emails = [
+            {
+                sender: "support@google.fr",
+                name: "Google Support",
+                subject: "Alerte de sécurité",
+                content: "Bonjour,<br><br>Nous avons détecté une nouvelle connexion à votre compte Google depuis un Windows. Si c'était vous, aucune action de votre part n'est requise. Dans le cas contraire, nous vous aiderons à sécuriser votre compte. Vous pouvez aussi voir l'activité liée à la sécurité de votre compte en cliquant sur le lien ci-dessous.<br><br><a href='#'>Consulter l'activité</a><br><br>Cordialement,<br><br><br><br>XXXXXX<br>",
+                signature: "L'équipe Google",
+                isPhishing: false
+            }, //0 crédit 0 ortho (00)
+            {
+                sender: "admin@banque-arnaque.com",
+                name: "Banque Sécurité",
+                subject: "Problème de sécurité",
+                content: "Cher client,<br><br>Nous avons remarqué une activité inhabituelle sur votre compte bancaire. Merci de mettre à jour vos informations immédiatement.<br><br><a href='#'>Mettre à jour</a><br><br><br>XXXXXX<br>",
+                signature: "Service Sécurité",
+                isPhishing: true
+            }, //2 crédit 0 ortho
+            {
+                sender: "support@airfrance.fr",
+                name: "Support Air France",
+                subject: "Détails de vautre vol",
+                content: "Cher passagé,<br><br>Voici les détails de vautre vol réservait. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour les voir. Bons voyage !<br><br>",
+                signature: "Service Clients",
+                isPhishing: false
+            }, //0 crédit 2 ortho
+            {
+                sender: "impots@gouv-faux.fr",
+                name: "Administration fiscale",
+                subject: "Frode détectait sur votre dossié fiscal",
+                content: "Cher contribuable,<br><br>Votre dossié fiscal est sou investigation. Prenait des mesures <a href='http://fraude-fiscale-faux.com'>ici</a>.<br><br>",
+                signature: "Service Fiscalité",
+                isPhishing: true
+            }, //2 crédit 2 ortho
+            {
+                sender: "no-reply@i.impots.gouv.fr",
+                name: "Administration fiscale",
+                subject: "Remboursement d'impôts disponible",
+                content: "Cher contribuable,<br><br>Vous avez droit à un remboursement. Cliquez <a href='http://remboursement-faux.com'>ici</a> pour le réclamer.<br><br>",
+                signature: "Service Fiscalité",
+                isPhishing: true
+            },//1 crédit 0 ortho
+            {
+                sender: "administration@universite.fr",
+                name: "Université",
+                subject: "Confirmation d'inscription",
+                content: "Cher étudiant,<br><br>Votre inscription pour le semestre est confirmée. Bonne continuation.<br><br>",
+                signature: "Service Inscriptions",
+                isPhishing: false
+            },// (00)
+            {
+                sender: "RH@entreprise.com",
+                name: "Ressources Humaines",
+                subject: "Réunions d'équipe programmée",
+                content: "Bonjour,<br><br>Une réunion est prévu vendredi à 10h. Merci de confirmée votre présence en cliquant <a href='http://dropbox-faux.com'>ici</a><br><br>",
+                signature: "Service RH",
+                isPhishing: false
+            },//0 crédit 1 ortho
+            {
+                sender: "support@fdrop.box.com",
+                name: "Support Dropbox",
+                subject: "Partage de fichiers en attente",
+                content: "Cher utilisateur,<br><br>Un fichier importants vous à été partagé. Accédez-y <a href='http://dropbox-faux.com'>ici</a>.<br><br>",
+                signature: "Service Support",
+                isPhishing: true
+            },//1 crédit 1 ortho
+            {
+                sender: "info@bibliotheque.fr",
+                name: "Bibliothèque",
+                subject: "Rappel de retour de livres",
+                content: "Cher lecteur,<br><br>N'oubliez pas de retourner vos livres avant la date limite.<br><br>",
+                signature: "Service Bibliothèque",
+                isPhishing: false
+            },// (00)
+        ];
+
+        const questionnaireItems = [
+            "1. Avouer que vos goûts sont différents de ceux d’un ami.",
+            "2. Aller camper en pleine nature.",
+            "3. Parier une journée de salaire aux courses de chevaux.",
+            "4. Investir 10% de vos revenus annuels dans un fonds mutuel à croissance modérée.",
+            "5. Boire abondamment lors d’une activité sociale.",
+            "6. Tricher par un montant important dans votre déclaration d’impôt.",
+            "7. Être en désaccord avec un symbole d’autorité sur une question importante.",
+            "8. Parier une journée de salaire lors d’une partie de poker à enjeu important.",
+            "9. Avoir une aventure avec un homme ou une femme marié(e).",
+            "10. Présenter le travail de quelqu’un d’autre comme étant le vôtre.",
+            "11. Descendre une pente de ski exigeant une habileté plus grande que la vôtre.",
+            "12. Investir 5% de vos revenus annuels dans des titres très spéculatifs.",
+            "13. Faire de la descente en eau vive au printemps, quand le niveau de l’eau est élevé.",
+            "14. Parier une journée de salaire sur le résultat d’un événement sportif.",
+            "15. Avoir des relations sexuelles sans protection.",
+            "16. Révéler le secret d’un ami à un autre ami.",
+            "17. Conduire une voiture sans porter de ceinture de sécurité.",
+            "18. Investir 10% de vos revenus annuels dans une nouvelle entreprise.",
+            "19. Suivre un cours de parachutisme.",
+            "20. Conduire une motocyclette sans casque protecteur.",
+            "21. Choisir une carrière qui vous plaît vraiment plutôt qu’une carrière sécuritaire.",
+            "22. Dire votre opinion sur une question controversée lors d’une réunion au travail.",
+            "23. Vous faire bronzer sans écran solaire.",
+            "24. Effectuer un saut à l’élastique à partir d’un pont élevé.",
+            "25. Piloter un petit avion.",
+            "26. Rentrer chez vous à pied le soir dans un quartier peu sécuritaire.",
+            "27. Déménager dans une ville éloignée de votre famille.",
+            "28. Entreprendre une nouvelle carrière au cours de la mi-trentaine.",
+            "29. Laisser vos enfants seuls à la maison pendant que vous faites une course.",
+            "30. Ne pas retourner un portefeuille trouvé contenant 200$."
+        ];
+
+        let questionnaireResponses = [];
+
+        
+        function sanitizeGaze(x, y) {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            x = Math.max(0, Math.min(x, width));
+            y = Math.max(0, Math.min(y, height));
+
+            return { x, y };
+        }
+
+        let results = [];
+        let eyeTrackingData = [];
+        let startTime;
+        let currentEmailIndex = null;
+        let zoneBoundaries = {}; // Stocke les limites des zones d'intérêt
+
+        // Fonction pour définir les zones d'intérêt sur la page
+        function defineZones() {
+            const emailDisplay = document.getElementById("emailDisplay");
+            if (!emailDisplay) return;
+
+            zoneBoundaries = {
+                avatar: getElementBounds(".email-avatar"),
+                expediteur: getElementBounds(".email-header div"),
+                sujet: getElementBounds(".email-subject"),
+                contenu: getElementBounds(".email-content"),
+                signature: getElementBounds(".email-signature"),
+                notation: getElementBounds(".notation-container")
+            };
+        }
+
+        // Fonction pour récupérer les coordonnées d'un élément HTML
+        function getElementBounds(selector) {
+            const element = document.querySelector(selector);
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                return { 
+                    top: rect.top, 
+                    bottom: rect.bottom, 
+                    left: rect.left, 
+                    right: rect.right 
+                };
+            }
+            return null;
+        }
+
+        // Fonction pour classifier les points d'eyetracking en fonction des zones
+        function categorizeGazePoint(x, y) {
+            for (const [zone, bounds] of Object.entries(zoneBoundaries)) {
+                if (bounds && x >= bounds.left && x <= bounds.right && y >= bounds.top && y <= bounds.bottom) {
+                    return zone;
+                }
+            }
+            return "autre";
+        }
+        
+        // Capture des données eye-tracking et classification des points
+        webgazer.setGazeListener((data, timestamp) => {
+            if (data) {
+                const sanitized = sanitizeGaze(data.x, data.y);
+                const zone = categorizeGazePoint(sanitized.x, sanitized.y); // Associe le point à une zone
+                eyeTrackingData.push({ x: sanitized.x, y: sanitized.y, zone, timestamp });
+            }
+        }).begin();
+
+        function loadEmailList() {
+            const emailList = document.getElementById("emailList");
+            emailList.innerHTML = emails.map((email, index) => `
+                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
+            `).join('');
+
+            if (emails.length === 0) {
+                document.getElementById("downloadBtn").classList.remove("hidden");
+                document.getElementById("emailDisplay").innerHTML = "Tous les emails ont été notés.";
+                document.getElementById("notationContainer").style.display = "none";
+            }
+        }
+
+
+        function getInitials(name) {
+            return name.split(" ").map(word => word[0]).join("").toUpperCase();
+        }
+        
+        function displayEmail(index) {
+            startTime = Date.now(); // DÃ©marrer le chronomÃ¨tre
+            eyeTrackingData = []; // RÃ©initialiser les donnÃ©es eye-tracking
+            currentEmailIndex = index;
+            const email = emails[index];
+            document.getElementById("emailDisplay").innerHTML = `
+                <div class="email-header">
+                    <div class="email-avatar">${getInitials(email.name)}</div>
+                    <div>
+                        <strong>${email.name}</strong> <br>
+                        <span style="color: gray;">${email.sender}</span>
+                    </div>
+                </div>
+                <div class="email-subject">${email.subject}</div>
+                <div class="email-content">${email.content}</div>
+                <div class="email-signature">${email.signature}</div>
+            `;
+            document.getElementById("notationContainer").style.display = "block";
+            generateLikertScale();
+            setTimeout(defineZones, 500); // Attendre le rendu de l'email avant d'analyser
+        }
+
+        function generateLikertScale() {
+            document.getElementById("likertScale").innerHTML = `
+                <span>1 (Pas suspect)</span>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `<label><input type="radio" name="likert" value="${num}"> ${num}</label>`).join('')}
+                <span>7 (Très suspect)</span>
+            `;
+        }
+
+        function recordResponse(index) {
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (!selectedValue) {
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
+                return;
+            }
+            let reactionTime = Date.now() - startTime; // Calculer le temps de rÃ©action
+            results.push({
+                email: emails[currentEmailIndex].sender,
+                "Temps de Réaction (ms)": reactionTime,
+                "Évaluation du risque (1-7)": selectedValue.value,
+                EyeTracking: JSON.stringify(eyeTrackingData)
+            });
+            emails.splice(currentEmailIndex, 1);
+            currentEmailIndex = null;
+            document.getElementById("notationContainer").style.display = "none";
+            loadEmailList();
+            if (emails.length > 0) { //PAS MODIF
+                document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
+            } else {
+                endExperiment();
+            }
+        }
+
+        function generateQuestionnaire() {
+            const container = document.getElementById("questionnaireItems");
+            container.innerHTML = "";
+
+            questionnaireItems.forEach((question, index) => {
+                const id = `q${index + 1}`;
+                const questionHTML = `
+                    <div style="margin-bottom: 15px; text-align: left;">
+                        <label><strong>${question}</strong></label><br>
+                        <div style="display: flex; justify-content: space-between;">
+                            ${[1, 2, 3, 4, 5, 6, 7].map(val => `
+                                <label>
+                                    <input type="radio" name="${id}" value="${val}" required> ${val}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML("beforeend", questionHTML);
+            });
+        }
+
+
+        function endExperiment() {
+            document.getElementById("emailDisplay").innerHTML = "Expérience terminée, merci !";
+            document.getElementById("notationContainer").style.display = "none";
+            webgazer.end();
+
+            setTimeout(() => {
+                generateQuestionnaire();
+                document.getElementById("questionnaireContainer").style.display = "block";
+                document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
+            }, 300);
+        }
+
+
+
+        function downloadExcel() {
+            let wb = XLSX.utils.book_new(); // Création du fichier Excel
+
+            // 🔹 Première feuille : Résumé des emails avec temps de réaction et évaluation
+            let summaryData = results.map(result => ({
+                "Email": result.email,
+                "Temps de Réaction (ms)": result["Temps de Réaction (ms)"],
+                "Évaluation du Risque (1-7)": result["Évaluation du risque (1-7)"]
+            }));
+
+            let wsSummary = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, wsSummary, "Résumé Général");
+
+            // 🔹 Feuilles individuelles pour les données d'eyetracking de chaque email
+            results.forEach(result => {
+                let eyeTrackingData = JSON.parse(result.EyeTracking); // Convertir les données en objet
+                let dataForSheet = [];
+
+                // Transformer les données d'eyetracking en format tabulaire
+                eyeTrackingData.forEach((point, index) => {
+                    dataForSheet.push({
+                        "Index": index + 1,
+                        "Coordonnée X": point.x,
+                        "Coordonnée Y": point.y,
+                        "Zone d'Intérêt": point.zone,
+                        "Timestamp (ms)": point.timestamp
+                    });
+                });
+
+                // Créer une feuille spécifique pour chaque email
+                let ws = XLSX.utils.json_to_sheet(dataForSheet);
+                let sheetName = result.email.substring(0, 30); // Limiter à 30 caractères pour compatibilité Excel
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            });
+
+            // 🔹 Feuille "Questionnaire" (dans une feuille Excel séparée)
+            if (questionnaireResponses.length > 0) {
+                console.log("✅ Réponses du questionnaire :", questionnaireResponses);
+                let wsQuestionnaire = XLSX.utils.json_to_sheet(questionnaireResponses);
+                XLSX.utils.book_append_sheet(wb, wsQuestionnaire, "Questionnaire");
+            }
+
+            // 🔹 Générer et télécharger le fichier Excel
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
+            window.location.href = "ccalibrage.html";
+        }
+
+        loadEmailList();
+        document.getElementById("questionnaireForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            questionnaireResponses = questionnaireItems.map((question, i) => {
+                const key = `q${i + 1}`;
+                return {
+                    Question: question,
+                    Réponse: formData.get(key)
+                };
+            });
+
+            console.log("Réponses questionnaire :", questionnaireResponses); // Optionnel
+
+            document.getElementById("questionnaireContainer").style.display = "none";
+            document.getElementById("downloadBtn").classList.remove("hidden");
+        });
+    </script>
+</body>
+</html>

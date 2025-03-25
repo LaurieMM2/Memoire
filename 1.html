@@ -13,13 +13,6 @@
             height: 100vh;
             margin: 0;
         }
-        .questionnaire-instructions {
-            font-size: 18px;
-            font-weight: bold;
-            background-color: #f9f9f9;
-            margin-bottom: 25px;
-            border-radius: 6px;
-        }
 
         .questionnaire-scale-info {
             text-align: center;
@@ -27,15 +20,6 @@
             font-style: italic;
             margin-bottom: 20px;
             color: #555;
-        }
-
-        .email-content-container {
-            flex-grow: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #e5e7eb;
         }
         .questionnaire-table {
             width: 100%;
@@ -68,89 +52,12 @@
             margin-bottom: 25px;
             border-radius: 6px;
         }
-
-        .email-container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            padding: 20px;
-            width: 100%;
-            max-width: 800px;
-            margin-bottom: 20px;
-        }
-
         .questionnaire-container {
             background: #ffffff;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             width: 100%;
             text-align: center;
             display: none;
-        }
-
-        .notation-container {
-            background: #b0b3b8;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
-            display: none;
-        }
-        .email-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 50px;
-        }
-        .email-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: #4caf50;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            margin-right: 50px;
-        }
-        .email-subject {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 40px;
-        }
-        .email-content {
-            font-size: 15px;
-            color: #444;
-            line-height: 1.6;
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-        }
-        .email-signature {
-            font-size: 15px;
-            color: #444;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .likert-scale {
-            margin-top: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 15px;
-            background: #f1f1f1;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        .likert-scale label {
-            cursor: pointer;
-            padding: 5px;
-            transition: 0.2s;
-        }
-        .likert-scale label:hover {
-            background-color: #ddd;
-            border-radius: 5px;
         }
         .submit-button {
             margin-top: 15px;
@@ -173,7 +80,7 @@
         <button id="Btn" class="submit-button" onclick="endExperiment()">Commencer</button>
         <div id="questionnaireContainer" class="questionnaire-container">
             <form id="questionnaireForm">
-                <button type="submit" class="submit-button" style="margin-bottom: 30px;">
+                <button type="submit" class="submit-button" onclick="generatePersonalityQuestionnaire()" style="margin-bottom: 30px;">
                     Soumettre le questionnaire
                 </button>
                 <div id="questionnaireItems"></div>

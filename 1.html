@@ -177,7 +177,7 @@
     </style>
 </head>
 <body>
-        <button class="submit-button" onclick="endExperiment()">Commencer</button>
+        <button id="Btn" class="submit-button" onclick="endExperiment()">Commencer</button>
         <div id="questionnaireContainer" class="questionnaire-container">
             <form id="questionnaireForm">
                 <button type="submit" class="submit-button" style="margin-bottom: 30px;">
@@ -453,7 +453,7 @@
 
             setTimeout(() => {
                 generateQuestionnaire();
-                document.getElementById("submit-button").style.display = "none";
+                document.getElementById("Btn").style.display = "none";
                 document.getElementById("questionnaireContainer").style.display = "block";
                 document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
             }, 300);

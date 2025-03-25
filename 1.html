@@ -50,12 +50,13 @@
             font-size: 18px;
             font-weight: bold;
             background-color: #f9f9f9;
-            padding: 15px;
-            margin-bottom: 25px;
+            padding: 20px;
+            margin: 0 auto 25px auto;
             border-radius: 6px;
-            align-items: center;
+            max-width: 700px;
             text-align: center;
         }
+
         .questionnaire-container {
             background: #ffffff;
             border-radius: 8px;
@@ -83,6 +84,20 @@
         .hidden {
             display: none;
         }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            text-align: left;
+        }
+
+        .form-group > div {
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
@@ -129,37 +144,39 @@
                     Merci de répondre aux questions suivantes :
                 </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label for="age"><strong>Quel est votre âge ?</strong></label><br>
-                    <input type="number" name="age" id="age" required>
-                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="age"><strong>Quel est votre âge ?</strong></label><br>
+                        <input type="number" name="age" id="age" required>
+                    </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label><strong>Quel est votre sexe ?</strong></label><br>
-                    <label><input type="radio" name="sex" value="Homme" required> Homme</label>
-                    <label><input type="radio" name="sex" value="Femme" required> Femme</label>
-                    <label><input type="radio" name="sex" value="Autre" required> Autre</label>
-                </div>
+                    <div>
+                        <label><strong>Quel est votre sexe ?</strong></label><br>
+                        <label><input type="radio" name="sex" value="Homme" required> Homme</label>
+                        <label><input type="radio" name="sex" value="Femme" required> Femme</label>
+                        <label><input type="radio" name="sex" value="Autre" required> Autre</label>
+                    </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label><strong>Niveau d'études :</strong></label><br>
-                    <select name="education" required>
-                        <option value="">--Sélectionnez--</option>
-                        <option value="Aucun diplôme">Aucun diplôme</option>
-                        <option value="Collège">Collège</option>
-                        <option value="Lycée">Lycée</option>
-                        <option value="Bac">Bac</option>
-                        <option value="Bac+2">Bac+2</option>
-                        <option value="Bac+3">Bac+3</option>
-                        <option value="Bac+5 ou plus">Bac+5 ou plus</option>
-                    </select>
-                </div>
+                    <div>
+                        <label><strong>Niveau d'études :</strong></label><br>
+                        <select name="education" required>
+                            <option value="">--Sélectionnez--</option>
+                            <option value="Aucun diplôme">Aucun diplôme</option>
+                            <option value="Collège">Collège</option>
+                            <option value="Lycée">Lycée</option>
+                            <option value="Bac">Bac</option>
+                            <option value="Bac+2">Bac+2</option>
+                            <option value="Bac+3">Bac+3</option>
+                            <option value="Bac+5 ou plus">Bac+5 ou plus</option>
+                        </select>
+                    </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label><strong>Êtes-vous dyslexique ?</strong></label><br>
-                    <label><input type="radio" name="dyslexic" value="Oui" required> Oui</label>
-                    <label><input type="radio" name="dyslexic" value="Non" required> Non</label>
-                    <label><input type="radio" name="dyslexic" value="Je ne sais pas"> Je ne sais pas</label>
+                    <div>
+                        <label><strong>Êtes-vous dyslexique ?</strong></label><br>
+                        <label><input type="radio" name="dyslexic" value="Oui" required> Oui</label>
+                        <label><input type="radio" name="dyslexic" value="Non" required> Non</label>
+                        <label><input type="radio" name="dyslexic" value="Je ne sais pas"> Je ne sais pas</label>
+                    </div>
                 </div>
 
                 <div style="text-align: center;">

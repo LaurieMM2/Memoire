@@ -252,6 +252,7 @@
         let asdSsdResponses = [];
         let demographicResponses = {};
         let results = [];
+        let currentStep = 0;
 
         function generateQuestionnaire() {
             const container = document.getElementById("questionnaireItems");
@@ -362,13 +363,41 @@
 
 
         function endExperiment() {
+            if (document.getElementById("questionnaireContainer").style.display === "block") return;
 
-            setTimeout(() => {
-                generateQuestionnaire();
-                document.getElementById("Btn").style.display = "none";
-                document.getElementById("questionnaireContainer").style.display = "block";
-                document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
-            }, 300);
+            generateQuestionnaire();
+            document.getElementById("Btn").style.display = "none";
+            document.getElementById("questionnaireContainer").style.display = "block";
+            document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
+        }
+
+        function nextStep() {
+            currentStep++;
+
+            // Masquer tous les containers
+            document.querySelectorAll('.questionnaire-container').forEach(div => {
+                div.style.display = 'none';
+            });
+
+            switch (currentStep) {
+                case 1:
+                    generatePersonalityQuestionnaire();
+                    document.getElementById("personalityContainer").style.display = "block";
+                    break;
+                case 2:
+                    generateAsdSsdQuestionnaire();
+                    document.getElementById("asdSsdContainer").style.display = "block";
+                    break;
+                case 3:
+                    document.getElementById("demographicContainer").style.display = "block";
+                    break;
+                case 4:
+                    document.getElementById("finalMessage").style.display = "block";
+                    document.getElementById("downloadBtn").style.display = "inline-block";
+                    break;
+            }
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
         }
 
 
@@ -402,6 +431,20 @@
             XLSX.writeFile(wb, "resultats_experience.xlsx");
             window.location.href = "ccalibrage.html";
         }
+        document.getElementById("questionnaireForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            questionnaireResponses = questionnaireItems.map((question, i) => {
+                const key = `q${i + 1}`;
+                return {
+                    Question: question,
+                    Réponse: formData.get(key)
+                };
+            });
+
+            nextStep();
+        });
 
         document.getElementById("personalityForm").addEventListener("submit", function(e) {
             e.preventDefault();
@@ -414,11 +457,10 @@
                     Réponse: formData.get(key)
                 };
             });
-            document.getElementById("personalityContainer").style.display = "none";
-            generateAsdSsdQuestionnaire();
-            document.getElementById("asdSsdContainer").style.display = "block";
 
+            nextStep();
         });
+
         document.getElementById("asdSsdForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
@@ -431,10 +473,9 @@
                 };
             });
 
-
-            document.getElementById("asdSsdContainer").style.display = "none";
-            document.getElementById("demographicContainer").style.display = "block";
+            nextStep();
         });
+
         document.getElementById("demographicForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
@@ -446,12 +487,8 @@
                 Dyslexie: formData.get("dyslexic")
             };
 
-            document.getElementById("demographicContainer").style.display = "none";
-            document.getElementById("finalMessage").style.display = "block";
-            document.getElementById("downloadBtn").style.display = "inline-block";
-            document.getElementById("downloadBtn").disabled = false;
+            nextStep();
         });
-
 
     </script>
 </body>

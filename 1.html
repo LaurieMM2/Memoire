@@ -168,7 +168,7 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            width: 10%;
+            width: 100%;
             font-weight: bold;
         }
         .hidden {
@@ -453,6 +453,7 @@
 
             setTimeout(() => {
                 generateQuestionnaire();
+                document.getElementById("submit-button").style.display = "none";
                 document.getElementById("questionnaireContainer").style.display = "block";
                 document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
             }, 300);

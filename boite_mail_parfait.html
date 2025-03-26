@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BoÃ®te Mail - ExpÃ©rience de DÃ©tection de Phishing</title>
+    <title>Boîte Mail - Expérience de Détection de Phishing</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
     <style>
         body {
@@ -22,7 +22,7 @@
             display: flex;
             flex-direction: column;
             min-width: 300px; /* Fixe une largeur minimum */
-            flex-shrink: 0; /* EmpÃªche la rÃ©duction automatique */
+            flex-shrink: 0; /* Empêche la réduction automatique */
         }
         .email-list {
             list-style: none;
@@ -204,11 +204,11 @@
 </head>
 <body>
     <div class="sidebar">
-        <h3>ðŸ“¬ BoÃ®te de RÃ©ception ðŸ“¬</h3>
+        <h3>📬 Boîte de Réception 📬</h3>
         <ul class="email-list" id="emailList"></ul>
     </div>
     <div class="email-content-container">
-        <div id="emailDisplay" class="email-container">SÃ©lectionnez un email pour l'afficher.</div>
+        <div id="emailDisplay" class="email-container">Sélectionnez un email pour l'afficher.</div>
         <div id="questionnaireContainer" class="questionnaire-container">
             <form id="questionnaireForm">
                 <button type="submit" class="submit-button" style="margin-bottom: 30px;">
@@ -218,14 +218,14 @@
             </form>
         </div>
         <div id="finalMessage" style="display: none; font-size: 18px; font-weight: bold; margin-bottom: 20px;">
-            ExpÃ©rience terminÃ©e, merci !
+            Expérience terminée, merci !
         </div>
         <div id="personalityContainer" class="questionnaire-container" style="display: none;">
             <form id="personalityForm">
                 <div class="questionnaire-instructions">
-                    Veuillez lire attentivement chaque Ã©noncÃ© et Ã©valuez Ã  quel point cet Ã©noncÃ© vous dÃ©crit.
+                    Veuillez lire attentivement chaque énoncé et évaluez à quel point cet énoncé vous décrit.
                     <br><br>
-                    1 = Total dÃ©saccord &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 5 = Total accord
+                    1 = Total désaccord &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 5 = Total accord
                 </div>
                 <div id="personalityItems"></div>
                 <div style="text-align: center;">
@@ -236,8 +236,8 @@
         <div id="asdSsdContainer" class="questionnaire-container" style="display: none;">
             <form id="asdSsdForm">
                 <div class="questionnaire-instructions">
-                    Pour chaque Ã©noncÃ©, indiquez dans quelle mesure vous Ãªtes d'accord :<br><br>
-                    1 = Pas du tout dâ€™accord &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 5 = Tout Ã  fait dâ€™accord
+                    Pour chaque énoncé, indiquez dans quelle mesure vous êtes d'accord :<br><br>
+                    1 = Pas du tout d’accord &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 5 = Tout à fait d’accord
                 </div>
                 <div id="asdSsdItems"></div>
                 <div style="text-align: center;">
@@ -248,11 +248,11 @@
         <div id="demographicContainer" class="questionnaire-container" style="display: none;">
             <form id="demographicForm">
                 <div class="questionnaire-instructions">
-                    Merci de rÃ©pondre aux questions suivantes :
+                    Merci de répondre aux questions suivantes :
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <label for="age"><strong>Quel est votre Ã¢ge ?</strong></label><br>
+                    <label for="age"><strong>Quel est votre âge ?</strong></label><br>
                     <input type="number" name="age" id="age" required>
                 </div>
 
@@ -264,12 +264,12 @@
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <label><strong>Niveau d'Ã©tudes :</strong></label><br>
+                    <label><strong>Niveau d'études :</strong></label><br>
                     <select name="education" required>
-                        <option value="">--SÃ©lectionnez--</option>
-                        <option value="Aucun diplÃ´me">Aucun diplÃ´me</option>
-                        <option value="CollÃ¨ge">CollÃ¨ge</option>
-                        <option value="LycÃ©e">LycÃ©e</option>
+                        <option value="">--Sélectionnez--</option>
+                        <option value="Aucun diplôme">Aucun diplôme</option>
+                        <option value="Collège">Collège</option>
+                        <option value="Lycée">Lycée</option>
                         <option value="Bac">Bac</option>
                         <option value="Bac+2">Bac+2</option>
                         <option value="Bac+3">Bac+3</option>
@@ -278,7 +278,7 @@
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <label><strong>ÃŠtes-vous dyslexique ?</strong></label><br>
+                    <label><strong>Êtes-vous dyslexique ?</strong></label><br>
                     <label><input type="radio" name="dyslexic" value="Oui" required> Oui</label>
                     <label><input type="radio" name="dyslexic" value="Non" required> Non</label>
                     <label><input type="radio" name="dyslexic" value="Je ne sais pas"> Je ne sais pas</label>
@@ -291,7 +291,7 @@
         </div>
 
         <button id="downloadBtn" class="submit-button" onclick="downloadExcel()" style="display: none;">
-            TÃ©lÃ©charger les rÃ©sultats
+            Télécharger les résultats
         </button>
         <div class="notation-container" id="notationContainer">
             <p>Evaluation du risque :</p>
@@ -299,7 +299,7 @@
             <button class="submit-button" onclick="recordResponse()">Soumettre</button>
         </div>
         <div class="notation-container" id="confidenceContainer" style="display: none;">
-            <p>Ã€ quel point Ãªtes-vous sÃ»r(e) de votre Ã©valuation prÃ©cÃ©dente ?</p>
+            <p>À quel point êtes-vous sûr(e) de votre évaluation précédente ?</p>
             <div class="likert-scale" id="confidenceScale"></div>
             <button class="submit-button" onclick="submitConfidence()">Valider la confiance</button>
         </div>
@@ -309,17 +309,17 @@
         let emails = [
             {
                 sender: "no-reply@impots.gouv.fr",
-                name: "Direction GÃ©nÃ©rale des Finances Publiques",
-                subject: "Rappel concernant votre avis dâ€™imposition",
-                content: "Bonjour,<br><br>Votre avis dâ€™imposition est dÃ©sormais disponible dans votre espace particulier. Aucune action nâ€™est requise si vous Ãªtes Ã  jour dans vos paiements.<br><br><br><br>Cordialement,<br>",
-                signature: "Service des ImpÃ´ts",
+                name: "Direction Générale des Finances Publiques",
+                subject: "Rappel concernant votre avis d’imposition",
+                content: "Bonjour,<br><br>Votre avis d’imposition est désormais disponible dans votre espace particulier. Aucune action n’est requise si vous êtes à jour dans vos paiements.<br><br><br><br>Cordialement,<br>",
+                signature: "Service des Impôts",
                 isPhishing: false
             }, //00
             {
                 sender: "notif@banquepaiement-gratuit.click",
                 name: "Service Banquaire",
-                subject: "ProblÃ©me sur votre conpte",
-                content: "Bonjours,<br><br>Nous avon remarquÃ© un tranzaction susspicieuse. Veiller verifier les doner de votre profile au plus vite.<br><br><br><br>Merci,<br>",
+                subject: "Probléme sur votre conpte",
+                content: "Bonjours,<br><br>Nous avon remarqué un tranzaction susspicieuse. Veiller verifier les doner de votre profile au plus vite.<br><br><br><br>Merci,<br>",
                 signature: "Aide bancaire",
                 isPhishing: true
             },//22
@@ -335,26 +335,26 @@
 
             {
                 sender: "france.impots.verif@alertes-fiscales.ru",
-                name: "Direction GÃ©nÃ©rale des Finances Publiques",
-                subject: "Erreur de dÃ©claration Ã  corriger",
-                content: "Cher contribuable,<br><br>Une erreur a Ã©tÃ© dÃ©tectÃ©e dans votre derniÃ¨re dÃ©claration. Merci de vÃ©rifier votre situation au plus vite afin d'Ã©viter des pÃ©nalitÃ©s.<br><br><br><br>Respectueusement,<br>",
-                signature: "ImpÃ´ts France",
+                name: "Direction Générale des Finances Publiques",
+                subject: "Erreur de déclaration à corriger",
+                content: "Cher contribuable,<br><br>Une erreur a été détectée dans votre dernière déclaration. Merci de vérifier votre situation au plus vite afin d'éviter des pénalités.<br><br><br><br>Respectueusement,<br>",
+                signature: "Impôts France",
                 isPhishing: true
-            }, //2 crÃ©dit
+            }, //2 crédit
             {
                 sender: "noreply@orange-fr.net",
                 name: "Orange Assistance",
-                subject: "Mise Ã  jour de vos informations requise",
-                content: "Bonjour,<br><br>Nous vous invitons Ã  vÃ©rifier vos informations personnelles dans votre espace client afin de garantir la sÃ©curitÃ© de vos services.<br><br><br><br>Cordialement,<br>",
+                subject: "Mise à jour de vos informations requise",
+                content: "Bonjour,<br><br>Nous vous invitons à vérifier vos informations personnelles dans votre espace client afin de garantir la sécurité de vos services.<br><br><br><br>Cordialement,<br>",
                 signature: "Service Client Orange",
                 isPhishing: true
-            }, //1 crÃ©dit
+            }, //1 crédit
             {
                 sender: "info@ameli-france.info",
                 name: "Ameli",
-                subject: "Mise Ã  jour de votre dossier santÃ©",
-                content: "Cher assurÃ©,<br><br>Une vÃ©rification de vos informations est en cours. Veuillez vous connecter a votre espace pour eviter toute interruption de vos droits.<br><br><br><br>Respectueusement,<br>",
-                signature: "L'Ã©quipe Ameli",
+                subject: "Mise à jour de votre dossier santé",
+                content: "Cher assuré,<br><br>Une vérification de vos informations est en cours. Veuillez vous connecter a votre espace pour eviter toute interruption de vos droits.<br><br><br><br>Respectueusement,<br>",
+                signature: "L'équipe Ameli",
                 isPhishing: true
             },//11
 
@@ -363,7 +363,7 @@
                 sender: "noreply@impots.gouv.fr",
                 name: "Administraion Fiscal",
                 subject: "Probleme sur votr dossier",
-                content: "Bonjor,<br><br>Nous avon detectÃ© une erreure dans vos derniere declarartions. Merci de prandre contact avec nos service dans les plus bref delais.<br><br><br><br>Bien courdialement,<br>",
+                content: "Bonjor,<br><br>Nous avon detecté une erreure dans vos derniere declarartions. Merci de prandre contact avec nos service dans les plus bref delais.<br><br><br><br>Bien courdialement,<br>",
                 signature: "Direction des impots",
                 isPhishing: true
             }, //2 ortho
@@ -372,17 +372,17 @@
             {
                 sender: "noreply@ameli.fr",
                 name: "Assurance Maladie",
-                subject: "VÃ©rification de votre dossier",
-                content: "Cher assurÃ©,<br><br>Une anomalie ont Ã©tÃ© dÃ©tectÃ©e dans votre dossier. Merci de vÃ©rifier vos informations afin d'Ã©viter une suspension de vos droits.<br><br><br><br>Cordialement,<br>",
+                subject: "Vérification de votre dossier",
+                content: "Cher assuré,<br><br>Une anomalie ont été détectée dans votre dossier. Merci de vérifier vos informations afin d'éviter une suspension de vos droits.<br><br><br><br>Cordialement,<br>",
                 signature: "Service Ameli",
                 isPhishing: true
             }, //1 faute subtile
 
             {
                 sender: "service-client@francetelecom.fr",
-                name: "Service TÃ©lÃ©communication",
+                name: "Service Télécommunication",
                 subject: "Mise ajour obligatoire",
-                content: "Cher utilisater,<br><br>Nous vos informon que une mise ajour importante doive Ãªtre fais sur votre compte. Sans celas, vos service serront suspendue.<br><br><br><br>SincÃ¨rement,<br>",
+                content: "Cher utilisater,<br><br>Nous vos informon que une mise ajour importante doive être fais sur votre compte. Sans celas, vos service serront suspendue.<br><br><br><br>Sincèrement,<br>",
                 signature: "L'equipe tehnique",
                 isPhishing: true
             }, //2 ortho
@@ -392,7 +392,7 @@
                 sender: "alerte@laposte.fr",
                 name: "La Poste",
                 subject: "Colis en attente de confirmation",
-                content: "Bonjour,<br><br>Un colis est en attente de confirmation d'adresse. Sans action de votre part, il sera retournÃ© au plus tard sous 48 heures. Merci de verifier vos informations.<br><br><br><br>Cordialement,<br>",
+                content: "Bonjour,<br><br>Un colis est en attente de confirmation d'adresse. Sans action de votre part, il sera retourné au plus tard sous 48 heures. Merci de verifier vos informations.<br><br><br><br>Cordialement,<br>",
                 signature: "Service Courrier",
                 isPhishing: true
             },//1 fautes subtiles
@@ -400,26 +400,26 @@
 
             {
                 sender: "securite-compte@banque-promo.win",
-                name: "Service SÃ©curitÃ© Banque",
+                name: "Service Sécurité Banque",
                 subject: "Suspension temporaire de votre compte",
-                content: "Bonjour,<br><br>Votre compte bancaire a Ã©tÃ© temporairement suspendu pour des raisons de sÃ©curitÃ©. Merci de vous connecter Ã  votre espace personnel pour valider votre identitÃ©.<br><br><br><br>Cordialement,<br>",
+                content: "Bonjour,<br><br>Votre compte bancaire a été temporairement suspendu pour des raisons de sécurité. Merci de vous connecter à votre espace personnel pour valider votre identité.<br><br><br><br>Cordialement,<br>",
                 signature: "Service Client Banque",
                 isPhishing: true
-            }, // 2 crÃ©dit
+            }, // 2 crédit
             {
                 sender: "facture@edf-contact.info",
                 name: "Service EDF",
                 subject: "Facture en atente de reglement",
-                content: "Cher client,<br><br>Votre derniere facture na pas ete rÃ©gler. Merci de procedÃ© au reglement au plus vitre pour evitÃ© la coupure.<br><br><br><br>Respetueusement,<br>",
+                content: "Cher client,<br><br>Votre derniere facture na pas ete régler. Merci de procedé au reglement au plus vitre pour evité la coupure.<br><br><br><br>Respetueusement,<br>",
                 signature: "Service Client EDF",
                 isPhishing: true
-            },//21 crÃ©dit
+            },//21 crédit
 
             {
                 sender: "assistance@edf.fr",
                 name: "EDF Assistance",
-                subject: "Paiement non rÃ©ceptionnÃ©",
-                content: "Bonjour,<br><br>Votre dernier paiement n'a pas encore Ã©tÃ© rÃ©ceptionnÃ©. Merci de rÃ©gulariser votre situation dans les plus bref dÃ©lais pour eviter toute interruption.<br><br><br><br>Respectueusement,<br>",
+                subject: "Paiement non réceptionné",
+                content: "Bonjour,<br><br>Votre dernier paiement n'a pas encore été réceptionné. Merci de régulariser votre situation dans les plus bref délais pour eviter toute interruption.<br><br><br><br>Respectueusement,<br>",
                 signature: "Service Client EDF",
                 isPhishing: true 
             },//1 faute 
@@ -428,95 +428,95 @@
             {
                 sender: "amazonclientzone2024@gestion-alertes.site",
                 name: "Service Amazon",
-                subject: "ActivitÃ© inhabituelle dÃ©tectÃ©e",
-                content: "Bonjour,<br><br>Une tentative de connexion inhabituelle a Ã©tÃ© dÃ©tectÃ©e sur votre compte Amazon. Merci de vÃ©rifier vos informations pour sÃ©curiser votre accÃ¨s.<br><br><br><br>Merci,<br>",
-                signature: "Amazon SÃ©curitÃ©",
+                subject: "Activité inhabituelle détectée",
+                content: "Bonjour,<br><br>Une tentative de connexion inhabituelle a été détectée sur votre compte Amazon. Merci de vérifier vos informations pour sécuriser votre accès.<br><br><br><br>Merci,<br>",
+                signature: "Amazon Sécurité",
                 isPhishing: true
-            }, // 2 crÃ©dibilitÃ©
+            }, // 2 crédibilité
 
             {
                 sender: "service-client@ameli-france.info",
                 name: "Assurance Maladie",
                 subject: "Notification importante",
-                content: "Cher assurÃ©,<br><br>Une vÃ©rification de vos droits est en cours. Merci de consulter votre espace personnel pour finaliser le processus.<br><br><br><br>Respectueusement,<br>",
-                signature: "L'Ã©quipe Ameli",
+                content: "Cher assuré,<br><br>Une vérification de vos droits est en cours. Merci de consulter votre espace personnel pour finaliser le processus.<br><br><br><br>Respectueusement,<br>",
+                signature: "L'équipe Ameli",
                 isPhishing: true
-            }, //1 crÃ©dit
+            }, //1 crédit
             {
                 sender: "contact@ameli.fr",
                 name: "Assurance Maladie",
-                subject: "Mise Ã  jour de vos remboursements",
-                content: "Cher assurÃ©,<br><br>Vos remboursements de soins rÃ©cents ont Ã©tÃ© traitÃ©s. Vous pouvez consulter le dÃ©tail des opÃ©rations dans votre compte personnel sur le site Ameli.<br><br><br><br>Bien Ã  vous,<br>",
-                signature: "Lâ€™Ã©quipe Ameli",
+                subject: "Mise à jour de vos remboursements",
+                content: "Cher assuré,<br><br>Vos remboursements de soins récents ont été traités. Vous pouvez consulter le détail des opérations dans votre compte personnel sur le site Ameli.<br><br><br><br>Bien à vous,<br>",
+                signature: "L’équipe Ameli",
                 isPhishing: false
             }, //00
 
             {
                 sender: "support@connexion.orange-securite.biz",
                 name: "Orange Support",
-                subject: "Tentative de connexion dÃ©tectÃ©e",
-                content: "Cher client,<br><br>Une tentative de connection a Ã©tÃ© detectÃ©e depuis un nouvel appareil. Merci de confirmer que cette activitÃ© viens bien de vous.<br><br><br><br>Merci de votre rÃ©activitÃ©,<br>",
+                subject: "Tentative de connexion détectée",
+                content: "Cher client,<br><br>Une tentative de connection a été detectée depuis un nouvel appareil. Merci de confirmer que cette activité viens bien de vous.<br><br><br><br>Merci de votre réactivité,<br>",
                 signature: "Service Orange",
                 isPhishing: true
-            },//12crÃ©dit
+            },//12crédit
             {
                 sender: "notif-client@poste-livraison.fr",
                 name: "La Poste",
-                subject: "ProblÃ¨me de livraizon colis",
-                content: "Bonjours,<br><br>Un coli n'a pas pue etre livrer Ã  votre adresse. Veiller a corriger vos doner pour evitÃ©e le retour.<br><br><br><br>Merci de votre comprhension,<br>",
+                subject: "Problème de livraizon colis",
+                content: "Bonjours,<br><br>Un coli n'a pas pue etre livrer à votre adresse. Veiller a corriger vos doner pour evitée le retour.<br><br><br><br>Merci de votre comprhension,<br>",
                 signature: "Service Livraizon",
                 isPhishing: true
-            },//21crÃ©dit
+            },//21crédit
             {
                 sender: "securite@orange-support.net",
-                name: "Orange SÃ©curitÃ©",
+                name: "Orange Sécurité",
                 subject: "Suspension temporaire de votre compte",
-                content: "Bonjour,<br><br>Votre compte Ã  fait l'objet d'une tentative de connexion inhabituelle. Merci de confirmer votre identitÃ© dans les plus bref dÃ©lais afin d'assurer la continuitÃ© du service.<br><br><br><br>Cordialement,<br>",
+                content: "Bonjour,<br><br>Votre compte à fait l'objet d'une tentative de connexion inhabituelle. Merci de confirmer votre identité dans les plus bref délais afin d'assurer la continuité du service.<br><br><br><br>Cordialement,<br>",
                 signature: "Support Orange",
                 isPhishing: true
             },//11
             {
                 sender: "client-alert@securite-banque2024.win",
-                name: "SÃ©curitÃ© Banque",
-                subject: "Validation d'activitÃ© nÃ©cessaire",
-                content: "Bonjour,<br><br>Une activitÃ©e inhabituelle Ã  Ã©tÃ© relevÃ©e sur votre compte. Merci de verifier vos informations dÃ¨s que possible pour Ã©viter une dÃ©sactivation.<br><br><br><br>Cordialement,<br>",
-                signature: "Support SÃ©curitÃ©",
+                name: "Sécurité Banque",
+                subject: "Validation d'activité nécessaire",
+                content: "Bonjour,<br><br>Une activitée inhabituelle à été relevée sur votre compte. Merci de verifier vos informations dès que possible pour éviter une désactivation.<br><br><br><br>Cordialement,<br>",
+                signature: "Support Sécurité",
                 isPhishing: true
-            },//12crÃ©dit
+            },//12crédit
 
             {
                 sender: "messagerie@impots-gouv.com",
-                name: "Direction GÃ©nÃ©rale des Finances Publiques",
-                subject: "Votre dossier fiscal nÃ©cessite une attention",
-                content: "Bonjour,<br><br>Nous avons besoin de valider certaines informations concernant votre situation fiscale. Merci d'accÃ©der Ã  votre espace personnel pour rÃ©gulariser votre dossier.<br><br><br><br>Bien Ã  vous,<br>",
-                signature: "Service des ImpÃ´ts",
+                name: "Direction Générale des Finances Publiques",
+                subject: "Votre dossier fiscal nécessite une attention",
+                content: "Bonjour,<br><br>Nous avons besoin de valider certaines informations concernant votre situation fiscale. Merci d'accéder à votre espace personnel pour régulariser votre dossier.<br><br><br><br>Bien à vous,<br>",
+                signature: "Service des Impôts",
                 isPhishing: true
-            }, //1 crÃ©dibilitÃ©
+            }, //1 crédibilité
 
 
             {
                 sender: "suivi-colis@laposte.fr",
                 name: "La Poste",
-                subject: "Votre colis a bien Ã©tÃ© livrÃ©",
-                content: "Bonjour,<br><br>Nous vous confirmons que votre colis a bien Ã©tÃ© livrÃ© Ã  lâ€™adresse indiquÃ©e. Si vous nâ€™avez pas rÃ©ceptionnÃ© ce colis, veuillez contacter votre bureau de poste habituel.<br><br><br><br>Cordialement,<br>",
+                subject: "Votre colis a bien été livré",
+                content: "Bonjour,<br><br>Nous vous confirmons que votre colis a bien été livré à l’adresse indiquée. Si vous n’avez pas réceptionné ce colis, veuillez contacter votre bureau de poste habituel.<br><br><br><br>Cordialement,<br>",
                 signature: "Service Client La Poste",
                 isPhishing: false
             },// 00
             {
                 sender: "urgence-secu@dropbox-alert.info",
                 name: "Dropbox Alerte",
-                subject: "Fichier bloqueÃ© pour securitÃ©e",
-                content: "Cher utilisater,<br><br>Un fichiÃ© que vous avez recu Ã  Ã©tÃ© bloquer pour raison de securitÃ©. Merci de confirmer vos identifiant pour continuer.<br><br><br><br>Support Dropboks,<br>",
-                signature: "SecuritÃ©e Cloud",
+                subject: "Fichier bloqueé pour securitée",
+                content: "Cher utilisater,<br><br>Un fichié que vous avez recu à été bloquer pour raison de securité. Merci de confirmer vos identifiant pour continuer.<br><br><br><br>Support Dropboks,<br>",
+                signature: "Securitée Cloud",
                 isPhishing: true
             },//22
 
             {
                 sender: "contact@service-impots.com",
-                name: "Direction GÃ©nÃ©rale des Finances Publiques",
+                name: "Direction Générale des Finances Publiques",
                 subject: "Notification de remboursement",
-                content: "Bonjour,<br><br>Un remboursement Ã  Ã©tÃ© validÃ© sur votre dossier fiscal. Merci de verifier vos informations bancaires afin que le virement soit effectuÃ© sans delais.<br><br><br><br>Cordialement,<br>",
-                signature: "Service des ImpÃ´ts",
+                content: "Bonjour,<br><br>Un remboursement à été validé sur votre dossier fiscal. Merci de verifier vos informations bancaires afin que le virement soit effectué sans delais.<br><br><br><br>Cordialement,<br>",
+                signature: "Service des Impôts",
                 isPhishing: true
             },//11
 
@@ -524,62 +524,62 @@
             {
                 sender: "alerte@france-tele-info.net",
                 name: "Support France Telecom",
-                subject: "ActivitÃ© suspecte sur votre compte",
-                content: "Bonjour,<br><br>Nous avon remarquÃ© une acitivitÃ© suspecte sur votre profile. Veuillez verifiÃ© vos information pour Ã©viter tous probleme.<br><br><br><br>SincÃ¨rement,<br>",
+                subject: "Activité suspecte sur votre compte",
+                content: "Bonjour,<br><br>Nous avon remarqué une acitivité suspecte sur votre profile. Veuillez verifié vos information pour éviter tous probleme.<br><br><br><br>Sincèrement,<br>",
                 signature: "Assistance Technique",
                 isPhishing: true
-            },//21crÃ©dit
+            },//21crédit
 
             {
                 sender: "infos@remboursement-impots-now.cc",
-                name: "ImpÃ´ts France",
-                subject: "Montant Ã  rÃ©cupÃ©rer",
-                content: "Bonjour,<br><br>Un montant Ã  Ã©tÃ© calculÃ© pour remboursement. Merci de valider vos informations afin de ne pas perdre votre droit.<br><br><br><br>Respectueusement,<br>",
+                name: "Impôts France",
+                subject: "Montant à récupérer",
+                content: "Bonjour,<br><br>Un montant à été calculé pour remboursement. Merci de valider vos informations afin de ne pas perdre votre droit.<br><br><br><br>Respectueusement,<br>",
                 signature: "Direction fiscale",
                 isPhishing: true
-            },//12crÃ©dit
+            },//12crédit
 
             {
                 sender: "virement-auto@paypal-remboursement.xyz",
                 name: "Service Client Paypal",
                 subject: "Remboursemant en cours",
-                content: "Bonjours,<br><br>Un rembourssement Ã  Ã©tÃ© enclanchÃ© sur votre compte. Verifier les infomation fournie pour validÃ© la tranzaction.<br><br><br><br>Merci pour votre confiance,<br>",
+                content: "Bonjours,<br><br>Un rembourssement à été enclanché sur votre compte. Verifier les infomation fournie pour validé la tranzaction.<br><br><br><br>Merci pour votre confiance,<br>",
                 signature: "Equipe Paypal",
                 isPhishing: true
             },//22
         ];
 
         const questionnaireItems = [
-            "1. Avouer que vos goÃ»ts sont diffÃ©rents de ceux dâ€™un ami.",
+            "1. Avouer que vos goûts sont différents de ceux d’un ami.",
             "2. Aller camper en pleine nature.",
-            "3. Parier une journÃ©e de salaire aux courses de chevaux.",
-            "4. Investir 10% de vos revenus annuels dans un fonds mutuel Ã  croissance modÃ©rÃ©e.",
-            "5. Boire abondamment lors dâ€™une activitÃ© sociale.",
-            "6. Tricher par un montant important dans votre dÃ©claration dâ€™impÃ´t.",
-            "7. ÃŠtre en dÃ©saccord avec un symbole dâ€™autoritÃ© sur une question importante.",
-            "8. Parier une journÃ©e de salaire lors dâ€™une partie de poker Ã  enjeu important.",
-            "9. Avoir une aventure avec un homme ou une femme mariÃ©(e).",
-            "10. PrÃ©senter le travail de quelquâ€™un dâ€™autre comme Ã©tant le vÃ´tre.",
-            "11. Descendre une pente de ski exigeant une habiletÃ© plus grande que la vÃ´tre.",
-            "12. Investir 5% de vos revenus annuels dans des titres trÃ¨s spÃ©culatifs.",
-            "13. Faire de la descente en eau vive au printemps, quand le niveau de lâ€™eau est Ã©levÃ©.",
-            "14. Parier une journÃ©e de salaire sur le rÃ©sultat dâ€™un Ã©vÃ©nement sportif.",
+            "3. Parier une journée de salaire aux courses de chevaux.",
+            "4. Investir 10% de vos revenus annuels dans un fonds mutuel à croissance modérée.",
+            "5. Boire abondamment lors d’une activité sociale.",
+            "6. Tricher par un montant important dans votre déclaration d’impôt.",
+            "7. Être en désaccord avec un symbole d’autorité sur une question importante.",
+            "8. Parier une journée de salaire lors d’une partie de poker à enjeu important.",
+            "9. Avoir une aventure avec un homme ou une femme marié(e).",
+            "10. Présenter le travail de quelqu’un d’autre comme étant le vôtre.",
+            "11. Descendre une pente de ski exigeant une habileté plus grande que la vôtre.",
+            "12. Investir 5% de vos revenus annuels dans des titres très spéculatifs.",
+            "13. Faire de la descente en eau vive au printemps, quand le niveau de l’eau est élevé.",
+            "14. Parier une journée de salaire sur le résultat d’un événement sportif.",
             "15. Avoir des relations sexuelles sans protection.",
-            "16. RÃ©vÃ©ler le secret dâ€™un ami Ã  un autre ami.",
-            "17. Conduire une voiture sans porter de ceinture de sÃ©curitÃ©.",
+            "16. Révéler le secret d’un ami à un autre ami.",
+            "17. Conduire une voiture sans porter de ceinture de sécurité.",
             "18. Investir 10% de vos revenus annuels dans une nouvelle entreprise.",
             "19. Suivre un cours de parachutisme.",
             "20. Conduire une motocyclette sans casque protecteur.",
-            "21. Choisir une carriÃ¨re qui vous plaÃ®t vraiment plutÃ´t quâ€™une carriÃ¨re sÃ©curitaire.",
-            "22. Dire votre opinion sur une question controversÃ©e lors dâ€™une rÃ©union au travail.",
-            "23. Vous faire bronzer sans Ã©cran solaire.",
-            "24. Effectuer un saut Ã  lâ€™Ã©lastique Ã  partir dâ€™un pont Ã©levÃ©.",
+            "21. Choisir une carrière qui vous plaît vraiment plutôt qu’une carrière sécuritaire.",
+            "22. Dire votre opinion sur une question controversée lors d’une réunion au travail.",
+            "23. Vous faire bronzer sans écran solaire.",
+            "24. Effectuer un saut à l’élastique à partir d’un pont élevé.",
             "25. Piloter un petit avion.",
-            "26. Rentrer chez vous Ã  pied le soir dans un quartier peu sÃ©curitaire.",
-            "27. DÃ©mÃ©nager dans une ville Ã©loignÃ©e de votre famille.",
-            "28. Entreprendre une nouvelle carriÃ¨re au cours de la mi-trentaine.",
-            "29. Laisser vos enfants seuls Ã  la maison pendant que vous faites une course.",
-            "30. Ne pas retourner un portefeuille trouvÃ© contenant 200$."
+            "26. Rentrer chez vous à pied le soir dans un quartier peu sécuritaire.",
+            "27. Déménager dans une ville éloignée de votre famille.",
+            "28. Entreprendre une nouvelle carrière au cours de la mi-trentaine.",
+            "29. Laisser vos enfants seuls à la maison pendant que vous faites une course.",
+            "30. Ne pas retourner un portefeuille trouvé contenant 200$."
         ];
 
         let questionnaireResponses = [];
@@ -587,39 +587,39 @@
         const personalityItems = [
             "1. Je suis le bout en train dans les partys.",
             "2. Je sympathise avec les sentiments des autres.",
-            "3. Jâ€™accomplis les tÃ¢ches mÃ©nagÃ¨res sans dÃ©lai.",
-            "4. Jâ€™ai de frÃ©quentes sautes dâ€™humeur.",
-            "5. Jâ€™ai une imagination fertile.",
+            "3. J’accomplis les tâches ménagères sans délai.",
+            "4. J’ai de fréquentes sautes d’humeur.",
+            "5. J’ai une imagination fertile.",
             "6. Je ne parle pas beaucoup.",
-            "7. Les problÃ¨mes des autres ne m'intÃ©ressent pas.",
-            "8. Jâ€™oublie souvent de ranger les choses lÃ  oÃ¹ elles vont.",
-            "9. Je suis dÃ©tendu la plupart du temps.",
-            "10. Je n'ai pas d'intÃ©rÃªt pour les idÃ©es abstraites.",
-            "11. Je parle Ã  plusieurs personnes diffÃ©rentes dans les partys.",
-            "12. Je ressens les Ã©motions des autres.",
-            "13. Jâ€™aime lâ€™ordre.",
-            "14. Je suis facilement contrariÃ©.",
-            "15. Jâ€™ai de la difficultÃ© Ã  comprendre les idÃ©es abstraites.",
-            "16. Jâ€™ai tendance Ã  rester en retrait.",
-            "17. Je ne suis pas vraiment intÃ©ressÃ© par les autres.",
-            "18. Je suis dÃ©sordonnÃ©.",
-            "19. Je me sens rarement dÃ©primÃ©.",
-            "20. Jâ€™ai trÃ¨s peu dâ€™imagination."
+            "7. Les problèmes des autres ne m'intéressent pas.",
+            "8. J’oublie souvent de ranger les choses là où elles vont.",
+            "9. Je suis détendu la plupart du temps.",
+            "10. Je n'ai pas d'intérêt pour les idées abstraites.",
+            "11. Je parle à plusieurs personnes différentes dans les partys.",
+            "12. Je ressens les émotions des autres.",
+            "13. J’aime l’ordre.",
+            "14. Je suis facilement contrarié.",
+            "15. J’ai de la difficulté à comprendre les idées abstraites.",
+            "16. J’ai tendance à rester en retrait.",
+            "17. Je ne suis pas vraiment intéressé par les autres.",
+            "18. Je suis désordonné.",
+            "19. Je me sens rarement déprimé.",
+            "20. J’ai très peu d’imagination."
         ];
 
         let personalityResponses = [];
 
         const asdSsdItems = [
-            "1. Je prÃ©fÃ¨re m'appuyer sur les faits et les observations plutÃ´t que sur mon intuition.",
-            "2. Il mâ€™arrive de penser que certains Ã©vÃ©nements ont une signification cachÃ©e.",
-            "3. Je ressens peu dâ€™intÃ©rÃªt pour les interactions sociales.",
-            "4. Jâ€™ai tendance Ã  faire confiance Ã  mon instinct, mÃªme sans preuve.",
-            "5. Je remarque rapidement les petits dÃ©tails que les autres ne voient pas.",
-            "6. Il mâ€™arrive de croire que certaines coÃ¯ncidences ne sont pas dues au hasard.",
-            "7. Je suis mal Ã  lâ€™aise dans les situations sociales.",
-            "8. Je pense que mes croyances peuvent influencer la rÃ©alitÃ©.",
-            "9. Jâ€™aime que les choses soient bien rangÃ©es et organisÃ©es.",
-            "10. Il mâ€™arrive dâ€™avoir des pensÃ©es ou des perceptions Ã©tranges que je nâ€™arrive pas Ã  expliquer."
+            "1. Je préfère m'appuyer sur les faits et les observations plutôt que sur mon intuition.",
+            "2. Il m’arrive de penser que certains événements ont une signification cachée.",
+            "3. Je ressens peu d’intérêt pour les interactions sociales.",
+            "4. J’ai tendance à faire confiance à mon instinct, même sans preuve.",
+            "5. Je remarque rapidement les petits détails que les autres ne voient pas.",
+            "6. Il m’arrive de croire que certaines coïncidences ne sont pas dues au hasard.",
+            "7. Je suis mal à l’aise dans les situations sociales.",
+            "8. Je pense que mes croyances peuvent influencer la réalité.",
+            "9. J’aime que les choses soient bien rangées et organisées.",
+            "10. Il m’arrive d’avoir des pensées ou des perceptions étranges que je n’arrive pas à expliquer."
         ];
 
         let asdSsdResponses = [];
@@ -634,7 +634,7 @@
         let currentEmailIndex = null;
    
 
-        // Fonction pour rÃ©cupÃ©rer les coordonnÃ©es d'un Ã©lÃ©ment HTML
+        // Fonction pour récupérer les coordonnées d'un élément HTML
         function getElementBounds(selector) {
             const element = document.querySelector(selector);
             if (element) {
@@ -659,7 +659,7 @@
 
             if (emails.length === 0) {
                 document.getElementById("downloadBtn").classList.remove("hidden");
-                document.getElementById("emailDisplay").innerHTML = "Tous les emails ont Ã©tÃ© notÃ©s.";
+                document.getElementById("emailDisplay").innerHTML = "Tous les emails ont été notés.";
                 document.getElementById("notationContainer").style.display = "none";
             }
         }
@@ -671,10 +671,10 @@
         
         function displayEmail(index) {
             if (evaluationInProgress) {
-                alert("Veuillez terminer lâ€™Ã©valuation et valider votre niveau de confiance avant de consulter un autre mail.");
+                alert("Veuillez terminer l’évaluation et valider votre niveau de confiance avant de consulter un autre mail.");
                 return;
             }
-            startTime = Date.now(); // DÃƒÂ©marrer le chronomÃƒÂ¨tre
+            startTime = Date.now(); // DÃ©marrer le chronomÃ¨tre
             currentEmailIndex = index;
             const email = emails[index];
             document.getElementById("emailDisplay").innerHTML = `
@@ -699,18 +699,18 @@
             document.getElementById("likertScale").innerHTML = `
                 <span>1 (Pas suspect)</span>
                 ${[1, 2, 3, 4, 5, 6, 7].map(num => `<label><input type="radio" name="likert" value="${num}"> ${num}</label>`).join('')}
-                <span>7 (TrÃ¨s suspect)</span>
+                <span>7 (Très suspect)</span>
             `;
         }
 
         function recordResponse() {
             const selectedValue = document.querySelector('input[name="likert"]:checked');
             if (!selectedValue) {
-                alert("Veuillez sÃ©lectionner une valeur sur l'Ã©chelle.");
+                alert("Veuillez sélectionner une valeur sur l'échelle.");
                 return;
             }
 
-            // Masquer lâ€™Ã©chelle dâ€™Ã©valuation, afficher lâ€™Ã©chelle de confiance
+            // Masquer l’échelle d’évaluation, afficher l’échelle de confiance
             document.getElementById("notationContainer").style.display = "none";
             document.getElementById("confidenceContainer").style.display = "block";
             generateConfidenceScale();
@@ -723,8 +723,8 @@
 
             const instructions = `
                 <div class="questionnaire-instructions">
-                    Merci de rÃ©pondre au questionnaire suivant. Pour chaque Ã©noncÃ©, indiquez Ã  quel point vous seriez susceptible dâ€™agir ainsi :
-                    <br><br>1 = Pas du tout risquÃ© &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 7 = ExtrÃªmement risquÃ©
+                    Merci de répondre au questionnaire suivant. Pour chaque énoncé, indiquez à quel point vous seriez susceptible d’agir ainsi :
+                    <br><br>1 = Pas du tout risqué &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 7 = Extrêmement risqué
                 </div>
             `;
             container.insertAdjacentHTML("beforebegin", instructions);
@@ -764,11 +764,11 @@
         }
         function generateConfidenceScale() {
             document.getElementById("confidenceScale").innerHTML = `
-                <span>1 (Pas sÃ»r du tout)</span>
+                <span>1 (Pas sûr du tout)</span>
                 ${[1, 2, 3, 4, 5, 6, 7].map(num => `
                     <label><input type="radio" name="confidence" value="${num}"> ${num}</label>
                 `).join('')}
-                <span>7 (Tout Ã  fait sÃ»r)</span>
+                <span>7 (Tout à fait sûr)</span>
             `;
         }
         function submitConfidence() {
@@ -776,7 +776,7 @@
             const confValue = document.querySelector('input[name="confidence"]:checked');
 
             if (!evalValue) {
-                alert("Vous devez Ã©valuer le risque avant de valider la confiance.");
+                alert("Vous devez évaluer le risque avant de valider la confiance.");
                 return;
             }
 
@@ -789,12 +789,12 @@
 
             results.push({
                 email: emails[currentEmailIndex].sender,
-                "Temps de RÃ©action (ms)": reactionTime,
-                "Ã‰valuation du risque (1-7)": evalValue.value,
+                "Temps de Réaction (ms)": reactionTime,
+                "Évaluation du risque (1-7)": evalValue.value,
                 Confidence: confValue.value,
             });
 
-            // Nettoyage et passage Ã  la suite
+            // Nettoyage et passage à la suite
             document.getElementById("confidenceContainer").style.display = "none";
             evaluationInProgress = false;
             emails.splice(currentEmailIndex, 1);
@@ -802,9 +802,9 @@
             loadEmailList();
 
             if (emails.length > 0) {
-                document.getElementById("emailDisplay").innerHTML = "SÃ©lectionnez un email pour l'afficher.";
+                document.getElementById("emailDisplay").innerHTML = "Sélectionnez un email pour l'afficher.";
             } else {
-                endExperiment(); // ðŸŽ¯ Affiche DOSPERT
+                endExperiment(); // 🎯 Affiche DOSPERT
             }
         }
 
@@ -819,7 +819,7 @@
                 <table class="questionnaire-table">
                     <thead>
                         <tr>
-                            <th>Ã‰noncÃ©</th>
+                            <th>Énoncé</th>
                             ${[1, 2, 3, 4, 5].map(val => `<th>${val}</th>`).join('')}
                         </tr>
                     </thead>
@@ -849,7 +849,7 @@
                 <table class="questionnaire-table">
                     <thead>
                         <tr>
-                            <th>Ã‰noncÃ©</th>
+                            <th>Énoncé</th>
                             ${[1, 2, 3, 4, 5].map(val => `<th>${val}</th>`).join('')}
                         </tr>
                     </thead>
@@ -888,30 +888,30 @@
 
 
         function downloadExcel() {
-            let wb = XLSX.utils.book_new(); // CrÃ©ation du fichier Excel
+            let wb = XLSX.utils.book_new(); // Création du fichier Excel
 
-            // ðŸ”¹ PremiÃ¨re feuille : RÃ©sumÃ© des emails avec temps de rÃ©action et Ã©valuation
+            // 🔹 Première feuille : Résumé des emails avec temps de réaction et évaluation
             let summaryData = results.map(result => ({
                 "Email": result.email,
-                "Temps de RÃ©action (ms)": result["Temps de RÃ©action (ms)"],
-                "Ã‰valuation du Risque (1-7)": result["Ã‰valuation du risque (1-7)"],
+                "Temps de Réaction (ms)": result["Temps de Réaction (ms)"],
+                "Évaluation du Risque (1-7)": result["Évaluation du risque (1-7)"],
                 "Confiance (1-7)": result.Confidence
             }));
 
             let wsSummary = XLSX.utils.json_to_sheet(summaryData);
-            XLSX.utils.book_append_sheet(wb, wsSummary, "RÃ©sumÃ© GÃ©nÃ©ral");
+            XLSX.utils.book_append_sheet(wb, wsSummary, "Résumé Général");
 
 
-            // ðŸ”¹ Feuille "Questionnaire" (dans une feuille Excel sÃ©parÃ©e)
+            // 🔹 Feuille "Questionnaire" (dans une feuille Excel séparée)
             if (questionnaireResponses.length > 0) {
-                console.log("âœ… RÃ©ponses du questionnaire :", questionnaireResponses);
+                console.log("✅ Réponses du questionnaire :", questionnaireResponses);
                 let wsQuestionnaire = XLSX.utils.json_to_sheet(questionnaireResponses);
                 XLSX.utils.book_append_sheet(wb, wsQuestionnaire, "Questionnaire");
             }
 
             if (personalityResponses.length > 0) {
                 let wsPersonality = XLSX.utils.json_to_sheet(personalityResponses);
-                XLSX.utils.book_append_sheet(wb, wsPersonality, "PersonnalitÃ©");
+                XLSX.utils.book_append_sheet(wb, wsPersonality, "Personnalité");
             }
             if (asdSsdResponses.length > 0) {
                 let wsAsdSsd = XLSX.utils.json_to_sheet(asdSsdResponses);
@@ -919,12 +919,12 @@
             }
             if (Object.keys(demographicResponses).length > 0) {
                 let wsDemographics = XLSX.utils.json_to_sheet([demographicResponses]);
-                XLSX.utils.book_append_sheet(wb, wsDemographics, "DonnÃ©es dÃ©mographiques");
+                XLSX.utils.book_append_sheet(wb, wsDemographics, "Données démographiques");
             }
 
 
 
-            // ðŸ”¹ GÃ©nÃ©rer et tÃ©lÃ©charger le fichier Excel
+            // 🔹 Générer et télécharger le fichier Excel
             XLSX.writeFile(wb, "resultats_experience.xlsx");
             window.location.href = "ccalibrage.html";
         }
@@ -938,11 +938,11 @@
                 const key = `q${i + 1}`;
                 return {
                     Question: question,
-                    RÃ©ponse: formData.get(key)
+                    Réponse: formData.get(key)
                 };
             });
 
-            console.log("RÃ©ponses questionnaire :", questionnaireResponses); // Optionnel
+            console.log("Réponses questionnaire :", questionnaireResponses); // Optionnel
 
             document.getElementById("questionnaireContainer").style.display = "none";
             generatePersonalityQuestionnaire();
@@ -958,7 +958,7 @@
                 const key = `p${i + 1}`;
                 return {
                     Question: question,
-                    RÃ©ponse: formData.get(key)
+                    Réponse: formData.get(key)
                 };
             });
             document.getElementById("personalityContainer").style.display = "none";
@@ -974,7 +974,7 @@
                 const key = `a${i + 1}`;
                 return {
                     Question: question,
-                    RÃ©ponse: formData.get(key)
+                    Réponse: formData.get(key)
                 };
             });
 
@@ -989,7 +989,7 @@
             demographicResponses = {
                 Age: formData.get("age"),
                 Sexe: formData.get("sex"),
-                "Niveau d'Ã©tudes": formData.get("education"),
+                "Niveau d'études": formData.get("education"),
                 Dyslexie: formData.get("dyslexic")
             };
 

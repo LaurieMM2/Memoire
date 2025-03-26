@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoÃ®te Mail - ExpÃ©rience de DÃ©tection de Phishing</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e7eb;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        .sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-right: 300px solid #e5e7eb;
+            padding: 20px;
+            box-shadow: 20px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            min-width: 300px; /* Fixe une largeur minimum */
+            flex-shrink: 0; /* EmpÃªche la rÃ©duction automatique */
+        }
+        .email-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .email-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .email-list li:hover {
+            background: #f0f0f0;
+        }
+        .questionnaire-instructions {
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #f9f9f9;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 6px;
+        }
+
+        .questionnaire-scale-info {
+            text-align: center;
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .email-content-container {
+            padding: 20px;
+            align-items: center;
+            background: #e5e7eb;
+            width: 10000px;
+            length: 3000px
+        }
+        .questionnaire-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .questionnaire-table th,
+        .questionnaire-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .questionnaire-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .questionnaire-table td:first-child {
+            text-align: left;
+        }
+
+        .questionnaire-instructions {
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #f9f9f9;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 6px;
+        }
+
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 780px;
+            height: 400px;
+            margin-bottom: 40px;
+        }
+
+        .questionnaire-container {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            text-align: left;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .notation-container {
+            background: #b0b3b8;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            display: none;
+        }
+        .email-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+        .email-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4caf50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 50px;
+        }
+        .email-subject {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+        .email-content {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.6;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .email-signature {
+            font-size: 15px;
+            color: #444;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .likert-scale {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .likert-scale label {
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+        }
+        .likert-scale label:hover {
+            background-color: #ddd;
+            border-radius: 5px;
+        }
+        .submit-button {
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>ðŸ“¬ BoÃ®te de RÃ©ception ðŸ“¬</h3>
+        <ul class="email-list" id="emailList"></ul>
+    </div>
+    <div class="email-content-container">
+        <div id="emailDisplay" class="email-container">SÃ©lectionnez un email pour l'afficher.</div>
+        <div id="questionnaireContainer" class="questionnaire-container">
+            <form id="questionnaireForm">
+                <button type="submit" class="submit-button" style="margin-bottom: 30px;">
+                    Soumettre le questionnaire
+                </button>
+                <div id="questionnaireItems"></div>
+            </form>
+        </div>
+        <div id="finalMessage" style="display: none; font-size: 18px; font-weight: bold; margin-bottom: 20px;">
+            ExpÃ©rience terminÃ©e, merci !
+        </div>
+        <div id="personalityContainer" class="questionnaire-container" style="display: none;">
+            <form id="personalityForm">
+                <div class="questionnaire-instructions">
+                    Veuillez lire attentivement chaque Ã©noncÃ© et Ã©valuez Ã  quel point cet Ã©noncÃ© vous dÃ©crit.
+                    <br><br>
+                    1 = Total dÃ©saccord &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 5 = Total accord
+                </div>
+                <div id="personalityItems"></div>
+                <div style="text-align: center;">
+                    <button type="submit" class="submit-button">Soumettre le questionnaire</button>
+                </div>
+            </form>
+        </div>
+        <div id="asdSsdContainer" class="questionnaire-container" style="display: none;">
+            <form id="asdSsdForm">
+                <div class="questionnaire-instructions">
+                    Pour chaque Ã©noncÃ©, indiquez dans quelle mesure vous Ãªtes d'accord :<br><br>
+                    1 = Pas du tout dâ€™accord &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 5 = Tout Ã  fait dâ€™accord
+                </div>
+                <div id="asdSsdItems"></div>
+                <div style="text-align: center;">
+                    <button type="submit" class="submit-button">Soumettre le questionnaire</button>
+                </div>
+            </form>
+        </div>
+        <div id="demographicContainer" class="questionnaire-container" style="display: none;">
+            <form id="demographicForm">
+                <div class="questionnaire-instructions">
+                    Merci de rÃ©pondre aux questions suivantes :
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="age"><strong>Quel est votre Ã¢ge ?</strong></label><br>
+                    <input type="number" name="age" id="age" required>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label><strong>Quel est votre sexe ?</strong></label><br>
+                    <label><input type="radio" name="sex" value="Homme" required> Homme</label>
+                    <label><input type="radio" name="sex" value="Femme" required> Femme</label>
+                    <label><input type="radio" name="sex" value="Autre" required> Autre</label>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label><strong>Niveau d'Ã©tudes :</strong></label><br>
+                    <select name="education" required>
+                        <option value="">--SÃ©lectionnez--</option>
+                        <option value="Aucun diplÃ´me">Aucun diplÃ´me</option>
+                        <option value="CollÃ¨ge">CollÃ¨ge</option>
+                        <option value="LycÃ©e">LycÃ©e</option>
+                        <option value="Bac">Bac</option>
+                        <option value="Bac+2">Bac+2</option>
+                        <option value="Bac+3">Bac+3</option>
+                        <option value="Bac+5 ou plus">Bac+5 ou plus</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label><strong>ÃŠtes-vous dyslexique ?</strong></label><br>
+                    <label><input type="radio" name="dyslexic" value="Oui" required> Oui</label>
+                    <label><input type="radio" name="dyslexic" value="Non" required> Non</label>
+                    <label><input type="radio" name="dyslexic" value="Je ne sais pas"> Je ne sais pas</label>
+                </div>
+
+                <div style="text-align: center;">
+                    <button type="submit" class="submit-button">Soumettre</button>
+                </div>
+            </form>
+        </div>
+
+        <button id="downloadBtn" class="submit-button" onclick="downloadExcel()" style="display: none;">
+            TÃ©lÃ©charger les rÃ©sultats
+        </button>
+        <div class="notation-container" id="notationContainer">
+            <p>Evaluation du risque :</p>
+            <div class="likert-scale" id="likertScale"></div>
+            <button class="submit-button" onclick="recordResponse()">Soumettre</button>
+        </div>
+        <div class="notation-container" id="confidenceContainer" style="display: none;">
+            <p>Ã€ quel point Ãªtes-vous sÃ»r(e) de votre Ã©valuation prÃ©cÃ©dente ?</p>
+            <div class="likert-scale" id="confidenceScale"></div>
+            <button class="submit-button" onclick="submitConfidence()">Valider la confiance</button>
+        </div>
+
+    </div>
+    <script>
+        let emails = [
+            {
+                sender: "no-reply@impots.gouv.fr",
+                name: "Direction GÃ©nÃ©rale des Finances Publiques",
+                subject: "Rappel concernant votre avis dâ€™imposition",
+                content: "Bonjour,<br><br>Votre avis dâ€™imposition est dÃ©sormais disponible dans votre espace particulier. Aucune action nâ€™est requise si vous Ãªtes Ã  jour dans vos paiements.<br><br><br><br>Cordialement,<br>",
+                signature: "Service des ImpÃ´ts",
+                isPhishing: false
+            }, //00
+            {
+                sender: "notif@banquepaiement-gratuit.click",
+                name: "Service Banquaire",
+                subject: "ProblÃ©me sur votre conpte",
+                content: "Bonjours,<br><br>Nous avon remarquÃ© un tranzaction susspicieuse. Veiller verifier les doner de votre profile au plus vite.<br><br><br><br>Merci,<br>",
+                signature: "Aide bancaire",
+                isPhishing: true
+            },//22
+
+            {
+                sender: "securite@banque-france.fr",
+                name: "Alerte Bancaire",
+                subject: "Rretir argent sur votre conte",
+                content: "Bonjours,<br><br>Une rtrait suspicieus a ete detecter sur votre conte. Veuiller verifiais vos operations au plus vitre pour eviter tout bloquage.<br><br><br><br>Merci pour votre comprhension,<br>",
+                signature: "Le sercice client",
+                isPhishing: true
+            }, //2 ortho
+
+            {
+                sender: "france.impots.verif@alertes-fiscales.ru",
+                name: "Direction GÃ©nÃ©rale des Finances Publiques",
+                subject: "Erreur de dÃ©claration Ã  corriger",
+                content: "Cher contribuable,<br><br>Une erreur a Ã©tÃ© dÃ©tectÃ©e dans votre derniÃ¨re dÃ©claration. Merci de vÃ©rifier votre situation au plus vite afin d'Ã©viter des pÃ©nalitÃ©s.<br><br><br><br>Respectueusement,<br>",
+                signature: "ImpÃ´ts France",
+                isPhishing: true
+            }, //2 crÃ©dit
+            {
+                sender: "noreply@orange-fr.net",
+                name: "Orange Assistance",
+                subject: "Mise Ã  jour de vos informations requise",
+                content: "Bonjour,<br><br>Nous vous invitons Ã  vÃ©rifier vos informations personnelles dans votre espace client afin de garantir la sÃ©curitÃ© de vos services.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Client Orange",
+                isPhishing: true
+            }, //1 crÃ©dit
+            {
+                sender: "info@ameli-france.info",
+                name: "Ameli",
+                subject: "Mise Ã  jour de votre dossier santÃ©",
+                content: "Cher assurÃ©,<br><br>Une vÃ©rification de vos informations est en cours. Veuillez vous connecter a votre espace pour eviter toute interruption de vos droits.<br><br><br><br>Respectueusement,<br>",
+                signature: "L'Ã©quipe Ameli",
+                isPhishing: true
+            },//11
+
+
+            {
+                sender: "noreply@impots.gouv.fr",
+                name: "Administraion Fiscal",
+                subject: "Probleme sur votr dossier",
+                content: "Bonjor,<br><br>Nous avon detectÃ© une erreure dans vos derniere declarartions. Merci de prandre contact avec nos service dans les plus bref delais.<br><br><br><br>Bien courdialement,<br>",
+                signature: "Direction des impots",
+                isPhishing: true
+            }, //2 ortho
+
+
+            {
+                sender: "noreply@ameli.fr",
+                name: "Assurance Maladie",
+                subject: "VÃ©rification de votre dossier",
+                content: "Cher assurÃ©,<br><br>Une anomalie ont Ã©tÃ© dÃ©tectÃ©e dans votre dossier. Merci de vÃ©rifier vos informations afin d'Ã©viter une suspension de vos droits.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Ameli",
+                isPhishing: true
+            }, //1 faute subtile
+
+            {
+                sender: "service-client@francetelecom.fr",
+                name: "Service TÃ©lÃ©communication",
+                subject: "Mise ajour obligatoire",
+                content: "Cher utilisater,<br><br>Nous vos informon que une mise ajour importante doive Ãªtre fais sur votre compte. Sans celas, vos service serront suspendue.<br><br><br><br>SincÃ¨rement,<br>",
+                signature: "L'equipe tehnique",
+                isPhishing: true
+            }, //2 ortho
+
+
+            {
+                sender: "alerte@laposte.fr",
+                name: "La Poste",
+                subject: "Colis en attente de confirmation",
+                content: "Bonjour,<br><br>Un colis est en attente de confirmation d'adresse. Sans action de votre part, il sera retournÃ© au plus tard sous 48 heures. Merci de verifier vos informations.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Courrier",
+                isPhishing: true
+            },//1 fautes subtiles
+
+
+            {
+                sender: "securite-compte@banque-promo.win",
+                name: "Service SÃ©curitÃ© Banque",
+                subject: "Suspension temporaire de votre compte",
+                content: "Bonjour,<br><br>Votre compte bancaire a Ã©tÃ© temporairement suspendu pour des raisons de sÃ©curitÃ©. Merci de vous connecter Ã  votre espace personnel pour valider votre identitÃ©.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Client Banque",
+                isPhishing: true
+            }, // 2 crÃ©dit
+            {
+                sender: "facture@edf-contact.info",
+                name: "Service EDF",
+                subject: "Facture en atente de reglement",
+                content: "Cher client,<br><br>Votre derniere facture na pas ete rÃ©gler. Merci de procedÃ© au reglement au plus vitre pour evitÃ© la coupure.<br><br><br><br>Respetueusement,<br>",
+                signature: "Service Client EDF",
+                isPhishing: true
+            },//21 crÃ©dit
+
+            {
+                sender: "assistance@edf.fr",
+                name: "EDF Assistance",
+                subject: "Paiement non rÃ©ceptionnÃ©",
+                content: "Bonjour,<br><br>Votre dernier paiement n'a pas encore Ã©tÃ© rÃ©ceptionnÃ©. Merci de rÃ©gulariser votre situation dans les plus bref dÃ©lais pour eviter toute interruption.<br><br><br><br>Respectueusement,<br>",
+                signature: "Service Client EDF",
+                isPhishing: true 
+            },//1 faute 
+
+
+            {
+                sender: "amazonclientzone2024@gestion-alertes.site",
+                name: "Service Amazon",
+                subject: "ActivitÃ© inhabituelle dÃ©tectÃ©e",
+                content: "Bonjour,<br><br>Une tentative de connexion inhabituelle a Ã©tÃ© dÃ©tectÃ©e sur votre compte Amazon. Merci de vÃ©rifier vos informations pour sÃ©curiser votre accÃ¨s.<br><br><br><br>Merci,<br>",
+                signature: "Amazon SÃ©curitÃ©",
+                isPhishing: true
+            }, // 2 crÃ©dibilitÃ©
+
+            {
+                sender: "service-client@ameli-france.info",
+                name: "Assurance Maladie",
+                subject: "Notification importante",
+                content: "Cher assurÃ©,<br><br>Une vÃ©rification de vos droits est en cours. Merci de consulter votre espace personnel pour finaliser le processus.<br><br><br><br>Respectueusement,<br>",
+                signature: "L'Ã©quipe Ameli",
+                isPhishing: true
+            }, //1 crÃ©dit
+            {
+                sender: "contact@ameli.fr",
+                name: "Assurance Maladie",
+                subject: "Mise Ã  jour de vos remboursements",
+                content: "Cher assurÃ©,<br><br>Vos remboursements de soins rÃ©cents ont Ã©tÃ© traitÃ©s. Vous pouvez consulter le dÃ©tail des opÃ©rations dans votre compte personnel sur le site Ameli.<br><br><br><br>Bien Ã  vous,<br>",
+                signature: "Lâ€™Ã©quipe Ameli",
+                isPhishing: false
+            }, //00
+
+            {
+                sender: "support@connexion.orange-securite.biz",
+                name: "Orange Support",
+                subject: "Tentative de connexion dÃ©tectÃ©e",
+                content: "Cher client,<br><br>Une tentative de connection a Ã©tÃ© detectÃ©e depuis un nouvel appareil. Merci de confirmer que cette activitÃ© viens bien de vous.<br><br><br><br>Merci de votre rÃ©activitÃ©,<br>",
+                signature: "Service Orange",
+                isPhishing: true
+            },//12crÃ©dit
+            {
+                sender: "notif-client@poste-livraison.fr",
+                name: "La Poste",
+                subject: "ProblÃ¨me de livraizon colis",
+                content: "Bonjours,<br><br>Un coli n'a pas pue etre livrer Ã  votre adresse. Veiller a corriger vos doner pour evitÃ©e le retour.<br><br><br><br>Merci de votre comprhension,<br>",
+                signature: "Service Livraizon",
+                isPhishing: true
+            },//21crÃ©dit
+            {
+                sender: "securite@orange-support.net",
+                name: "Orange SÃ©curitÃ©",
+                subject: "Suspension temporaire de votre compte",
+                content: "Bonjour,<br><br>Votre compte Ã  fait l'objet d'une tentative de connexion inhabituelle. Merci de confirmer votre identitÃ© dans les plus bref dÃ©lais afin d'assurer la continuitÃ© du service.<br><br><br><br>Cordialement,<br>",
+                signature: "Support Orange",
+                isPhishing: true
+            },//11
+            {
+                sender: "client-alert@securite-banque2024.win",
+                name: "SÃ©curitÃ© Banque",
+                subject: "Validation d'activitÃ© nÃ©cessaire",
+                content: "Bonjour,<br><br>Une activitÃ©e inhabituelle Ã  Ã©tÃ© relevÃ©e sur votre compte. Merci de verifier vos informations dÃ¨s que possible pour Ã©viter une dÃ©sactivation.<br><br><br><br>Cordialement,<br>",
+                signature: "Support SÃ©curitÃ©",
+                isPhishing: true
+            },//12crÃ©dit
+
+            {
+                sender: "messagerie@impots-gouv.com",
+                name: "Direction GÃ©nÃ©rale des Finances Publiques",
+                subject: "Votre dossier fiscal nÃ©cessite une attention",
+                content: "Bonjour,<br><br>Nous avons besoin de valider certaines informations concernant votre situation fiscale. Merci d'accÃ©der Ã  votre espace personnel pour rÃ©gulariser votre dossier.<br><br><br><br>Bien Ã  vous,<br>",
+                signature: "Service des ImpÃ´ts",
+                isPhishing: true
+            }, //1 crÃ©dibilitÃ©
+
+
+            {
+                sender: "suivi-colis@laposte.fr",
+                name: "La Poste",
+                subject: "Votre colis a bien Ã©tÃ© livrÃ©",
+                content: "Bonjour,<br><br>Nous vous confirmons que votre colis a bien Ã©tÃ© livrÃ© Ã  lâ€™adresse indiquÃ©e. Si vous nâ€™avez pas rÃ©ceptionnÃ© ce colis, veuillez contacter votre bureau de poste habituel.<br><br><br><br>Cordialement,<br>",
+                signature: "Service Client La Poste",
+                isPhishing: false
+            },// 00
+            {
+                sender: "urgence-secu@dropbox-alert.info",
+                name: "Dropbox Alerte",
+                subject: "Fichier bloqueÃ© pour securitÃ©e",
+                content: "Cher utilisater,<br><br>Un fichiÃ© que vous avez recu Ã  Ã©tÃ© bloquer pour raison de securitÃ©. Merci de confirmer vos identifiant pour continuer.<br><br><br><br>Support Dropboks,<br>",
+                signature: "SecuritÃ©e Cloud",
+                isPhishing: true
+            },//22
+
+            {
+                sender: "contact@service-impots.com",
+                name: "Direction GÃ©nÃ©rale des Finances Publiques",
+                subject: "Notification de remboursement",
+                content: "Bonjour,<br><br>Un remboursement Ã  Ã©tÃ© validÃ© sur votre dossier fiscal. Merci de verifier vos informations bancaires afin que le virement soit effectuÃ© sans delais.<br><br><br><br>Cordialement,<br>",
+                signature: "Service des ImpÃ´ts",
+                isPhishing: true
+            },//11
+
+
+            {
+                sender: "alerte@france-tele-info.net",
+                name: "Support France Telecom",
+                subject: "ActivitÃ© suspecte sur votre compte",
+                content: "Bonjour,<br><br>Nous avon remarquÃ© une acitivitÃ© suspecte sur votre profile. Veuillez verifiÃ© vos information pour Ã©viter tous probleme.<br><br><br><br>SincÃ¨rement,<br>",
+                signature: "Assistance Technique",
+                isPhishing: true
+            },//21crÃ©dit
+
+            {
+                sender: "infos@remboursement-impots-now.cc",
+                name: "ImpÃ´ts France",
+                subject: "Montant Ã  rÃ©cupÃ©rer",
+                content: "Bonjour,<br><br>Un montant Ã  Ã©tÃ© calculÃ© pour remboursement. Merci de valider vos informations afin de ne pas perdre votre droit.<br><br><br><br>Respectueusement,<br>",
+                signature: "Direction fiscale",
+                isPhishing: true
+            },//12crÃ©dit
+
+            {
+                sender: "virement-auto@paypal-remboursement.xyz",
+                name: "Service Client Paypal",
+                subject: "Remboursemant en cours",
+                content: "Bonjours,<br><br>Un rembourssement Ã  Ã©tÃ© enclanchÃ© sur votre compte. Verifier les infomation fournie pour validÃ© la tranzaction.<br><br><br><br>Merci pour votre confiance,<br>",
+                signature: "Equipe Paypal",
+                isPhishing: true
+            },//22
+        ];
+
+        const questionnaireItems = [
+            "1. Avouer que vos goÃ»ts sont diffÃ©rents de ceux dâ€™un ami.",
+            "2. Aller camper en pleine nature.",
+            "3. Parier une journÃ©e de salaire aux courses de chevaux.",
+            "4. Investir 10% de vos revenus annuels dans un fonds mutuel Ã  croissance modÃ©rÃ©e.",
+            "5. Boire abondamment lors dâ€™une activitÃ© sociale.",
+            "6. Tricher par un montant important dans votre dÃ©claration dâ€™impÃ´t.",
+            "7. ÃŠtre en dÃ©saccord avec un symbole dâ€™autoritÃ© sur une question importante.",
+            "8. Parier une journÃ©e de salaire lors dâ€™une partie de poker Ã  enjeu important.",
+            "9. Avoir une aventure avec un homme ou une femme mariÃ©(e).",
+            "10. PrÃ©senter le travail de quelquâ€™un dâ€™autre comme Ã©tant le vÃ´tre.",
+            "11. Descendre une pente de ski exigeant une habiletÃ© plus grande que la vÃ´tre.",
+            "12. Investir 5% de vos revenus annuels dans des titres trÃ¨s spÃ©culatifs.",
+            "13. Faire de la descente en eau vive au printemps, quand le niveau de lâ€™eau est Ã©levÃ©.",
+            "14. Parier une journÃ©e de salaire sur le rÃ©sultat dâ€™un Ã©vÃ©nement sportif.",
+            "15. Avoir des relations sexuelles sans protection.",
+            "16. RÃ©vÃ©ler le secret dâ€™un ami Ã  un autre ami.",
+            "17. Conduire une voiture sans porter de ceinture de sÃ©curitÃ©.",
+            "18. Investir 10% de vos revenus annuels dans une nouvelle entreprise.",
+            "19. Suivre un cours de parachutisme.",
+            "20. Conduire une motocyclette sans casque protecteur.",
+            "21. Choisir une carriÃ¨re qui vous plaÃ®t vraiment plutÃ´t quâ€™une carriÃ¨re sÃ©curitaire.",
+            "22. Dire votre opinion sur une question controversÃ©e lors dâ€™une rÃ©union au travail.",
+            "23. Vous faire bronzer sans Ã©cran solaire.",
+            "24. Effectuer un saut Ã  lâ€™Ã©lastique Ã  partir dâ€™un pont Ã©levÃ©.",
+            "25. Piloter un petit avion.",
+            "26. Rentrer chez vous Ã  pied le soir dans un quartier peu sÃ©curitaire.",
+            "27. DÃ©mÃ©nager dans une ville Ã©loignÃ©e de votre famille.",
+            "28. Entreprendre une nouvelle carriÃ¨re au cours de la mi-trentaine.",
+            "29. Laisser vos enfants seuls Ã  la maison pendant que vous faites une course.",
+            "30. Ne pas retourner un portefeuille trouvÃ© contenant 200$."
+        ];
+
+        let questionnaireResponses = [];
+
+        const personalityItems = [
+            "1. Je suis le bout en train dans les partys.",
+            "2. Je sympathise avec les sentiments des autres.",
+            "3. Jâ€™accomplis les tÃ¢ches mÃ©nagÃ¨res sans dÃ©lai.",
+            "4. Jâ€™ai de frÃ©quentes sautes dâ€™humeur.",
+            "5. Jâ€™ai une imagination fertile.",
+            "6. Je ne parle pas beaucoup.",
+            "7. Les problÃ¨mes des autres ne m'intÃ©ressent pas.",
+            "8. Jâ€™oublie souvent de ranger les choses lÃ  oÃ¹ elles vont.",
+            "9. Je suis dÃ©tendu la plupart du temps.",
+            "10. Je n'ai pas d'intÃ©rÃªt pour les idÃ©es abstraites.",
+            "11. Je parle Ã  plusieurs personnes diffÃ©rentes dans les partys.",
+            "12. Je ressens les Ã©motions des autres.",
+            "13. Jâ€™aime lâ€™ordre.",
+            "14. Je suis facilement contrariÃ©.",
+            "15. Jâ€™ai de la difficultÃ© Ã  comprendre les idÃ©es abstraites.",
+            "16. Jâ€™ai tendance Ã  rester en retrait.",
+            "17. Je ne suis pas vraiment intÃ©ressÃ© par les autres.",
+            "18. Je suis dÃ©sordonnÃ©.",
+            "19. Je me sens rarement dÃ©primÃ©.",
+            "20. Jâ€™ai trÃ¨s peu dâ€™imagination."
+        ];
+
+        let personalityResponses = [];
+
+        const asdSsdItems = [
+            "1. Je prÃ©fÃ¨re m'appuyer sur les faits et les observations plutÃ´t que sur mon intuition.",
+            "2. Il mâ€™arrive de penser que certains Ã©vÃ©nements ont une signification cachÃ©e.",
+            "3. Je ressens peu dâ€™intÃ©rÃªt pour les interactions sociales.",
+            "4. Jâ€™ai tendance Ã  faire confiance Ã  mon instinct, mÃªme sans preuve.",
+            "5. Je remarque rapidement les petits dÃ©tails que les autres ne voient pas.",
+            "6. Il mâ€™arrive de croire que certaines coÃ¯ncidences ne sont pas dues au hasard.",
+            "7. Je suis mal Ã  lâ€™aise dans les situations sociales.",
+            "8. Je pense que mes croyances peuvent influencer la rÃ©alitÃ©.",
+            "9. Jâ€™aime que les choses soient bien rangÃ©es et organisÃ©es.",
+            "10. Il mâ€™arrive dâ€™avoir des pensÃ©es ou des perceptions Ã©tranges que je nâ€™arrive pas Ã  expliquer."
+        ];
+
+        let asdSsdResponses = [];
+
+        let demographicResponses = {};
+
+        let results = [];
+        let startTime;
+        let confidenceLevel = null;
+        let evaluationInProgress = false;
+
+        let currentEmailIndex = null;
+   
+
+        // Fonction pour rÃ©cupÃ©rer les coordonnÃ©es d'un Ã©lÃ©ment HTML
+        function getElementBounds(selector) {
+            const element = document.querySelector(selector);
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                return { 
+                    top: rect.top, 
+                    bottom: rect.bottom, 
+                    left: rect.left, 
+                    right: rect.right 
+                };
+            }
+            return null;
+        }
+
+        
+
+        function loadEmailList() {
+            const emailList = document.getElementById("emailList");
+            emailList.innerHTML = emails.map((email, index) => `
+                <li onclick="displayEmail(${index})"> <strong>${email.name}</strong><br><small>${email.subject}</small></li>
+            `).join('');
+
+            if (emails.length === 0) {
+                document.getElementById("downloadBtn").classList.remove("hidden");
+                document.getElementById("emailDisplay").innerHTML = "Tous les emails ont Ã©tÃ© notÃ©s.";
+                document.getElementById("notationContainer").style.display = "none";
+            }
+        }
+
+
+        function getInitials(name) {
+            return name.split(" ").map(word => word[0]).join("").toUpperCase();
+        }
+        
+        function displayEmail(index) {
+            if (evaluationInProgress) {
+                alert("Veuillez terminer lâ€™Ã©valuation et valider votre niveau de confiance avant de consulter un autre mail.");
+                return;
+            }
+            startTime = Date.now(); // DÃƒÂ©marrer le chronomÃƒÂ¨tre
+            currentEmailIndex = index;
+            const email = emails[index];
+            document.getElementById("emailDisplay").innerHTML = `
+                <div class="email-header">
+                    <div class="email-avatar">${getInitials(email.name)}</div>
+                    <div>
+                        <strong>${email.name}</strong> <br>
+                        <span style="color: gray;">${email.sender}</span>
+                    </div>
+                </div>
+                <div class="email-subject">${email.subject}</div>
+                <div class="email-content">${email.content}</div>
+                <div class="email-signature">${email.signature}</div>
+            `;
+            document.getElementById("notationContainer").style.display = "block";
+            generateLikertScale();
+            setTimeout(defineZones, 500); // Attendre le rendu de l'email avant d'analyser
+            evaluationInProgress = true;
+        }
+
+        function generateLikertScale() {
+            document.getElementById("likertScale").innerHTML = `
+                <span>1 (Pas suspect)</span>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `<label><input type="radio" name="likert" value="${num}"> ${num}</label>`).join('')}
+                <span>7 (TrÃ¨s suspect)</span>
+            `;
+        }
+
+        function recordResponse() {
+            const selectedValue = document.querySelector('input[name="likert"]:checked');
+            if (!selectedValue) {
+                alert("Veuillez sÃ©lectionner une valeur sur l'Ã©chelle.");
+                return;
+            }
+
+            // Masquer lâ€™Ã©chelle dâ€™Ã©valuation, afficher lâ€™Ã©chelle de confiance
+            document.getElementById("notationContainer").style.display = "none";
+            document.getElementById("confidenceContainer").style.display = "block";
+            generateConfidenceScale();
+        }
+
+
+        function generateQuestionnaire() {
+            const container = document.getElementById("questionnaireItems");
+            container.innerHTML = "";
+
+            const instructions = `
+                <div class="questionnaire-instructions">
+                    Merci de rÃ©pondre au questionnaire suivant. Pour chaque Ã©noncÃ©, indiquez Ã  quel point vous seriez susceptible dâ€™agir ainsi :
+                    <br><br>1 = Pas du tout risquÃ© &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 7 = ExtrÃªmement risquÃ©
+                </div>
+            `;
+            container.insertAdjacentHTML("beforebegin", instructions);
+
+            let tableHTML = `
+                <table class="questionnaire-table">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            ${[1, 2, 3, 4, 5, 6, 7].map(val => `<th>${val}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${questionnaireItems.map((question, index) => {
+                            const id = `q${index + 1}`;
+                            return `
+                                <tr>
+                                    <td><strong>${question}</strong></td>
+                                    ${[1, 2, 3, 4, 5, 6, 7].map(val => `
+                                        <td>
+                                            <input type="radio" name="${id}" value="${val}" required>
+                                        </td>
+                                    `).join('')}
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                <div style="text-align: center;">
+                    <button type="submit" class="submit-button">
+                        Soumettre le questionnaire
+                    </button>
+                </div>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+        function generateConfidenceScale() {
+            document.getElementById("confidenceScale").innerHTML = `
+                <span>1 (Pas sÃ»r du tout)</span>
+                ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                    <label><input type="radio" name="confidence" value="${num}"> ${num}</label>
+                `).join('')}
+                <span>7 (Tout Ã  fait sÃ»r)</span>
+            `;
+        }
+        function submitConfidence() {
+            const evalValue = document.querySelector('input[name="likert"]:checked');
+            const confValue = document.querySelector('input[name="confidence"]:checked');
+
+            if (!evalValue) {
+                alert("Vous devez Ã©valuer le risque avant de valider la confiance.");
+                return;
+            }
+
+            if (!confValue) {
+                alert("Veuillez indiquer votre niveau de confiance.");
+                return;
+            }
+
+            let reactionTime = Date.now() - startTime;
+
+            results.push({
+                email: emails[currentEmailIndex].sender,
+                "Temps de RÃ©action (ms)": reactionTime,
+                "Ã‰valuation du risque (1-7)": evalValue.value,
+                Confidence: confValue.value,
+            });
+
+            // Nettoyage et passage Ã  la suite
+            document.getElementById("confidenceContainer").style.display = "none";
+            evaluationInProgress = false;
+            emails.splice(currentEmailIndex, 1);
+            currentEmailIndex = null;
+            loadEmailList();
+
+            if (emails.length > 0) {
+                document.getElementById("emailDisplay").innerHTML = "SÃ©lectionnez un email pour l'afficher.";
+            } else {
+                endExperiment(); // ðŸŽ¯ Affiche DOSPERT
+            }
+        }
+
+
+
+
+        function generatePersonalityQuestionnaire() {
+            const container = document.getElementById("personalityItems");
+            container.innerHTML = "";
+
+            let tableHTML = `
+                <table class="questionnaire-table">
+                    <thead>
+                        <tr>
+                            <th>Ã‰noncÃ©</th>
+                            ${[1, 2, 3, 4, 5].map(val => `<th>${val}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${personalityItems.map((question, index) => {
+                            const id = `p${index + 1}`;
+                            return `
+                                <tr>
+                                    <td><strong>${question}</strong></td>
+                                    ${[1, 2, 3, 4, 5].map(val => `
+                                        <td><input type="radio" name="${id}" value="${val}" required></td>
+                                    `).join('')}
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+        function generateAsdSsdQuestionnaire() {
+            const container = document.getElementById("asdSsdItems");
+            container.innerHTML = "";
+
+            let tableHTML = `
+                <table class="questionnaire-table">
+                    <thead>
+                        <tr>
+                            <th>Ã‰noncÃ©</th>
+                            ${[1, 2, 3, 4, 5].map(val => `<th>${val}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${asdSsdItems.map((question, index) => {
+                            const id = `a${index + 1}`;
+                            return `
+                                <tr>
+                                    <td><strong>${question}</strong></td>
+                                    ${[1, 2, 3, 4, 5].map(val => `
+                                        <td><input type="radio" name="${id}" value="${val}" required></td>
+                                    `).join('')}
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+
+        function endExperiment() {
+            document.getElementById("notationContainer").style.display = "none";
+            document.getElementById("emailDisplay").style.display = "none";
+            document.getElementById("emailList").style.display = "none";
+
+            setTimeout(() => {
+                generateQuestionnaire();
+                document.getElementById("questionnaireContainer").style.display = "block";
+                document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
+            }, 300);
+        }
+
+
+
+        function downloadExcel() {
+            let wb = XLSX.utils.book_new(); // CrÃ©ation du fichier Excel
+
+            // ðŸ”¹ PremiÃ¨re feuille : RÃ©sumÃ© des emails avec temps de rÃ©action et Ã©valuation
+            let summaryData = results.map(result => ({
+                "Email": result.email,
+                "Temps de RÃ©action (ms)": result["Temps de RÃ©action (ms)"],
+                "Ã‰valuation du Risque (1-7)": result["Ã‰valuation du risque (1-7)"],
+                "Confiance (1-7)": result.Confidence
+            }));
+
+            let wsSummary = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, wsSummary, "RÃ©sumÃ© GÃ©nÃ©ral");
+
+
+            // ðŸ”¹ Feuille "Questionnaire" (dans une feuille Excel sÃ©parÃ©e)
+            if (questionnaireResponses.length > 0) {
+                console.log("âœ… RÃ©ponses du questionnaire :", questionnaireResponses);
+                let wsQuestionnaire = XLSX.utils.json_to_sheet(questionnaireResponses);
+                XLSX.utils.book_append_sheet(wb, wsQuestionnaire, "Questionnaire");
+            }
+
+            if (personalityResponses.length > 0) {
+                let wsPersonality = XLSX.utils.json_to_sheet(personalityResponses);
+                XLSX.utils.book_append_sheet(wb, wsPersonality, "PersonnalitÃ©");
+            }
+            if (asdSsdResponses.length > 0) {
+                let wsAsdSsd = XLSX.utils.json_to_sheet(asdSsdResponses);
+                XLSX.utils.book_append_sheet(wb, wsAsdSsd, "ASD-SSD Continuum");
+            }
+            if (Object.keys(demographicResponses).length > 0) {
+                let wsDemographics = XLSX.utils.json_to_sheet([demographicResponses]);
+                XLSX.utils.book_append_sheet(wb, wsDemographics, "DonnÃ©es dÃ©mographiques");
+            }
+
+
+
+            // ðŸ”¹ GÃ©nÃ©rer et tÃ©lÃ©charger le fichier Excel
+            XLSX.writeFile(wb, "resultats_experience.xlsx");
+            window.location.href = "ccalibrage.html";
+        }
+
+        loadEmailList();
+        document.getElementById("questionnaireForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            questionnaireResponses = questionnaireItems.map((question, i) => {
+                const key = `q${i + 1}`;
+                return {
+                    Question: question,
+                    RÃ©ponse: formData.get(key)
+                };
+            });
+
+            console.log("RÃ©ponses questionnaire :", questionnaireResponses); // Optionnel
+
+            document.getElementById("questionnaireContainer").style.display = "none";
+            generatePersonalityQuestionnaire();
+            document.getElementById("personalityContainer").style.display = "block";
+
+        });
+
+        document.getElementById("personalityForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            personalityResponses = personalityItems.map((question, i) => {
+                const key = `p${i + 1}`;
+                return {
+                    Question: question,
+                    RÃ©ponse: formData.get(key)
+                };
+            });
+            document.getElementById("personalityContainer").style.display = "none";
+            generateAsdSsdQuestionnaire();
+            document.getElementById("asdSsdContainer").style.display = "block";
+
+        });
+        document.getElementById("asdSsdForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            asdSsdResponses = asdSsdItems.map((question, i) => {
+                const key = `a${i + 1}`;
+                return {
+                    Question: question,
+                    RÃ©ponse: formData.get(key)
+                };
+            });
+
+
+            document.getElementById("asdSsdContainer").style.display = "none";
+            document.getElementById("demographicContainer").style.display = "block";
+        });
+        document.getElementById("demographicForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            demographicResponses = {
+                Age: formData.get("age"),
+                Sexe: formData.get("sex"),
+                "Niveau d'Ã©tudes": formData.get("education"),
+                Dyslexie: formData.get("dyslexic")
+            };
+
+            document.getElementById("demographicContainer").style.display = "none";
+            document.getElementById("finalMessage").style.display = "block";
+            document.getElementById("downloadBtn").style.display = "inline-block";
+            document.getElementById("downloadBtn").disabled = false;
+        });
+
+
+    </script>
+</body>
+</html>

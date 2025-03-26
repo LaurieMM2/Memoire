@@ -421,8 +421,8 @@
                 subject: "Paiement non réceptionné",
                 content: "Bonjour,<br><br>Votre dernier paiement n'a pas encore été réceptionné. Merci de régulariser votre situation dans les plus bref délais pour eviter toute interruption.<br><br><br><br>Respectueusement,<br>",
                 signature: "Service Client EDF",
-                isPhishing: true 
-            },//1 faute 
+                isPhishing: true
+            },//1 faute
 
 
             {
@@ -639,17 +639,17 @@
             const element = document.querySelector(selector);
             if (element) {
                 const rect = element.getBoundingClientRect();
-                return { 
-                    top: rect.top, 
-                    bottom: rect.bottom, 
-                    left: rect.left, 
-                    right: rect.right 
+                return {
+                    top: rect.top,
+                    bottom: rect.bottom,
+                    left: rect.left,
+                    right: rect.right
                 };
             }
             return null;
         }
 
-        
+       
 
         function loadEmailList() {
             const emailList = document.getElementById("emailList");
@@ -668,7 +668,7 @@
         function getInitials(name) {
             return name.split(" ").map(word => word[0]).join("").toUpperCase();
         }
-        
+       
         function displayEmail(index) {
             if (evaluationInProgress) {
                 alert("Veuillez terminer l’évaluation et valider votre niveau de confiance avant de consulter un autre mail.");

@@ -143,13 +143,15 @@
                 <div class="questionnaire-instructions">
                     Merci de répondre aux questions suivantes :
                 </div>
-
                 <div class="form-group">
+                <div style="margin-bottom: 15px;">
+                    <label for="num_participant"><strong>Numéro de participant</strong></label><br>
+                    <input type="number" name="num_participant" id="num_participant" required>
+                </div>
                     <div>
                         <label for="age"><strong>Quel est votre âge ?</strong></label><br>
                         <input type="number" name="age" id="age" required>
                     </div>
-
                     <div>
                         <label><strong>Quel est votre sexe ?</strong></label><br>
                         <label><input type="radio" name="sex" value="Homme" required> Homme</label>
@@ -498,7 +500,8 @@
                 Age: formData.get("age"),
                 Sexe: formData.get("sex"),
                 "Niveau d'études": formData.get("education"),
-                Dyslexie: formData.get("dyslexic")
+                Dyslexie: formData.get("dyslexic"),
+                Num_participant: formData.get("num_participant"),
             };
 
             nextStep();

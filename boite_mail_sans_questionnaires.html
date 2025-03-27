@@ -256,7 +256,7 @@
                     <input type="number" name="age" id="age" required>
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <label for="NP"><strong>Numéro de participant</strong></label><br>
+                    <label for="num_participant"><strong>Numéro de participant</strong></label><br>
                     <input type="number" name="num_participant" id="num_participant" required>
                 </div>
 
@@ -937,8 +937,8 @@
                 Age: formData.get("age"),
                 Sexe: formData.get("sex"),
                 "Niveau d'études": formData.get("education"),
-                Dyslexie: formData.get("dyslexic")
-                Num participant: formData.get("num_participant)
+                Dyslexie: formData.get("dyslexic"),
+                Num_participant: formData.get("num_participant)
             };
 
             document.getElementById("demographicContainer").style.display = "none";

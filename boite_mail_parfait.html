@@ -250,7 +250,10 @@
                 <div class="questionnaire-instructions">
                     Merci de répondre aux questions suivantes :
                 </div>
-
+                <div style="margin-bottom: 15px;">
+                    <label for="num_participant"><strong>Numéro de participant</strong></label><br>
+                    <input type="number" name="num_participant" id="num_participant" required>
+                </div>
                 <div style="margin-bottom: 15px;">
                     <label for="age"><strong>Quel est votre âge ?</strong></label><br>
                     <input type="number" name="age" id="age" required>
@@ -990,7 +993,8 @@
                 Age: formData.get("age"),
                 Sexe: formData.get("sex"),
                 "Niveau d'études": formData.get("education"),
-                Dyslexie: formData.get("dyslexic")
+                Dyslexie: formData.get("dyslexic"),
+                Num_participant: formData.get("num_participant"),
             };
 
             document.getElementById("demographicContainer").style.display = "none";

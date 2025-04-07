@@ -186,6 +186,18 @@
                 </div>
             </form>
         </div>
+        <div id="cybersecurityContainer" class="questionnaire-container" style="display: none;">
+            <form id="cybersecurityForm">
+                <div class="questionnaire-instructions">
+                    Veuillez indiquer dans quelle mesure chaque affirmation décrit votre comportement ou perception. <br><br>
+                    1 = Pas du tout d'accord &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 5 = Tout à fait d'accord
+                </div>
+                <div id="cybersecurityItems"></div>
+                <div style="text-align: center;">
+                    <button type="submit" class="submit-button">Soumettre le questionnaire</button>
+                </div>
+            </form>
+        </div>
 
         <button id="downloadBtn" class="submit-button" onclick="downloadExcel()" style="display: none;">
             Télécharger les résultats
@@ -264,7 +276,45 @@
             "9. J’aime que les choses soient bien rangées et organisées.",
             "10. Il m’arrive d’avoir des pensées ou des perceptions étranges que je n’arrive pas à expliquer."
         ];
+        const cybersecurityItems = [
+            // Confidentialité
+            "Je fais attention aux informations personnelles que je partage dans le cyberespace.",
+            "Je ne partage pas d'informations ou de documents dans le cyberespace que je ne voudrais pas partager avec des tiers dans la vie réelle.",
+            "Je m'assure que les données que je partage dans le cyberespace ne peuvent être consultées que par les personnes nécessaires.",
+            "Je ne vois pas d'inconvénient à partager mes coordonnées dans le cyberespace.",
 
+            // Contrôle / Possession
+            "Je fais attention à la sécurité des mots de passe de mes comptes.",
+            "Lorsque je crée un mot de passe, je choisis un mot de passe difficile à deviner comprenant des symboles, des chiffres et des lettres majuscules.",
+            "J'utilise le service de vérification par téléphone pour sécuriser le mot de passe de mon e-mail.",
+            "Je fais attention à choisir une question de sécurité dont je me souviendrai de la réponse.",
+            "Je m'assure que les informations de ma carte de crédit ne sont pas enregistrées.",
+
+            // Intégrité
+            "Stocker des données dans le cyberespace n'est pas sûr.",
+            "Les informations et les documents que j'ai stockés dans le cyberespace peuvent être perdus ou supprimés.",
+            "Partager des données dans le cyberespace n'implique aucun risque.",
+            "Il est possible pour des tiers d'accéder aux informations et documents stockés dans le cyberespace.",
+
+            // Authenticité
+            "J'ouvre les liens et pièces jointes dans des e-mails provenant de personnes que je ne connais pas.",
+            "Je continue d'utiliser un site web même après avoir reçu une notification indiquant qu'il ne possède pas de certificat de sécurité.",
+            "J'ai ouvert des e-mails indésirables envoyés à mon adresse e-mail.",
+            "J'ai ouvert des e-mails dans le cadre d'attaques d'ingénierie sociale/phishing.",
+            "J'ai ouvert des liens et pièces jointes provenant de sources incertaines.",
+
+            // Disponibilité
+            "J'ai un programme antivirus à jour sur mon appareil.",
+            "Je scanne régulièrement mon appareil avec un programme antivirus.",
+            "Le pare-feu installé sur mes appareils est activé.",
+            "J'ouvre les fichiers que j'ai téléchargés sur Internet même si je n'ai pas installé de programme antivirus.",
+
+            // Utilité
+            "J'utilise des applications de réseaux sociaux pour partager des informations dans le cyberespace.",
+            "J'utilise largement le cyberespace pour résoudre les problèmes que je rencontre dans la vie quotidienne.",
+            "J'utilise les services fournis dans le cyberespace pour la gestion de l'information (acquisition, stockage, partage et application d'informations)."
+        ];
+        let cybersecurityResponses = [];
         let asdSsdResponses = [];
         let demographicResponses = {};
         let results = [];
@@ -377,6 +427,36 @@
             container.innerHTML = tableHTML;
         }
 
+        function generateCybersecurityQuestionnaire() {
+            const container = document.getElementById("cybersecurityItems");
+            container.innerHTML = "";
+
+            let tableHTML = `
+                <table class="questionnaire-table">
+                    <thead>
+                        <tr>
+                            <th>Énoncé</th>
+                            ${[1, 2, 3, 4, 5].map(val => `<th>${val}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${cybersecurityItems.map((question, index) => {
+                            const id = `c${index + 1}`;
+                            return `
+                                <tr>
+                                    <td><strong>${question}</strong></td>
+                                    ${[1, 2, 3, 4, 5].map(val => `
+                                        <td><input type="radio" name="${id}" value="${val}" required></td>
+                                    `).join('')}
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
 
         function endExperiment() {
             if (document.getElementById("questionnaireContainer").style.display === "block") return;
@@ -408,6 +488,10 @@
                     document.getElementById("demographicContainer").style.display = "block";
                     break;
                 case 4:
+                    generateCybersecurityQuestionnaire();
+                    document.getElementById("cybersecurityContainer").style.display = "block";
+                    break;
+                case 5:
                     document.getElementById("finalMessage").style.display = "block";
                     document.getElementById("downloadBtn").style.display = "inline-block";
                     break;
@@ -439,6 +523,10 @@
             if (Object.keys(demographicResponses).length > 0) {
                 let wsDemographics = XLSX.utils.json_to_sheet([demographicResponses]);
                 XLSX.utils.book_append_sheet(wb, wsDemographics, "Données démographiques");
+            }
+            if (cybersecurityResponses.length > 0) {
+                let wsCyber = XLSX.utils.json_to_sheet(cybersecurityResponses);
+                XLSX.utils.book_append_sheet(wb, wsCyber, "Cybersécurité");
             }
 
 
@@ -505,6 +593,20 @@
             };
 
             nextStep();
+        });
+        document.getElementById("cybersecurityForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            cybersecurityResponses = cybersecurityItems.map((question, i) => {
+                const key = `c${i + 1}`;
+                return {
+                    Question: question,
+                    Réponse: formData.get(key)
+                };
+            });
+
+            nextStep(); // ou autre enchaînement
         });
 
     </script>

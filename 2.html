@@ -943,211 +943,203 @@
         }
 
         function generateCybersecurityQuestionnaire() {
-            const container = document.getElementById("cybersecurityItems");
-            container.innerHTML = "";
+          const container = document.getElementById("cybersecurityItems");
+          container.innerHTML = "";
 
-            let tableHTML = `
-                <table class="questionnaire-table">
-                    <thead>
+          let tableHTML = `
+              <table class="questionnaire-table">
+                 <thead>
+                  <tr>
+                    <th>Énoncé</th>
+                     ${[1, 2, 3, 4, 5].map(val => `<th>${val}</th>`).join('')}
+                  </tr>
+                </thead>
+                <tbody>
+                   ${cybersecurityItems.map((question, index) => {
+                    const id = `c${index + 1}`;
+                    return `
                         <tr>
-                            <th>Énoncé</th>
-                            ${[1, 2, 3, 4, 5].map(val => `<th>${val}</th>`).join('')}
+                          <td><strong>${question}</strong></td>
+                          ${[1, 2, 3, 4, 5].map(val => `
+                            <td><input type="radio" name="${id}" value="${val}" required></td>
+                           `).join('')}
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${cybersecurityItems.map((question, index) => {
-                            const id = `c${index + 1}`;
-                            return `
-                                <tr>
-                                    <td><strong>${question}</strong></td>
-                                    ${[1, 2, 3, 4, 5].map(val => `
-                                        <td><input type="radio" name="${id}" value="${val}" required></td>
-                                    `).join('')}
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-            `;
-
-            container.innerHTML = tableHTML;
+                    `;
+                   }).join('')}
+                </tbody>
+              </table>
+          `;
+           container.innerHTML = tableHTML;
         }
 
         function endExperiment() {
-            document.getElementById("notationContainer").style.display = "none";
-            document.getElementById("emailDisplay").style.display = "none";
-            document.getElementById("emailList").style.display = "none";
+          document.getElementById("notationContainer").style.display = "none";
+          document.getElementById("emailDisplay").style.display = "none";
+          document.getElementById("emailList").style.display = "none";
 
-            setTimeout(() => {
-                generateQuestionnaire();
-                document.getElementById("questionnaireContainer").style.display = "block";
-                document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
-            }, 300);
+           setTimeout(() => {
+      
+            generateQuestionnaire();
+             document.getElementById("questionnaireContainer").style.display = "block";
+            document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
+          }, 300);
         }
 
+        function downloadExcel() {
+          const participantID = demographicResponses.Num_participant;
+           const emailData = results.map(r => ({
+            email: r.email,
+            reactionTime: r["Temps de Réaction (ms)"],
+             rating: r["Évaluation du risque (1-7)"],
+            confidence: r.Confidence
+          }));
 
+          const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf5oun-88xiEu6l6Bwtb4qHkUc-nmNvM82uxPoff3NgHjR-5w/formResponse";
+          const params = new URLSearchParams();
 
-        
-          function downloadExcel() {
-              const participantID = demographicResponses.Num_participant;
-              const emailData = results.map(r => ({
-                  email: r.email,
-                  reactionTime: r["Temps de Réaction (ms)"],
-                  rating: r["Évaluation du risque (1-7)"],
-                  confidence: r.Confidence
-              }));
+          params.append("entry.1790027923", participantID);
+          params.append("entry.2073146722", JSON.stringify(emailData));
+          params.append("entry.1649264453", JSON.stringify(questionnaireResponses));
+          params.append("entry.1684421521", JSON.stringify(personalityResponses));
+          params.append("entry.2041149639", JSON.stringify(asdSsdResponses));
+          params.append("entry.765221000", JSON.stringify(cybersecurityResponses));
+          params.append("entry.1602263641", JSON.stringify(demographicResponses));
 
-              const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf5oun-88xiEu6l6Bwtb4qHkUc-nmNvM82uxPoff3NgHjR-5w/formResponse";
-              const params = new URLSearchParams();
-              
-              params.append("entry.1790027923", participantID);
-              params.append("entry.2073146722", JSON.stringify(emailData));
-              params.append("entry.1649264453", JSON.stringify(questionnaireResponses));
-              params.append("entry.1684421521", JSON.stringify(personalityResponses));
-              params.append("entry.2041149639", JSON.stringify(asdSsdResponses));
-              params.append("entry.765221000", JSON.stringify(cybersecurityResponses));
-              params.append("entry.1602263641", JSON.stringify(demographicResponses));
-
-              fetch(formUrl + "?" + params.toString(), {
-                  method: "POST",
-                  mode: "no-cors"
-              })
-              .then(() => {
-                  alert("✅ Données envoyées !");
-                  window.location.href = "ccalibrage.html";
-              })
-              .catch((err) => {
-                  console.error("Erreur d’envoi :", err);
-                  alert("❌ Une erreur est survenue.");
-              });
-          }
-
-
-
-
-            let wsSummary = XLSX.utils.json_to_sheet(summaryData);
-            XLSX.utils.book_append_sheet(wb, wsSummary, "Résumé Général");
-
-
-            // 🔹 Feuille "Questionnaire" (dans une feuille Excel séparée)
-            if (questionnaireResponses.length > 0) {
-                console.log("✅ Réponses du questionnaire :", questionnaireResponses);
-                let wsQuestionnaire = XLSX.utils.json_to_sheet(questionnaireResponses);
-                XLSX.utils.book_append_sheet(wb, wsQuestionnaire, "Questionnaire");
-            }
-
-            if (personalityResponses.length > 0) {
-                let wsPersonality = XLSX.utils.json_to_sheet(personalityResponses);
-                XLSX.utils.book_append_sheet(wb, wsPersonality, "Personnalité");
-            }
-            if (asdSsdResponses.length > 0) {
-                let wsAsdSsd = XLSX.utils.json_to_sheet(asdSsdResponses);
-                XLSX.utils.book_append_sheet(wb, wsAsdSsd, "ASD-SSD Continuum");
-            }
-            if (Object.keys(demographicResponses).length > 0) {
-                let wsDemographics = XLSX.utils.json_to_sheet([demographicResponses]);
-                XLSX.utils.book_append_sheet(wb, wsDemographics, "Données démographiques");
-            }
-            if (cybersecurityResponses.length > 0) {
-                let wsCyber = XLSX.utils.json_to_sheet(cybersecurityResponses);
-                XLSX.utils.book_append_sheet(wb, wsCyber, "Cybersécurité");
-            }
-
-
-
-            // 🔹 Générer et télécharger le fichier Excel
-            XLSX.writeFile(wb, "resultats_experience.xlsx");
+          fetch(formUrl + "?" + params.toString(), {
+            method: "POST",
+            mode: "no-cors"
+          })
+           .then(() => {
+            alert("✅ Données envoyées !");
             window.location.href = "ccalibrage.html";
+          })
+          .catch((err) => {
+            console.error("Erreur d’envoi :", err);
+            alert("❌ Une erreur est survenue.");
+          });
+         }
+
+        let wsSummary = XLSX.utils.json_to_sheet(summaryData);
+        XLSX.utils.book_append_sheet(wb, wsSummary, "Résumé Général");
+
+          // 🔹 Feuille "Questionnaire"
+         if (questionnaireResponses.length > 0) {
+          console.log("✅ Réponses du questionnaire :", questionnaireResponses);
+           let wsQuestionnaire = XLSX.utils.json_to_sheet(questionnaireResponses);
+          XLSX.utils.book_append_sheet(wb, wsQuestionnaire, "Questionnaire");
+         }
+
+         if (personalityResponses.length > 0) {
+          let wsPersonality = XLSX.utils.json_to_sheet(personalityResponses);
+          XLSX.utils.book_append_sheet(wb, wsPersonality, "Personnalité");
         }
 
-        loadEmailList();
-        document.getElementById("questionnaireForm").addEventListener("submit", function(e) {
+         if (asdSsdResponses.length > 0) {
+          let wsAsdSsd = XLSX.utils.json_to_sheet(asdSsdResponses);
+          XLSX.utils.book_append_sheet(wb, wsAsdSsd, "ASD-SSD Continuum");
+        }
+
+         if (Object.keys(demographicResponses).length > 0) {
+          let wsDemographics = XLSX.utils.json_to_sheet([demographicResponses]);
+          XLSX.utils.book_append_sheet(wb, wsDemographics, "Données démographiques");
+         }
+
+         if (cybersecurityResponses.length > 0) {
+          let wsCyber = XLSX.utils.json_to_sheet(cybersecurityResponses);
+          XLSX.utils.book_append_sheet(wb, wsCyber, "Cybersécurité");
+         }
+
+          XLSX.writeFile(wb, "resultats_experience.xlsx");
+          window.location.href = "ccalibrage.html";
+
+          loadEmailList();
+
+          document.getElementById("questionnaireForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             questionnaireResponses = questionnaireItems.map((question, i) => {
-                const key = `q${i + 1}`;
-                return {
-                    Question: question,
-                    Réponse: formData.get(key)
-                };
+              const key = `q${i + 1}`;
+              return {
+                Question: question,
+                Réponse: formData.get(key)
+              };
             });
 
-            console.log("Réponses questionnaire :", questionnaireResponses); // Optionnel
+            console.log("Réponses questionnaire :", questionnaireResponses);
 
             document.getElementById("questionnaireContainer").style.display = "none";
             generatePersonalityQuestionnaire();
             document.getElementById("personalityContainer").style.display = "block";
+          });
 
-        });
-
-        document.getElementById("personalityForm").addEventListener("submit", function(e) {
+          document.getElementById("personalityForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             personalityResponses = personalityItems.map((question, i) => {
-                const key = `p${i + 1}`;
-                return {
-                    Question: question,
-                    Réponse: formData.get(key)
-                };
+              const key = `p${i + 1}`;
+              return {
+                Question: question,
+                Réponse: formData.get(key)
+              };
             });
+
             document.getElementById("personalityContainer").style.display = "none";
             generateAsdSsdQuestionnaire();
             document.getElementById("asdSsdContainer").style.display = "block";
+          });
 
-        });
-        document.getElementById("asdSsdForm").addEventListener("submit", function(e) {
+          document.getElementById("asdSsdForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             asdSsdResponses = asdSsdItems.map((question, i) => {
-                const key = `a${i + 1}`;
-                return {
-                    Question: question,
-                    Réponse: formData.get(key)
-                };
+              const key = `a${i + 1}`;
+              return {
+                Question: question,
+                Réponse: formData.get(key)
+              };
             });
 
             document.getElementById("asdSsdContainer").style.display = "none";
             generateCybersecurityQuestionnaire();
             document.getElementById("cybersecurityContainer").style.display = "block";
+          });
 
-        });
-        document.getElementById("cybersecurityForm").addEventListener("submit", function(e) {
+          document.getElementById("cybersecurityForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             cybersecurityResponses = cybersecurityItems.map((question, i) => {
-                const key = `c${i + 1}`;
-                return {
-                    Question: question,
-                    Réponse: formData.get(key)
-                };
+              const key = `c${i + 1}`;
+              return {
+                Question: question,
+                Réponse: formData.get(key)
+              };
             });
 
             document.getElementById("cybersecurityContainer").style.display = "none";
             document.getElementById("demographicContainer").style.display = "block";
-        });
-        document.getElementById("demographicForm").addEventListener("submit", function(e) {
+          });
+
+          document.getElementById("demographicForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             demographicResponses = {
-                Age: formData.get("age"),
-                Sexe: formData.get("sex"),
-                "Niveau d'études": formData.get("education"),
-                Dyslexie: formData.get("dyslexic"),
-                Num_participant: formData.get("num_participant"),
+              Age: formData.get("age"),
+              Sexe: formData.get("sex"),
+              "Niveau d'études": formData.get("education"),
+              Dyslexie: formData.get("dyslexic"),
+              Num_participant: formData.get("num_participant"),
             };
 
             document.getElementById("demographicContainer").style.display = "none";
             document.getElementById("finalMessage").style.display = "block";
             document.getElementById("downloadBtn").style.display = "inline-block";
             document.getElementById("downloadBtn").disabled = false;
-        });
-
-
+          });
 
     </script>
 </body>
